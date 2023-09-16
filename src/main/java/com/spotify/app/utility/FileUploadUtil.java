@@ -12,6 +12,9 @@ import java.nio.file.StandardCopyOption;
 
 @Slf4j
 public class FileUploadUtil {
+
+	public final static String baseUrl = "http://localhost:8080/api/v1" ;
+	public final static String baseUrlFail = "https://cdn.tgdd.vn/hoi-dap/580732/loi-404-not-found-la-gi-9-cach-khac-phuc-loi-404-not-5-800x450.jpg";
 	public static void saveFile(String uploadDir, String fileName,
 			MultipartFile multipartFile) throws IOException {
 		Path uploadPath = Paths.get(uploadDir);

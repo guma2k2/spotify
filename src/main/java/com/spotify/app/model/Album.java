@@ -2,6 +2,7 @@ package com.spotify.app.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.spotify.app.utility.FileUploadUtil;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -42,6 +43,24 @@ public class Album {
     @Builder.Default
     private List<AlbumSong> albumSongList = new ArrayList<>();
 
+
+    @Transient
+    public String getImagePath() {
+        String baseUrl = FileUploadUtil.baseUrl;
+        if(image!=null) {
+            return baseUrl+"/album/viewImage/" + this.id ;
+        }
+        return FileUploadUtil.baseUrlFail;
+    }
+
+    @Transient
+    public String getThumbnailPath() {
+        String baseUrl = FileUploadUtil.baseUrl;
+        if(thumbnail!=null) {
+            return baseUrl+"/album/viewThumbnail/" + this.id ;
+        }
+        return FileUploadUtil.baseUrlFail;
+    }
 
     public void addSong(Song song) {
         AlbumSong albumSong = new AlbumSong(this, song);

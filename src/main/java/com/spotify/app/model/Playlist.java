@@ -1,6 +1,7 @@
 package com.spotify.app.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.spotify.app.utility.FileUploadUtil;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -23,9 +24,13 @@ public class Playlist {
 
     @Column(length = 50)
     private String description;
-    private String image ;
+    @Lob
+    @Column(columnDefinition = "LONGBLOB")
+    private byte[] image;
+    @Lob
+    @Column(columnDefinition = "LONGBLOB")
+    private byte[] thumbnail;
 
-    private String thumbnail ;
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "playlist")
     @Builder.Default
     private List<PlaylistSong> playlistSongList = new ArrayList<>();
@@ -50,6 +55,23 @@ public class Playlist {
     public int getSumSongCount() {
         return playlistSongList.stream()
                 .mapToInt((playlistSong) -> playlistSong.getSong() != null ? 1 : 0).sum();
+    }
+
+    @Transient
+    public String getImagePath() {
+        String baseUrl = FileUploadUtil.baseUrl;
+        if(image!=null) {
+            return baseUrl+"/playlist/viewImage/" + this.id ;
+        }
+        return FileUploadUtil.baseUrlFail;
+    }
+    @Transient
+    public String getThumbnailPath() {
+        String baseUrl = FileUploadUtil.baseUrl;
+        if(thumbnail!=null) {
+            return baseUrl+"/playlist/viewThumbnail/" + this.id ;
+        }
+        return FileUploadUtil.baseUrlFail;
     }
 
     public void addSong(Song song) {

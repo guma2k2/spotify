@@ -1,6 +1,7 @@
 package com.spotify.app.service;
 import com.spotify.app.dto.SongDTO;
 import com.spotify.app.dto.SongResponseDTO;
+import com.spotify.app.exception.UserException;
 import com.spotify.app.mapper.SongMapper;
 import com.spotify.app.mapper.SongResponseMapper;
 import com.spotify.app.model.Song;
@@ -20,8 +21,7 @@ public class SongService {
     private final SongRepository songRepository ;
 
     public Song get(Long songId) {
-        Song song = songRepository.findById(songId).orElseThrow() ;
-        return song;
+        return songRepository.findById(songId).orElseThrow(() -> new UserException("Song not found")) ;
     }
 
     public SongResponseDTO getById(Long songId) {
@@ -44,6 +44,17 @@ public class SongService {
 
         } else {
             if (song.getAudio().isEmpty()) song.setAudio(null);
+        }
+        songRepository.save(song);
+    }
+    public void saveSongImage(MultipartFile image, Long songId) {
+        Song song = songRepository.findById(songId).orElseThrow(() -> new UserException("Song not found"));
+        if(image != null) {
+            try {
+                song.setImage(image.getBytes());
+            } catch (IOException e) {
+                throw new UserException(e.getMessage());
+            }
         }
         songRepository.save(song);
     }

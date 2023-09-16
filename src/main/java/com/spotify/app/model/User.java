@@ -3,6 +3,7 @@ package com.spotify.app.model;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.spotify.app.enums.Gender;
+import com.spotify.app.utility.FileUploadUtil;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -60,6 +61,16 @@ public class User implements UserDetails {
     @Builder.Default
     @JsonManagedReference
     private Set<Song> songs = new HashSet<>();
+
+
+    @Transient
+    public String getUserPhotoPath() {
+        String baseUrl = FileUploadUtil.baseUrl;
+        if(photo!=null) {
+            return baseUrl+"/user/viewPhoto/" + this.id ;
+        }
+        return FileUploadUtil.baseUrlFail;
+    }
 
 
     public void addSong(Song song) {

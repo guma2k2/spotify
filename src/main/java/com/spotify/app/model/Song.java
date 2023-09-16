@@ -3,6 +3,7 @@ package com.spotify.app.model;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.spotify.app.enums.Genre;
+import com.spotify.app.utility.FileUploadUtil;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -37,7 +38,10 @@ public class Song {
     private Genre genre ;
     private int duration;
     private String audio;
-    private String image ;
+
+    @Lob
+    @Column(columnDefinition = "LONGBLOB")
+    private byte[] image ;
 
     @ManyToMany(mappedBy = "songs")
     @Builder.Default
@@ -50,12 +54,15 @@ public class Song {
         return "/song-audios/" + this.id + "/" + this.audio;
     }
 
-
     @Transient
     public String getImagePath() {
-        if (id == null || image == null) return "https://www.pngitem.com/pimgs/m/150-1503945_transparent-user-png-default-user-image-png-png.png";
-        return "/song-images/" + this.id + "/" + this.image;
+        String baseUrl = FileUploadUtil.baseUrl;
+        if(image!=null) {
+            return baseUrl+"/song/viewImage/" + this.id ;
+        }
+        return FileUploadUtil.baseUrlFail;
     }
+
 
     public Song(Long id) {
         this.id = id;

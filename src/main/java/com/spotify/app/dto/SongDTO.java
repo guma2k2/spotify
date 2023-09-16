@@ -11,6 +11,7 @@ public record SongDTO (Long id,
                        LocalDateTime releaseDate,
                        Genre genre ,
                        int duration,
-                       String audioPath
+                       String audioPath,
+                       String imagePath
                        ) {
 }

@@ -3,6 +3,7 @@ package com.spotify.app.controller;
 import com.spotify.app.dto.UserDTO;
 import com.spotify.app.model.User;
 import com.spotify.app.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.AllArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -21,14 +22,16 @@ public class UserController {
     }
 
     @PostMapping("/uploadPhoto/{userId}")
-    public void uploadPhoto(
+    @Operation(description = "Save file image end with `png` only")
+    public ResponseEntity<?> uploadPhoto(
             @RequestParam("photo") MultipartFile photo,
             @PathVariable("userId") Long userId
     ) {
         // Todo:
         userService.uploadPhoto(photo, userId);
+        return ResponseEntity.ok().body("Save photo of user success");
     }
-    @GetMapping("/view/{userId}")
+    @GetMapping("/viewPhoto/{userId}")
     public ResponseEntity<?> readImage(@PathVariable("userId") Long userId) {
         User user = userService.get(userId);
         return ResponseEntity.ok()

@@ -12,5 +12,6 @@ public record SongResponseDTO(Long id,
                               Genre genre ,
                               int duration,
                               String audioPath,
+                              String imagePath,
                               Set<UserResponseDTO> users) {
 }

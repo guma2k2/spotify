@@ -92,18 +92,15 @@ public class PlaylistRepositoryTest {
         //         Init category
         Category parent = Category.builder()
                 .title("parent1")
-                .image("image")
                 .build();
 
         Category child1 = Category.builder()
                 .title("child1")
-                .image("image")
                 .categoryParent(parent)
                 .build();
 
         Category child2 = Category.builder()
                 .title("child2")
-                .image("image")
                 .categoryParent(parent)
                 .build();
         parent.addChild(child2);

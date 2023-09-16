@@ -1,8 +1,12 @@
 package com.spotify.app.controller;
 
 import com.spotify.app.dto.SongResponseDTO;
+import com.spotify.app.model.Song;
+import com.spotify.app.model.User;
 import com.spotify.app.service.SongService;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.AllArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -35,6 +39,28 @@ public class SongController {
         songService.saveSongAudio(audio, songId);
 
         return ResponseEntity.ok().body("OK");
+    }
+
+    @PostMapping("/uploadImage/{songId}")
+    @Operation(description = "Save file image end with `png` only")
+    public ResponseEntity<?> uploadImage(
+            @RequestParam("image") MultipartFile image,
+            @PathVariable("songId") Long songId
+    )  {
+
+        // Todo: save image
+
+        songService.saveSongImage(image, songId);
+
+        return ResponseEntity.ok().body("Save image of song success");
+    }
+
+    @GetMapping("/viewImage/{songId}")
+    public ResponseEntity<?> readImage(@PathVariable("songId") Long songId) {
+        Song song = songService.get(songId);
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType("image/png"))
+                .body(song.getImage());
     }
 
 }

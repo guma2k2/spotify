@@ -1,6 +1,7 @@
 package com.spotify.app.model;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.spotify.app.utility.FileUploadUtil;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -18,9 +19,17 @@ public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id ;
-    @Column(length = 20, unique = true)
+    @Column(length = 100, unique = true)
     private String title ;
-    private String image;
+
+    @Lob
+    @Column(columnDefinition = "LONGBLOB")
+    private byte[] image;
+
+    @Lob
+    @Column(columnDefinition = "LONGBLOB")
+    private byte[] thumbnail;
+
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "paren_id")
@@ -39,6 +48,24 @@ public class Category {
     @Builder.Default
     @JsonManagedReference
     private Set<Playlist> playlists = new HashSet<>();
+
+
+    @Transient
+    public String getImagePath() {
+        String baseUrl = FileUploadUtil.baseUrl;
+        if(image!=null) {
+            return baseUrl+"/category/viewImage/" + this.id ;
+        }
+        return FileUploadUtil.baseUrlFail;
+    }
+    @Transient
+    public String getThumbnailPath() {
+        String baseUrl = FileUploadUtil.baseUrl;
+        if(thumbnail!=null) {
+            return baseUrl+"/category/viewThumbnail/" + this.id ;
+        }
+        return FileUploadUtil.baseUrlFail;
+    }
 
 
     public void addChild(Category category) {

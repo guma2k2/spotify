@@ -15,8 +15,8 @@ public interface CategoryRepository extends JpaRepository<Category, Integer> {
     @Query(
         """
             SELECT c
-            FROM Category c \s
-            WHERE c.categoryParent is null      \s
+            FROM Category c
+            WHERE c.categoryParent is null
         """
     )
     Set<Category> listAllParent();

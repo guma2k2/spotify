@@ -1,8 +1,9 @@
-package com.spotify.app.dto;
+package com.spotify.app.dto.response;
 
 import com.spotify.app.enums.Genre;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 
 public record SongResponseDTO(Long id,
@@ -10,8 +11,11 @@ public record SongResponseDTO(Long id,
                               String lyric,
                               LocalDateTime releaseDate,
                               Genre genre ,
-                              int duration,
+                              LocalDateTime createdAt,
+                              String duration,
                               String audioPath,
                               String imagePath,
-                              Set<UserResponseDTO> users) {
+                              Set<UserResponseDTO> users,
+
+                              List<AlbumResponseDTO> albums) {
 }

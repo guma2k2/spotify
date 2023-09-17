@@ -1,6 +1,6 @@
 package com.spotify.app.mapper;
 
-import com.spotify.app.dto.UserResponseDTO;
+import com.spotify.app.dto.response.UserResponseDTO;
 import com.spotify.app.model.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;

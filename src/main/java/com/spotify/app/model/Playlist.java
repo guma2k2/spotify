@@ -22,7 +22,7 @@ public class Playlist {
     @Column(length = 30)
     private String name ;
 
-    @Column(length = 50)
+    @Column(length = 100)
     private String description;
     @Lob
     @Column(columnDefinition = "LONGBLOB")
@@ -34,20 +34,27 @@ public class Playlist {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "playlist")
     @Builder.Default
     private List<PlaylistSong> playlistSongList = new ArrayList<>();
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user ;
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "playlist")
+    @Builder.Default
+    private List<PlaylistUser> playlistUserList = new ArrayList<>();
 
     @ManyToMany(mappedBy = "playlists")
     @JsonBackReference
     @Builder.Default
     private Set<Category> categories = new HashSet<>() ;
 
+
     @Transient
-    public int getSumViewCount() {
+    public long getLikedCount() {
+        return this.playlistUserList.size();
+    }
+
+    @Transient
+    public long getSumViewCount() {
         return playlistSongList.stream()
-                .mapToInt((playlistSong) -> playlistSong.getSong()
-                        .getDuration())
+                .mapToLong((playlistSong) -> playlistSong.getSong()
+                        .getViewCount())
                 .sum();
     }
 
@@ -74,14 +81,20 @@ public class Playlist {
         return FileUploadUtil.baseUrlFail;
     }
 
+
+    public void addUser(User user) {
+        PlaylistUser playlistUser = new PlaylistUser(this,user);
+        playlistUserList.add(playlistUser);
+    }
+
+
     public void addSong(Song song) {
         PlaylistSong playlistSong = new PlaylistSong(this, song);
         playlistSongList.add(playlistSong) ;
     }
 
     public void removeSong(Song song) {
-        for (Iterator<PlaylistSong> iterator = playlistSongList.iterator();
-             iterator.hasNext(); ) {
+        for (Iterator<PlaylistSong> iterator = playlistSongList.iterator(); iterator.hasNext(); ) {
             PlaylistSong playlistSong = iterator.next();
 
             if (playlistSong.getPlaylist().equals(this) &&

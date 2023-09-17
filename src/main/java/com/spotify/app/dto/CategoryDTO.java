@@ -1,5 +1,7 @@
 package com.spotify.app.dto;
 
+import com.spotify.app.dto.response.PlaylistResponseDTO;
+
 import java.util.Set;
 
 public record CategoryDTO(Integer id,

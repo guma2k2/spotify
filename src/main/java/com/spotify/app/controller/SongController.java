@@ -1,8 +1,7 @@
 package com.spotify.app.controller;
 
-import com.spotify.app.dto.SongResponseDTO;
+import com.spotify.app.dto.response.SongResponseDTO;
 import com.spotify.app.model.Song;
-import com.spotify.app.model.User;
 import com.spotify.app.service.SongService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.AllArgsConstructor;

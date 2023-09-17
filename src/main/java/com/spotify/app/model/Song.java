@@ -2,13 +2,16 @@ package com.spotify.app.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.spotify.app.enums.Genre;
 import com.spotify.app.utility.FileUploadUtil;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Setter
@@ -47,6 +50,7 @@ public class Song {
     @Builder.Default
     @JsonBackReference
     private Set<User> users = new HashSet<>() ;
+
 
     @Transient
     public String getAudioPath() {

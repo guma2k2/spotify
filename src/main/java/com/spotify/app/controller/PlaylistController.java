@@ -1,14 +1,11 @@
 package com.spotify.app.controller;
 
 import com.spotify.app.dto.PlaylistDTO;
-import com.spotify.app.dto.PlaylistResponseDTO;
-import com.spotify.app.model.Category;
+import com.spotify.app.dto.response.PlaylistResponseDTO;
 import com.spotify.app.model.Playlist;
-import com.spotify.app.repository.PlaylistRepository;
 import com.spotify.app.service.PlaylistService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.AllArgsConstructor;
-import org.springframework.data.repository.query.Param;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -41,6 +38,25 @@ public class PlaylistController {
         playlistService.uploadFiles(image,thumbnail,playlistId);
         return ResponseEntity.ok().body(String.format("Upload files for playlist %d success",playlistId));
     }
+
+    @GetMapping("/{playlistId}/add/{userId}")
+    public ResponseEntity<?> addUserToLikedPlaylist(
+            @PathVariable("playlistId") Long playlistId,
+            @PathVariable("userId") Long userId
+    ) {
+        playlistService.addUserToLikedPlaylist(userId,playlistId);
+        return ResponseEntity.ok().body(String.format("Add user %d to playlist %d successful",userId,playlistId));
+    }
+
+    @GetMapping("/{playlistId}/remove/{userId}")
+    public ResponseEntity<?> removeUserFromLikedPlaylist(
+            @PathVariable("playlistId") Long playlistId,
+            @PathVariable("userId") Long userId
+    ) {
+        playlistService.removeUserFromLikedPlaylist(userId,playlistId);
+        return ResponseEntity.ok().body(String.format("Remove user %d from playlist %d successful",userId,playlistId));
+    }
+
 
     @GetMapping("/viewImage/{playlistId}")
     public ResponseEntity<?> viewImage(@PathVariable("playlistId") Long playlistId) {

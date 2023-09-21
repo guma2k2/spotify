@@ -3,7 +3,7 @@ package com.spotify.app.service;
 
 import com.spotify.app.dto.AlbumDTO;
 import com.spotify.app.dto.SongDTO;
-import com.spotify.app.exception.UserException;
+import com.spotify.app.exception.ResourceNotFoundException;
 import com.spotify.app.mapper.AlbumMapper;
 import com.spotify.app.mapper.SongMapper;
 import com.spotify.app.model.*;
@@ -35,32 +35,32 @@ public class AlbumService {
         List<SongDTO> songDTOS = SongMapper.INSTANCE.songsToSongsDTO(songs);
 
         // Get album by id
-        Album album = albumRepository.findByIdCustom(albumId).orElseThrow(() -> new UserException("Album not found"));
+        Album album = albumRepository.findByIdCustom(albumId).orElseThrow(() -> new ResourceNotFoundException("Album not found"));
 
         return AlbumMapper.INSTANCE.albumToAlbumDTO(album, songDTOS);
     }
 
     @Transactional
     public void uploadFiles(MultipartFile image, MultipartFile thumbnail, Long albumId) {
-        Album album = albumRepository.findById(albumId).orElseThrow(() -> new UserException("Album not found"));
+        Album album = albumRepository.findById(albumId).orElseThrow(() -> new ResourceNotFoundException("Album not found"));
         if(image != null) {
             try {
                 album.setImage(image.getBytes());
             } catch (IOException e) {
-                throw new UserException(e.getMessage());
+                throw new ResourceNotFoundException(e.getMessage());
             }
         }
         if(thumbnail != null) {
             try {
                 album.setThumbnail(thumbnail.getBytes());
             } catch (IOException e) {
-                throw new UserException(e.getMessage());
+                throw new ResourceNotFoundException(e.getMessage());
             }
         }
         albumRepository.save(album);
     }
 
     public Album get(Long albumId) {
-        return albumRepository.findById(albumId).orElseThrow(() -> new UserException("Album not found"));
+        return albumRepository.findById(albumId).orElseThrow(() -> new ResourceNotFoundException("Album not found"));
     }
 }

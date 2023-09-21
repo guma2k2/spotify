@@ -1,6 +1,6 @@
 package com.spotify.app.security.auth;
 import com.spotify.app.exception.HeaderNotFoundException;
-import com.spotify.app.exception.UserException;
+import com.spotify.app.exception.ResourceNotFoundException;
 import com.spotify.app.mapper.UserMapper;
 import com.spotify.app.model.Role;
 import com.spotify.app.model.User;
@@ -31,7 +31,7 @@ public class AuthenticationService {
     public AuthenticationResponse register(RegisterRequest request) {
 //        log.info(request.getEmail());
         if(userRepository.findByEmail(request.getEmail()).isPresent()){
-            throw  new UserException("The email exited");
+            throw  new ResourceNotFoundException("The email exited");
         }
 
         Role role = roleRepository.findByName("ROLE_CUSTOMER").orElseThrow();
@@ -63,7 +63,7 @@ public class AuthenticationService {
         );
 
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new UserException("User cannot be found by email"));
+                .orElseThrow(() -> new ResourceNotFoundException("User cannot be found by email"));
 
         var jwtToken = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
@@ -92,7 +92,7 @@ public class AuthenticationService {
         if (userEmail != null) {
             User user = userRepository.findByEmail(userEmail)
                     .orElseThrow(() ->
-                            new UserException(String.format("The user with email: %s was not found", userEmail)));
+                            new ResourceNotFoundException(String.format("The user with email: %s was not found", userEmail)));
             if (jwtService.isTokenValid(refreshToken, user)) {
                 var accessToken = jwtService.generateToken(user);
                 authResponse = AuthenticationResponse.builder()

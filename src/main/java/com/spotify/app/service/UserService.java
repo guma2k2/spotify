@@ -1,7 +1,7 @@
 package com.spotify.app.service;
 
 import com.spotify.app.dto.UserDTO;
-import com.spotify.app.exception.UserException;
+import com.spotify.app.exception.ResourceNotFoundException;
 import com.spotify.app.mapper.UserMapper;
 import com.spotify.app.model.User;
 import com.spotify.app.repository.UserRepository;
@@ -21,24 +21,24 @@ public class UserService {
     public UserDTO getUserById(Long userId) {
         Optional<User> user = userRepository.findByIdCustom(userId) ;
         if(!user.isPresent()) {
-            throw new UserException("User not found") ;
+            throw new ResourceNotFoundException("User not found") ;
         }
         return UserMapper.INSTANCE.userToUserDTO(user.get()) ;
     }
 
     public void uploadPhoto(MultipartFile photo, Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserException("User not found")) ;
+                .orElseThrow(() -> new ResourceNotFoundException("User not found")) ;
         try {
             user.setPhoto(photo.getBytes());
         } catch (IOException e) {
-            throw new UserException(e.getMessage());
+            throw new ResourceNotFoundException(e.getMessage());
         }
 
         userRepository.save(user);
     }
 
     public User get(Long userId) {
-        return userRepository.findById(userId).orElseThrow(() -> new UserException("User not found"));
+        return userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
 }

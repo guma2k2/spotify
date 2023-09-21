@@ -4,9 +4,8 @@ package com.spotify.app.service;
 import com.spotify.app.dto.PlaylistDTO;
 import com.spotify.app.dto.response.PlaylistResponseDTO;
 import com.spotify.app.dto.response.SongResponseDTO;
-import com.spotify.app.exception.UserException;
+import com.spotify.app.exception.ResourceNotFoundException;
 import com.spotify.app.mapper.PlaylistMapper;
-import com.spotify.app.mapper.PlaylistResponseMapper;
 import com.spotify.app.model.*;
 import com.spotify.app.repository.PlaylistRepository;
 import com.spotify.app.repository.PlaylistSongRepository;
@@ -46,11 +45,11 @@ public class PlaylistService {
     public void addUserToLikedPlaylist(Long userId, Long playlistId) {
         User user = userRepository.
                 findById(userId).
-                orElseThrow(() -> new UserException("User not found"));
+                orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         Playlist playlist = playlistRepository.
                 findById(playlistId).
-                orElseThrow(() -> new UserException("Playlist not found"));
+                orElseThrow(() -> new ResourceNotFoundException("Playlist not found"));
 
         playlist.addUser(user);
         playlistRepository.save(playlist);
@@ -75,7 +74,7 @@ public class PlaylistService {
                 .collect(Collectors.toList());
 
         // Get playlist by Id
-        Playlist playlist = playlistRepository.findById(playlistId).orElseThrow(() -> new UserException("Playlist not found"));
+        Playlist playlist = playlistRepository.findById(playlistId).orElseThrow(() -> new ResourceNotFoundException("Playlist not found"));
 
         return PlaylistMapper.INSTANCE.playlistToPlaylistDTO(playlist, songDTOS);
     }
@@ -84,25 +83,25 @@ public class PlaylistService {
 
     @Transactional
     public void uploadFiles(MultipartFile image, MultipartFile thumbnail, Long albumId) {
-        Playlist playlist = playlistRepository.findById(albumId).orElseThrow(() -> new UserException("Playlist not found"));
+        Playlist playlist = playlistRepository.findById(albumId).orElseThrow(() -> new ResourceNotFoundException("Playlist not found"));
         if (image != null) {
             try {
                 playlist.setImage(image.getBytes());
             } catch (IOException e) {
-                throw new UserException(e.getMessage());
+                throw new ResourceNotFoundException(e.getMessage());
             }
         }
         if (thumbnail != null) {
             try {
                 playlist.setThumbnail(thumbnail.getBytes());
             } catch (IOException e) {
-                throw new UserException(e.getMessage());
+                throw new ResourceNotFoundException(e.getMessage());
             }
         }
         playlistRepository.save(playlist);
     }
 
     public Playlist get(Long playlistId) {
-        return playlistRepository.findById(playlistId).orElseThrow(() -> new UserException("Playlist not found"));
+        return playlistRepository.findById(playlistId).orElseThrow(() -> new ResourceNotFoundException("Playlist not found"));
     }
 }

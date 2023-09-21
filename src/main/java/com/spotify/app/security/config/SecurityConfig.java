@@ -1,6 +1,6 @@
 package com.spotify.app.security.config;
 
-import com.spotify.app.exception.UserException;
+import com.spotify.app.exception.ResourceNotFoundException;
 import com.spotify.app.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +23,7 @@ public class SecurityConfig {
     @Bean
     public UserDetailsService userDetailsService() {
         return username -> userRepository.findByEmail(username).orElseThrow(() ->
-                new UserException("User cannot be found by email"));
+                new ResourceNotFoundException("User cannot be found by email"));
     }
 
     @Bean

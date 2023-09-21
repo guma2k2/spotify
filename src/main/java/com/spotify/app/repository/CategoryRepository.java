@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
 import java.util.Set;
 
 @Repository
@@ -33,4 +34,16 @@ public interface CategoryRepository extends JpaRepository<Category, Integer> {
             """
     )
     Set<Category> listAllChildByParenId(@Param("parentId") Integer parentId);
+
+
+
+    @Query("""
+            
+            SELECT c
+            FROM Category c
+            LEFT JOIN FETCH c.playlists p
+            WHERE c.id = :id
+            
+            """)
+    Optional<Category> findByIdCustom(@Param("id") Integer id);
 }

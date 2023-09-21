@@ -44,9 +44,10 @@ public class CategoryController {
 
     @PostMapping("/uploadFile/{cateId}")
     @Operation(description = "Save file image end with `png` only / save image and thumbnail")
-    public ResponseEntity<?> uploadFiles(@RequestParam("image") MultipartFile image,
-                                         @RequestParam("thumbnail") MultipartFile thumbnail,
-                                         @PathVariable("cateId") Integer cateId){
+    public ResponseEntity<?> uploadFiles( @RequestParam("image") MultipartFile image,
+                                          @RequestParam("thumbnail") MultipartFile thumbnail,
+                                          @PathVariable("cateId") Integer cateId
+    ) {
         categoryService.uploadFiles(image,thumbnail,cateId);
         return ResponseEntity.ok().body(String.format("Upload files for category %d success",cateId));
     }
@@ -64,5 +65,10 @@ public class CategoryController {
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType("image/png"))
                 .body(category.getThumbnail());
+    }
+
+    @GetMapping("/{cateId}")
+    public CategoryDTO getById(@PathVariable("cateId") Integer categoryId) {
+        return categoryService.findByIdCustom(categoryId);
     }
 }

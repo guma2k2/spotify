@@ -20,10 +20,14 @@ public interface SongResponseMapper {
     @Mapping(target = "albums",source = "albumResponseDTOS")
     @Mapping(target = "createdAt", source = "createdOn")
     @Mapping(target = "duration" , expression = "java(getDuration(song))")
+    @Mapping(target = "releaseDate", expression = "java(getReleaseDate(song))" , dateFormat = "dd/MM/yyyy hh:mm:ss")
     SongResponseDTO songToSongResponseDTO(Song song,
                                           List<AlbumResponseDTO> albumResponseDTOS,
                                           LocalDateTime createdOn);
 
+    default LocalDateTime getReleaseDate(Song song) {
+        return song.getReleaseDate();
+    }
     default String getDuration(Song song) {
         int minute = song.getDuration()/60;
         int second = song.getDuration() - minute * 60 ;

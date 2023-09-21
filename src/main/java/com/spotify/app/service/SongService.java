@@ -1,7 +1,12 @@
 package com.spotify.app.service;
+import com.google.cloud.storage.Bucket;
+import com.google.cloud.storage.Storage;
+import com.google.cloud.storage.StorageOptions;
+import org.springframework.web.multipart.MultipartFile;
+import java.io.IOException;
 import com.spotify.app.dto.response.AlbumResponseDTO;
 import com.spotify.app.dto.response.SongResponseDTO;
-import com.spotify.app.exception.UserException;
+import com.spotify.app.exception.ResourceNotFoundException;
 import com.spotify.app.mapper.AlbumResponseMapper;
 import com.spotify.app.mapper.SongResponseMapper;
 import com.spotify.app.model.Album;
@@ -14,9 +19,7 @@ import com.spotify.app.utility.FileUploadUtil;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,7 +32,7 @@ public class SongService {
     private final AlbumSongRepository albumSongRepository;
 
     public Song get(Long songId) {
-        return songRepository.findById(songId).orElseThrow(() -> new UserException("Song not found")) ;
+        return songRepository.findById(songId).orElseThrow(() -> new ResourceNotFoundException("Song not found")) ;
     }
 
     public SongResponseDTO getById(Long songId) {
@@ -56,12 +59,12 @@ public class SongService {
         songRepository.save(song);
     }
     public void saveSongImage(MultipartFile image, Long songId) {
-        Song song = songRepository.findById(songId).orElseThrow(() -> new UserException("Song not found"));
+        Song song = songRepository.findById(songId).orElseThrow(() -> new ResourceNotFoundException("Song not found"));
         if(image != null) {
             try {
                 song.setImage(image.getBytes());
             } catch (IOException e) {
-                throw new UserException(e.getMessage());
+                throw new ResourceNotFoundException(e.getMessage());
             }
         }
         songRepository.save(song);
@@ -77,6 +80,19 @@ public class SongService {
         List<AlbumResponseDTO> albumResponseDTOS = AlbumResponseMapper.INSTANCE.albumsToAlbumsResponseDTO(albums);
 
         return SongResponseMapper.INSTANCE.songToSongResponseDTO(song, albumResponseDTOS, playlistSong.getCreatedOn());
+    }
+
+
+    public void uploadFile(MultipartFile file) throws IOException {
+        // Get a reference to the Firebase Storage bucket
+        Storage storage = (Storage) StorageOptions.getDefaultInstance().getService();
+        Bucket bucket = storage.get("your-firebase-storage-bucket.appspot.com"); // Replace with your bucket name
+
+        // Define the destination path for the uploaded file
+        String destinationPath = "song-audio/" + file.getOriginalFilename(); // Customize the path as needed
+
+        // Upload the file
+        bucket.create(destinationPath, file.getBytes(), file.getContentType());
     }
 
 

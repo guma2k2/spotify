@@ -18,12 +18,14 @@ public class UserService {
 
     private final UserRepository userRepository ;
 
+    private final UserMapper userMapper;
+
     public UserDTO getUserById(Long userId) {
         Optional<User> user = userRepository.findByIdCustom(userId) ;
         if(!user.isPresent()) {
             throw new ResourceNotFoundException("User not found") ;
         }
-        return UserMapper.INSTANCE.userToUserDTO(user.get()) ;
+        return userMapper.userToUserDTO(user.get()) ;
     }
 
     public void uploadPhoto(MultipartFile photo, Long userId) {

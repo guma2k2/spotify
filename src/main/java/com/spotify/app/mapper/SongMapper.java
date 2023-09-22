@@ -7,7 +7,9 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
+import java.text.DateFormat;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Mapper
@@ -27,8 +29,10 @@ public interface SongMapper {
         String secondString = second % 10 > 0 ? second+"" : "0" + second;
         return minute + ":" +secondString ;
     }
-    default LocalDateTime getReleaseDate(Song song) {
-        return song.getReleaseDate();
+    default String getReleaseDate(Song song) {
+        String pattern = "dd/MM/yyyy hh:mm:ss";
+        DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern(pattern);
+        return song.getReleaseDate().format(dateFormat) ;
     }
 
 }

@@ -9,13 +9,13 @@ import java.util.Set;
 public record SongResponseDTO(Long id,
                               String name,
                               String lyric,
-                              LocalDateTime releaseDate,
+                              String releaseDate,
                               Genre genre ,
-                              LocalDateTime createdAt,
+                              String createdAt,
                               String duration,
                               String audioPath,
                               String imagePath,
                               Set<UserResponseDTO> users,
 
-                              List<AlbumResponseDTO> albums) {
+                              List<AlbumResponseDTO> albums ) {
 }

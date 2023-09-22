@@ -20,6 +20,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -79,20 +80,10 @@ public class SongService {
 
         List<AlbumResponseDTO> albumResponseDTOS = AlbumResponseMapper.INSTANCE.albumsToAlbumsResponseDTO(albums);
 
-        return SongResponseMapper.INSTANCE.songToSongResponseDTO(song, albumResponseDTOS, playlistSong.getCreatedOn());
-    }
+        String pattern = "dd/MM/yyyy hh:mm:ss";
+        DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern(pattern);
 
-
-    public void uploadFile(MultipartFile file) throws IOException {
-        // Get a reference to the Firebase Storage bucket
-        Storage storage = (Storage) StorageOptions.getDefaultInstance().getService();
-        Bucket bucket = storage.get("your-firebase-storage-bucket.appspot.com"); // Replace with your bucket name
-
-        // Define the destination path for the uploaded file
-        String destinationPath = "song-audio/" + file.getOriginalFilename(); // Customize the path as needed
-
-        // Upload the file
-        bucket.create(destinationPath, file.getBytes(), file.getContentType());
+        return SongResponseMapper.INSTANCE.songToSongResponseDTO(song, albumResponseDTOS, playlistSong.getCreatedOn().format(dateFormat));
     }
 
 

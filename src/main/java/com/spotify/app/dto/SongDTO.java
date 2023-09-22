@@ -8,7 +8,7 @@ import java.util.Set;
 public record SongDTO (Long id,
                        String name,
                        String lyric,
-                       LocalDateTime releaseDate,
+                       String releaseDate,
                        Genre genre ,
                        String duration,
                        String audioPath,

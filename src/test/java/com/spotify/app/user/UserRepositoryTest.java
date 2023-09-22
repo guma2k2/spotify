@@ -27,7 +27,7 @@ public class UserRepositoryTest {
 
     @Test
     @DisplayName("Test fetching user by Id")
-    public void whenGetUserById_thenReturnSuccess() {
+    public void whenGetUserByIdCustom_thenReturnSuccess() {
         Long userId = 2L ;
         assert (underTest.findAll().size() > 0 );
         User user = underTest.findByIdCustom(userId).get() ;

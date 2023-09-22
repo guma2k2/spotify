@@ -9,9 +9,10 @@ import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface SongResponseMapper {
 
 
@@ -20,13 +21,15 @@ public interface SongResponseMapper {
     @Mapping(target = "albums",source = "albumResponseDTOS")
     @Mapping(target = "createdAt", source = "createdOn")
     @Mapping(target = "duration" , expression = "java(getDuration(song))")
-    @Mapping(target = "releaseDate", expression = "java(getReleaseDate(song))" , dateFormat = "dd/MM/yyyy hh:mm:ss")
+    @Mapping(target = "releaseDate", expression = "java(getReleaseDate(song))")
     SongResponseDTO songToSongResponseDTO(Song song,
                                           List<AlbumResponseDTO> albumResponseDTOS,
-                                          LocalDateTime createdOn);
+                                          String createdOn);
 
-    default LocalDateTime getReleaseDate(Song song) {
-        return song.getReleaseDate();
+    default String getReleaseDate(Song song) {
+        String pattern = "dd/MM/yyyy hh:mm:ss";
+        DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern(pattern);
+        return song.getReleaseDate().format(dateFormat) ;
     }
     default String getDuration(Song song) {
         int minute = song.getDuration()/60;

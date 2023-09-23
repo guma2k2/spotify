@@ -5,7 +5,9 @@ import com.spotify.app.dto.UserDTO;
 import com.spotify.app.enums.Gender;
 import com.spotify.app.exception.ResourceNotFoundException;
 import com.spotify.app.mapper.UserMapper;
+import com.spotify.app.mapper.UserResponseMapper;
 import com.spotify.app.model.User;
+import com.spotify.app.repository.RoleRepository;
 import com.spotify.app.repository.UserRepository;
 import com.spotify.app.service.UserService;
 import io.jsonwebtoken.lang.Assert;
@@ -17,6 +19,8 @@ import org.mockito.Mock;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 import static org.mockito.Mockito.when;
 import java.util.Optional;
 
@@ -28,12 +32,22 @@ public class UserServiceTest {
     private UserRepository userRepository ;
     @Mock
     private UserMapper userMapper ;
+    @Mock
+    private UserResponseMapper userResponseMapper ;
+
+    @Mock
+    private PasswordEncoder passwordEncoder ;
+
+    @Mock
+    private RoleRepository roleRepository ;
 
     private UserService underTest ;
 
+
+
     @BeforeEach
     public void setUp() {
-        underTest = new UserService(userRepository,userMapper) ;
+        underTest = new UserService(userRepository,userMapper, userResponseMapper,passwordEncoder,roleRepository) ;
     }
 
     @Test

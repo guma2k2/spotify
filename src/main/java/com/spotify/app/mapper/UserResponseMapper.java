@@ -5,7 +5,7 @@ import com.spotify.app.model.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface UserResponseMapper {
 
     UserResponseMapper INSTANCE = Mappers.getMapper( UserResponseMapper.class );

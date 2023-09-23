@@ -42,6 +42,22 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntityBuilder.build(err);
     }
 
+    @ExceptionHandler({DuplicateResourceException.class})
+    public ResponseEntity<Object> handleException(
+            DuplicateResourceException ex) {
+
+        List<String> details = new ArrayList<>();
+        details.add(ex.getMessage());
+        ApiError err = new ApiError(
+                LocalDateTime.now(),
+                HttpStatus.NOT_FOUND,
+                "Resource is exited" ,
+                details);
+
+        return ResponseEntityBuilder.build(err);
+    }
+
+
     @Override
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,

@@ -13,9 +13,11 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface AlbumMapper {
+
     AlbumMapper INSTANCE = Mappers.getMapper( AlbumMapper.class );
+
     @Mapping(target = "songs", source = "songDTOS")
     @Mapping(target = "releaseDate", expression = "java(getReleaseDate(album))")
     AlbumDTO albumToAlbumDTO(Album album, List<SongDTO> songDTOS);

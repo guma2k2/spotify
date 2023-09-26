@@ -1,5 +1,6 @@
 package com.spotify.app.controller;
 
+import com.spotify.app.dto.SongDTO;
 import com.spotify.app.dto.response.SongResponseDTO;
 import com.spotify.app.model.Song;
 import com.spotify.app.service.SongService;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/song")
@@ -34,7 +36,6 @@ public class SongController {
     ) throws IOException {
 
         // Todo: save audio
-
         songService.saveSongAudio(audio, songId);
 
         return ResponseEntity.ok().body("OK");
@@ -61,5 +62,39 @@ public class SongController {
                 .contentType(MediaType.parseMediaType("image/png"))
                 .body(song.getImage());
     }
+
+    @GetMapping("/findBy/playlist/{playlistId}")
+    public List<SongDTO> findByPlaylistId(@PathVariable("playlistId") Long playlistId) {
+        return songService.findByPlaylistId(playlistId);
+    }
+
+
+
+    @GetMapping
+    public List<SongDTO> findAll() {
+        return songService.findAll();
+    }
+
+    @GetMapping("/admin/{songId}")
+    public Song getByIdForAdmin(
+            @PathVariable("songId") Long songId
+    ) {
+        return songService.get(songId);
+    }
+
+    @PostMapping("/admin/save")
+    @Operation(description = "Save file image end with `png` only")
+    public ResponseEntity<?> addPlaylist(@RequestParam("image") MultipartFile image,
+                                         @RequestParam("audio") MultipartFile audio,
+                                         @RequestParam("lyric") String lyric,
+                                         @RequestParam("genre") String genre,
+                                         @RequestParam("name") String name,
+                                         @RequestParam("duration") String duration
+    ) throws IOException {
+        songService.addSong(image,audio, lyric,genre,name,duration);
+        return ResponseEntity.ok().body("Save playlist success");
+    }
+
+
 
 }

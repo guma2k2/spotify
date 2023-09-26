@@ -2,6 +2,7 @@ package com.spotify.app.controller;
 
 
 import com.spotify.app.dto.CategoryDTO;
+import com.spotify.app.dto.response.CategoryResponseDTO;
 import com.spotify.app.model.Album;
 import com.spotify.app.model.Category;
 import com.spotify.app.service.CategoryService;
@@ -12,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Set;
 
 @RestController
@@ -42,14 +44,32 @@ public class CategoryController {
         return categoryService.findCategoryNameHome();
     }
 
-    @PostMapping("/uploadFile/{cateId}")
-    @Operation(description = "Save file image end with `png` only / save image and thumbnail")
-    public ResponseEntity<?> uploadFiles( @RequestParam("image") MultipartFile image,
-                                          @RequestParam("thumbnail") MultipartFile thumbnail,
-                                          @PathVariable("cateId") Integer cateId
-    ) {
-        categoryService.uploadFiles(image,thumbnail,cateId);
-        return ResponseEntity.ok().body(String.format("Upload files for category %d success",cateId));
+    @PutMapping("/admin/update/{categoryId}")
+    @Operation(description = "Save file image end with `png` only")
+    public ResponseEntity<?> updateCategory(@RequestParam(value = "image",required = false) MultipartFile image,
+                                            @RequestParam(value = "thumbnail",required = false) MultipartFile thumbnail,
+                                            @PathVariable("categoryId") Integer categoryId,
+                                            @RequestParam("title") String title,
+                                            @RequestParam(value = "categoryParentTitle",required = false) String categoryParentTitle
+    ){
+        categoryService.updateCategory(image,thumbnail,categoryId,title ,categoryParentTitle);
+        return ResponseEntity.ok().body(String.format("update category %d success", categoryId));
+    }
+
+    @PostMapping("/admin/save")
+    @Operation(description = "Save file image end with `png` only")
+    public ResponseEntity<?> addCategory(@RequestParam(value = "image",required = false) MultipartFile image,
+                                         @RequestParam(value = "thumbnail",required = false) MultipartFile thumbnail,
+                                         @RequestParam("title") String title,
+                                         @RequestParam(value = "categoryParentTitle",required = false) String categoryParentTitle
+    ){
+        categoryService.addCategory(image,thumbnail, title, categoryParentTitle);
+        return ResponseEntity.ok().body("save category success");
+    }
+    
+    @GetMapping("/admin/{categoryId}")
+    public CategoryResponseDTO findByIdForAdmin(@PathVariable("categoryId") Integer categoryId) {
+        return categoryService.getByIdForAdmin(categoryId);
     }
 
     @GetMapping("/viewImage/{cateId}")
@@ -70,5 +90,33 @@ public class CategoryController {
     @GetMapping("/{cateId}")
     public CategoryDTO getById(@PathVariable("cateId") Integer categoryId) {
         return categoryService.findByIdCustom(categoryId);
+    }
+    @GetMapping
+    public List<CategoryResponseDTO> getAll() {
+        return categoryService.listAll();
+    }
+
+    @GetMapping("/admin/{categoryId}/add/{playlistId}")
+    public ResponseEntity<String> addPlaylist(
+            @PathVariable("categoryId") Integer categoryId,
+            @PathVariable("playlistId") Long playlistId
+    ) {
+        categoryService.addPlaylist(categoryId,playlistId);
+        return ResponseEntity.
+                ok().
+                body(String.
+                        format("category with id: %d add playlist with id: %d success", categoryId, playlistId));
+    }
+
+    @GetMapping("/admin/{categoryId}/remove/{playlistId}")
+    public ResponseEntity<String> removePlaylist(
+            @PathVariable("categoryId") Integer categoryId,
+            @PathVariable("playlistId") Long playlistId
+    ) {
+        categoryService.removePlaylist(categoryId,playlistId);
+        return ResponseEntity.
+                ok().
+                body(String.
+                        format("category with id: %d remove playlist with id: %d success", categoryId, playlistId));
     }
 }

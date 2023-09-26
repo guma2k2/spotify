@@ -22,8 +22,16 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class AlbumService {
     private final AlbumRepository albumRepository ;
+
+
     private final AlbumSongRepository albumSongRepository;
+    private final AlbumMapper albumMapper ;
     public AlbumDTO findById(Long albumId) {
+
+        // find album by id return their songs
+        Album album = albumRepository.
+                findByIdReturnSongs(albumId).
+                orElseThrow(() -> new ResourceNotFoundException(String.format("album with id: [%d] not found", albumId)));
 
         // Find albumSong by albumId
         List<AlbumSong> albumSongs = albumSongRepository.findByAlbumId(albumId);
@@ -34,10 +42,7 @@ public class AlbumService {
         // Map Song to Song DTO
         List<SongDTO> songDTOS = SongMapper.INSTANCE.songsToSongsDTO(songs);
 
-        // Get album by id
-        Album album = albumRepository.findByIdCustom(albumId).orElseThrow(() -> new ResourceNotFoundException("Album not found"));
-
-        return AlbumMapper.INSTANCE.albumToAlbumDTO(album, songDTOS);
+        return albumMapper.albumToAlbumDTO(album, songDTOS);
     }
 
     @Transactional

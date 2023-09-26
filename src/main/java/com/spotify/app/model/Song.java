@@ -2,7 +2,6 @@ package com.spotify.app.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.spotify.app.enums.Genre;
 import com.spotify.app.utility.FileUploadUtil;
 import jakarta.persistence.*;
@@ -41,7 +40,6 @@ public class Song {
     private Genre genre ;
     private int duration;
     private String audio;
-
     @Lob
     @Column(columnDefinition = "LONGBLOB")
     private byte[] image ;
@@ -50,6 +48,11 @@ public class Song {
     @Builder.Default
     @JsonBackReference
     private Set<User> users = new HashSet<>() ;
+
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "song")
+    @Builder.Default
+    private List<AlbumSong> albumSongList = new ArrayList<>();
 
 
     @Transient

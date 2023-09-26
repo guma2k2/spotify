@@ -94,7 +94,7 @@ public class Playlist {
     }
 
     public void removeSong(Song song) {
-        for (Iterator<PlaylistSong> iterator = playlistSongList.iterator(); iterator.hasNext(); ) {
+        for (Iterator<PlaylistSong> iterator = this.playlistSongList.iterator(); iterator.hasNext(); ) {
             PlaylistSong playlistSong = iterator.next();
 
             if (playlistSong.getPlaylist().equals(this) &&

@@ -59,23 +59,25 @@ public class UserController {
                                    @RequestParam("lastName") String lastName,
                                    @RequestParam("email") String email,
                                    @RequestParam("password") String password,
-                                   @RequestParam("image") MultipartFile photoImage,
-                                   @RequestParam("roleName") String roleName
+                                   @RequestParam(value = "image",required = false) MultipartFile photoImage,
+                                   @RequestParam("roleName") String roleName,
+                                   @RequestParam("gender") String gender
     ) {
-        return userService.addUser(firstName, lastName, email, password, photoImage, roleName);
+        return userService.addUser(firstName, lastName, email, password, photoImage, roleName,gender);
     }
 
 
-    @PostMapping("/admin/update/{userId}")
+    @PutMapping("/admin/update/{userId}")
     public UserResponseDTO updateUser(@RequestParam("firstName") String firstName,
                                       @RequestParam("lastName") String lastName,
                                       @RequestParam("email") String email,
                                       @RequestParam("password") String password,
-                                      @RequestParam("image") MultipartFile photoImage,
+                                      @RequestParam(value = "image",required = false) MultipartFile photoImage,
                                       @RequestParam("roleName") String roleName,
-                                      @PathVariable("userId") Long userId
+                                      @PathVariable("userId") Long userId,
+                                      @RequestParam("gender") String gender
     ) {
-        return userService.updateUser(firstName, lastName, email, password, photoImage, roleName,userId);
+        return userService.updateUser(firstName, lastName, email, password, photoImage, roleName,userId,gender);
     }
 
 

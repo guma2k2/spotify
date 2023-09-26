@@ -10,7 +10,7 @@ import org.mapstruct.factory.Mappers;
 import java.util.Set;
 
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface CategoryMapper {
     CategoryMapper INSTANCE = Mappers.getMapper( CategoryMapper.class );
     CategoryDTO categoryToCategoryDTO(Category category);

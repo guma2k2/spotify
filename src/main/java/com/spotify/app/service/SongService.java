@@ -1,8 +1,11 @@
 package com.spotify.app.service;
-import com.google.cloud.storage.Bucket;
-import com.google.cloud.storage.Storage;
-import com.google.cloud.storage.StorageOptions;
+import com.spotify.app.dto.SongDTO;
+import com.spotify.app.mapper.SongMapper;
+import com.spotify.app.repository.PlaylistSongRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.File;
 import java.io.IOException;
 import com.spotify.app.dto.response.AlbumResponseDTO;
 import com.spotify.app.dto.response.SongResponseDTO;
@@ -20,17 +23,24 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import javax.sound.sampled.*;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
-
 @Service
 @AllArgsConstructor
+@Slf4j
 public class SongService {
 
     private final SongRepository songRepository ;
 
     private final AlbumSongRepository albumSongRepository;
+
+    private final PlaylistSongRepository playlistSongRepository;
+
+    private final SongResponseMapper songResponseMapper;
+
+    private final SongMapper songMapper;
 
     public Song get(Long songId) {
         return songRepository.findById(songId).orElseThrow(() -> new ResourceNotFoundException("Song not found")) ;
@@ -60,7 +70,11 @@ public class SongService {
         songRepository.save(song);
     }
     public void saveSongImage(MultipartFile image, Long songId) {
-        Song song = songRepository.findById(songId).orElseThrow(() -> new ResourceNotFoundException("Song not found"));
+        Song song = songRepository.
+                findById(songId).
+                orElseThrow(() ->
+                        new ResourceNotFoundException(String.format("song with id: [%d] not found",songId)));
+
         if(image != null) {
             try {
                 song.setImage(image.getBytes());
@@ -83,9 +97,45 @@ public class SongService {
         String pattern = "dd/MM/yyyy hh:mm:ss";
         DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern(pattern);
 
-        return SongResponseMapper.INSTANCE.songToSongResponseDTO(song, albumResponseDTOS, playlistSong.getCreatedOn().format(dateFormat));
+        return songResponseMapper.songToSongResponseDTO(song, albumResponseDTOS, playlistSong.getCreatedOn().format(dateFormat));
+    }
+
+    public List<SongDTO> findByPlaylistId(Long playlistId) {
+        List<PlaylistSong> playlistSongs =  playlistSongRepository.findByPlaylistId(playlistId);
+        List<Song> songs = playlistSongs.stream().map(PlaylistSong::getSong).toList();
+        return songMapper.songsToSongsDTO(songs);
+    }
+
+    public List<SongDTO> findAll() {
+        return songMapper.songsToSongsDTO(songRepository.findAll());
     }
 
 
+    public void addSong(MultipartFile image, MultipartFile audio, String lyric, String genre, String name, String duration) throws IOException {
+        // Todo: check exit by name
+        Song song = new Song();
+        if(image != null) {
+            try {
+                song.setImage(image.getBytes());
+            } catch (IOException e) {
+                throw new ResourceNotFoundException(e.getMessage());
+            }
+        }
+        if (!audio.isEmpty()) {
+            String fileName = StringUtils.cleanPath(audio.getOriginalFilename());
+            song.setAudio(fileName);
 
+            String uploadDir = "song-audios/" + 1;
+            FileUploadUtil.cleanDir(uploadDir);
+            try {
+                FileUploadUtil.saveFile(uploadDir, fileName, audio);
+            } catch (IOException e) {
+                throw new RuntimeException(e.getMessage());
+            }
+            File source = new File(uploadDir);
+            AudioInputStream audioInputStream = null;
+        } else {
+            if (song.getAudio().isEmpty()) song.setAudio(null);
+        }
+    }
 }

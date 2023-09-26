@@ -12,12 +12,14 @@ import java.util.Optional;
 @Repository
 public interface AlbumRepository  extends JpaRepository<Album, Long> {
 
-
     @Query("""
             SELECT a
             FROM Album a
-            LEFT JOIN FETCH a.user
+            LEFT JOIN FETCH a.user u
+            LEFT JOIN FETCH u.role r
+            LEFT JOIN FETCH a.albumSongList as
             WHERE a.id = :albumId
             """)
-    Optional<Album> findByIdCustom(@Param("albumId") Long albumId);
+    Optional<Album> findByIdReturnSongs(@Param("albumId") Long albumId);
+
 }

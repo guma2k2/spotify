@@ -15,7 +15,8 @@ public interface AlbumSongRepository extends JpaRepository<AlbumSong,Long> {
             SELECT as
             FROM AlbumSong as
             JOIN FETCH as.album a
-            JOIN FETCH as.song
+            JOIN FETCH as.song s
+            JOIN FETCH s.users u
             WHERE a.id = :id
             """)
     List<AlbumSong> findByAlbumId(@Param("id") Long id) ;
@@ -25,6 +26,7 @@ public interface AlbumSongRepository extends JpaRepository<AlbumSong,Long> {
             FROM AlbumSong as
             JOIN FETCH as.album
             JOIN FETCH as.song s
+            JOIN FETCH s.users
             WHERE s.id = :id
             """)
     List<AlbumSong> findBySongId(@Param("id") Long id) ;

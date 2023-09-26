@@ -80,4 +80,13 @@ public class Category {
         playlists.remove(playlist);
         playlist.getCategories().remove(this);
     }
+
+
+    @Transient
+    public String getCategoryParentTitle() {
+        if(this.categoryParent != null) {
+            return this.categoryParent.getTitle();
+        }
+        return null;
+    }
 }

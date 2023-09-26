@@ -2,6 +2,7 @@ package com.spotify.app.service;
 
 import com.spotify.app.dto.UserDTO;
 import com.spotify.app.dto.response.UserResponseDTO;
+import com.spotify.app.enums.Gender;
 import com.spotify.app.exception.DuplicateResourceException;
 import com.spotify.app.exception.ResourceNotFoundException;
 import com.spotify.app.mapper.UserMapper;
@@ -74,7 +75,8 @@ public class UserService {
                                    String email,
                                    String password,
                                    MultipartFile photoImage,
-                                   String roleName) {
+                                   String roleName,
+                                   String gender) {
 
         if(checkUserExitByEmail(email)) {
             throw new DuplicateResourceException(String.format("email : [%s] is existed", email));
@@ -99,6 +101,7 @@ public class UserService {
                 throw new RuntimeException(e.getMessage());
             }
         }
+        user.setGender(Gender.valueOf(gender));
         return userResponseMapper.userToUserResponse(userRepository.save(user)) ;
     }
 
@@ -108,7 +111,8 @@ public class UserService {
                                       String password,
                                       MultipartFile photoImage,
                                       String roleName,
-                                      Long userId
+                                      Long userId,
+                                      String gender
     ) {
         Optional<User> user = userRepository.findById(userId);
 
@@ -131,7 +135,7 @@ public class UserService {
                 orElseThrow(() -> new ResourceNotFoundException(String.format("[%s] not found",roleName))) ;
 
         checkedUser.setRole(role);
-
+        checkedUser.setGender(Gender.valueOf(gender));
         if(password != null) {
             checkedUser.setPassword(passwordEncoder.encode(password));
         }
@@ -143,7 +147,6 @@ public class UserService {
                 throw new RuntimeException(e.getMessage());
             }
         }
-
         return userResponseMapper.userToUserResponse(userRepository.save(checkedUser)) ;
     }
 

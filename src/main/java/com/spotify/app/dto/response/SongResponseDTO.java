@@ -16,6 +16,5 @@ public record SongResponseDTO(Long id,
                               String audioPath,
                               String imagePath,
                               Set<UserResponseDTO> users,
-
                               List<AlbumResponseDTO> albums ) {
 }

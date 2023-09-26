@@ -89,12 +89,19 @@ public class SongController {
                                          @RequestParam("lyric") String lyric,
                                          @RequestParam("genre") String genre,
                                          @RequestParam("name") String name,
-                                         @RequestParam("duration") String duration
+                                         @RequestParam("duration") int duration,
+                                         @RequestParam("userId") Long userId
     ) throws IOException {
-        songService.addSong(image,audio, lyric,genre,name,duration);
+        songService.addSong(image,audio, lyric,genre,name,duration,userId);
         return ResponseEntity.ok().body("Save playlist success");
     }
 
+    @GetMapping("/search/{name}")
+    List<SongResponseDTO> findByNameFullText(
+            @PathVariable("name") String name
+    ) {
+        return songService.findByNameFullText(name);
+    }
 
 
 }

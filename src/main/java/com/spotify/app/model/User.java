@@ -95,6 +95,10 @@ public class User implements UserDetails {
         album.setUser(null);
     }
 
+    @Transient
+    public String getFullName() {
+        return firstName + " " + lastName ;
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

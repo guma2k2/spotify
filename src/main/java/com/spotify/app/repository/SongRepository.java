@@ -32,4 +32,21 @@ public interface SongRepository extends JpaRepository<Song, Long> {
     List<Song> findByPlaylistId( @Param("playlistId") Long playlistId ) ;
 
 
+    @Query("""
+            SELECT s
+            FROM Song s
+            WHERE s.name = :name
+            """)
+    Optional<Song> findByName(@Param("name") String name);
+
+
+    @Query("""
+            SELECT s
+            FROM Song s
+            LEFT JOIN FETCH s.users
+            WHERE s.name LIKE %:name%
+            """)
+    List<Song> findByNameFullText(@Param("name") String name);
+
+
 }

@@ -30,7 +30,7 @@ public class Song {
     private String name ;
 
 
-    @Column(length = 2000)
+    @Column(length = 5000)
     private String lyric;
 
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss")

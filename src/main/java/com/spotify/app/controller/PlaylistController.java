@@ -44,8 +44,8 @@ public class PlaylistController {
 
     @PostMapping("/admin/save")
     @Operation(description = "Save file image end with `png` only")
-    public ResponseEntity<?> addPlaylist(@RequestParam("image") MultipartFile image,
-                                         @RequestParam("thumbnail") MultipartFile thumbnail,
+    public ResponseEntity<?> addPlaylist(@RequestParam(value = "image",required = false) MultipartFile image,
+                                         @RequestParam(value = "thumbnail",required = false) MultipartFile thumbnail,
                                          @RequestParam("description") String description,
                                          @RequestParam("name") String name
     ){

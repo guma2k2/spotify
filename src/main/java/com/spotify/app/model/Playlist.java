@@ -19,10 +19,10 @@ public class Playlist {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id ;
 
-    @Column(length = 30)
+    @Column(length = 100)
     private String name ;
 
-    @Column(length = 100)
+    @Column(length = 300)
     private String description;
     @Lob
     @Column(columnDefinition = "LONGBLOB")

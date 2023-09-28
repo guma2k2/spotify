@@ -3,6 +3,7 @@ package com.spotify.app.mapper;
 
 import com.spotify.app.dto.SongDTO;
 import com.spotify.app.model.Song;
+import lombok.extern.slf4j.Slf4j;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
@@ -26,7 +27,8 @@ public interface SongMapper {
     default String getDuration(Song song) {
         int minute = song.getDuration()/60;
         int second = song.getDuration() - minute * 60 ;
-        String secondString = second % 10 > 0 ? second+"" : "0" + second;
+        String secondString = second > 9  ? String.valueOf(second) : "0".concat(String.valueOf(second));
+        System.out.println(second);
         return minute + ":" +secondString ;
     }
     default String getReleaseDate(Song song) {

@@ -30,6 +30,25 @@ public class PlaylistController {
         return playlistService.findByIdWithSongs(id) ;
     }
 
+
+    @GetMapping("/user/{userId}/add/{songId}")
+    @Operation(description = "add song to liked Song by userId")
+    public void addLikedSongToPlaylistByUserId(
+            @PathVariable("userId") Long userId,
+            @PathVariable("songId") Long songId
+    ) {
+        playlistService.addSongToLikedPlaylist(userId, songId);
+    }
+
+    @GetMapping("/user/{userId}/remove/{songId}")
+    @Operation(description = "remove song from liked Song by userId")
+    public void removeFromLikedSongByUserId(
+            @PathVariable("userId") Long userId,
+            @PathVariable("songId") Long songId
+    ) {
+        playlistService.removeSongFromLikedPlaylist(userId,songId);
+    }
+
     @PutMapping("/admin/update/{playlistId}")
     @Operation(description = "Save file image end with `png` only")
     public ResponseEntity<?> uploadPlaylist(@RequestParam("image") MultipartFile image,
@@ -44,7 +63,7 @@ public class PlaylistController {
 
     @PostMapping("/admin/save")
     @Operation(description = "Save file image end with `png` only")
-    public ResponseEntity<?> addPlaylist(@RequestParam(value = "image",required = false) MultipartFile image,
+    public ResponseEntity<String> addPlaylist(@RequestParam(value = "image",required = false) MultipartFile image,
                                          @RequestParam(value = "thumbnail",required = false) MultipartFile thumbnail,
                                          @RequestParam("description") String description,
                                          @RequestParam("name") String name
@@ -53,37 +72,25 @@ public class PlaylistController {
         return ResponseEntity.ok().body("Save playlist success");
     }
 
-    @GetMapping("/{playlistId}/add/{userId}")
-    public ResponseEntity<?> addUserToLikedPlaylist(
-            @PathVariable("playlistId") Long playlistId,
-            @PathVariable("userId") Long userId
-    ) {
-        playlistService.addUserToLikedPlaylist(userId,playlistId);
-        return ResponseEntity.ok().body(String.format("Add user %d to playlist %d successful",userId,playlistId));
-    }
-
-    @GetMapping("/{playlistId}/remove/{userId}")
-    public ResponseEntity<?> removeUserFromLikedPlaylist(
-            @PathVariable("playlistId") Long playlistId,
-            @PathVariable("userId") Long userId
-    ) {
-        playlistService.removeUserFromLikedPlaylist(userId,playlistId);
-        return ResponseEntity.ok().body(String.format("Remove user %d from playlist %d successful",userId,playlistId));
-    }
 
 
-    @GetMapping("/viewImage/{playlistId}")
+
+    @GetMapping(
+            value = "/viewImage/{playlistId}",
+            produces = {MediaType.IMAGE_PNG_VALUE,MediaType.IMAGE_JPEG_VALUE}
+    )
     public ResponseEntity<?> viewImage(@PathVariable("playlistId") Long playlistId) {
         Playlist playlist = playlistService.get(playlistId);
         return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType("image/png"))
                 .body(playlist.getImage());
     }
-    @GetMapping("/viewThumbnail/{playlistId}")
+    @GetMapping(
+            value = "/viewThumbnail/{playlistId}",
+            produces = {MediaType.IMAGE_PNG_VALUE,MediaType.IMAGE_JPEG_VALUE}
+    )
     public ResponseEntity<?> viewThumbnail(@PathVariable("playlistId") Long playlistId) {
         Playlist playlist = playlistService.get(playlistId);
         return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType("image/png"))
                 .body(playlist.getThumbnail());
     }
 
@@ -104,11 +111,12 @@ public class PlaylistController {
         playlistService.addSong(playlistId,songId);
         return ResponseEntity.
                 ok().
-                body(String.
-                        format("playlist with id: %d add song with id: %d success", playlistId, songId));
+                body(String.format("playlist with id: %d add song with id: %d success", playlistId, songId));
     }
 
     @GetMapping("/admin/{playlistId}/remove/{songId}")
+    @Operation(description = "call this api to remove playlist " +
+            "when undo like playlist or remove playlist")
     public ResponseEntity<String> removePlaylist(
             @PathVariable("playlistId") Long playlistId,
             @PathVariable("songId") Long songId
@@ -116,7 +124,13 @@ public class PlaylistController {
         playlistService.removeSong(playlistId,songId);
         return ResponseEntity.
                 ok().
-                body(String.
-                        format("playlist with id: %d remove song with id: %d success", playlistId, songId));
+                body(String.format("playlist with id: %d remove song with id: %d success", playlistId, songId));
+    }
+
+
+    @GetMapping("/{userId}/create/playlist")
+    public ResponseEntity<?> createPlaylistByUserId(@PathVariable("userId") Long userId) {
+        playlistService.createPlaylistByUserId(userId);
+        return ResponseEntity.ok().body("playlist is created");
     }
 }

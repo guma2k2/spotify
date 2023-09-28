@@ -14,7 +14,15 @@ import java.nio.file.StandardCopyOption;
 public class FileUploadUtil {
 
 	public final static String baseUrl = "http://localhost:8080/api/v1" ;
+
+	public final static String baseUrlAudio = "http://localhost:8080" ;
 	public final static String baseUrlFail = "https://cdn.tgdd.vn/hoi-dap/580732/loi-404-not-found-la-gi-9-cach-khac-phuc-loi-404-not-5-800x450.jpg";
+
+	public final static String baseUrlImagePlaylistLikedSongs = "https://i.scdn.co/image/ab67706c0000da8470d229cb865e8d81cdce0889";
+
+	public final static String baseUrlThumbnailPlaylistLikedSongs = "https://www.colorhexa.com/5534d6.png";
+	public final static String baseUrlPlaylistImage = "https://community.spotify.com/t5/image/serverpage/image-id/25294i2836BD1C1A31BDF2?v=v2";
+	public final static String baseUrlPlaylistThumbnail = "https://www.colorhexa.com/383838.png";
 	public static void saveFile(String uploadDir, String fileName,
 			MultipartFile multipartFile) throws IOException {
 		Path uploadPath = Paths.get(uploadDir);

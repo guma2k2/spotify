@@ -1,6 +1,7 @@
 package com.spotify.app.controller;
 
 import com.spotify.app.dto.UserDTO;
+import com.spotify.app.dto.UserFollowingsPlaylists;
 import com.spotify.app.dto.response.UserResponseDTO;
 import com.spotify.app.model.User;
 import com.spotify.app.service.UserService;
@@ -34,8 +35,11 @@ public class UserController {
         userService.uploadPhoto(photo, userId);
         return ResponseEntity.ok().body("Save photo of user success");
     }
-    @GetMapping("/viewPhoto/{userId}")
-    public ResponseEntity<?> readImage(@PathVariable("userId") Long userId) {
+    @GetMapping(
+            value = "/viewPhoto/{userId}",
+            produces = {MediaType.IMAGE_PNG_VALUE,MediaType.IMAGE_JPEG_VALUE}
+    )
+    public ResponseEntity<?> viewPhotoImage(@PathVariable("userId") Long userId) {
         User user = userService.get(userId);
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType("image/png"))
@@ -78,6 +82,33 @@ public class UserController {
                                       @RequestParam("gender") String gender
     ) {
         return userService.updateUser(firstName, lastName, email, password, photoImage, roleName,userId,gender);
+    }
+
+
+    @GetMapping("/{userId}/playlists/followings")
+    @Operation(description = "Find all followings and playlists by userId")
+    public UserFollowingsPlaylists findByIdReturnFollowingsAndPlaylists(@PathVariable("userId") Long userId) {
+        return userService.findByIdReturnFollowingsAndPlaylists(userId);
+    }
+
+    @GetMapping("/{userId}/add/{playlistId}")
+    @Operation(description = "Click add button in playlist page to call this api")
+    public ResponseEntity<?> addUserToLikedPlaylist(
+            @PathVariable("playlistId") Long playlistId,
+            @PathVariable("userId") Long userId
+    ) {
+        userService.addPlaylist(userId,playlistId);
+        return ResponseEntity.ok().body(String.format("Add playlist %d by user %d successful",playlistId,userId));
+    }
+
+    @GetMapping("/{userId}/remove/{playlistId}")
+    @Operation(description = "Click add button in playlist page to call this api")
+    public ResponseEntity<?> removeUserFromLikedPlaylist(
+            @PathVariable("playlistId") Long playlistId,
+            @PathVariable("userId") Long userId
+    ) {
+        userService.removePlaylist(userId,playlistId);
+        return ResponseEntity.ok().body(String.format("Remove playlist %d from user %d successful",playlistId,userId));
     }
 
 

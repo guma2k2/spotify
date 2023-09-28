@@ -62,6 +62,28 @@ public class User implements UserDetails {
     @JsonManagedReference
     private Set<Song> songs = new HashSet<>();
 
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "user")
+    @Builder.Default
+    private List<PlaylistUser> playlistUserList = new ArrayList<>();
+
+    @OneToMany(cascade = CascadeType.ALL,orphanRemoval = true, mappedBy = "followedUser")
+    @Builder.Default
+    private Set<Follower> followingList = new HashSet<>();
+
+    @OneToMany(cascade = CascadeType.ALL,orphanRemoval = true, mappedBy = "followingUser")
+    @Builder.Default
+    private Set<Follower> followedList = new HashSet<>();
+
+
+    public void addPlaylist(Playlist playlist) {
+        PlaylistUser playlistUser = new PlaylistUser(playlist,this);
+        playlistUserList.add(playlistUser);
+    }
+
+    public void removePlaylist(Playlist playlist) {
+        PlaylistUser playlistUser = new PlaylistUser(playlist,this);
+        playlistUserList.remove(playlistUser);
+    }
 
     @Transient
     public String getPhotoImagePath() {
@@ -72,7 +94,9 @@ public class User implements UserDetails {
         return FileUploadUtil.baseUrlFail;
     }
 
-
+    public void addFollowing(Follower follower) {
+        followingList.add(follower);
+    }
 
 
     public void addSong(Song song) {

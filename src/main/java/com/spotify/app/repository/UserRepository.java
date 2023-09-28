@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 
 @Repository
@@ -23,11 +24,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmail(@Param("email") String email) ;
 
     @Query("""
-            
-            SELECT u FROM User u
+            SELECT u
+            FROM User u
             JOIN FETCH u.role r
             WHERE u.id = :id
-            
             """)
     Optional<User> findById(@Param("id") Long id) ;
 
@@ -41,13 +41,23 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
 
     @Query("""
-            
-            SELECT u FROM User u
+            SELECT u
+            FROM User u
             LEFT JOIN FETCH u.role r
             LEFT JOIN FETCH u.songs s
             WHERE u.id = :userId
-            
            """)
-    Optional<User> findByIdCustom(@Param("userId") Long userId);
+    Optional<User> findByIdReturnRoleAndSongs(@Param("userId") Long userId);
+
+    @Query("""
+            SELECT u
+            FROM User u
+            LEFT JOIN FETCH u.followingList s
+            LEFT JOIN FETCH u.playlistUserList p
+            LEFT JOIN FETCH u.role
+            WHERE u.id = :userId
+           """)
+    Optional<User> findByIdReturnFollowingsAndPlaylists(@Param("userId") Long userId);
+
 
 }

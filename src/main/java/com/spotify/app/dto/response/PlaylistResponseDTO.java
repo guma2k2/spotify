@@ -7,5 +7,6 @@ public record PlaylistResponseDTO( Long id,
                                    String thumbnailPath,
                                    int sumSongCount,
                                    long sumViewCount,
-                                   long likedCount ){
+                                   long likedCount
+){
 }

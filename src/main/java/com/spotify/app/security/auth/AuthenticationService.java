@@ -2,8 +2,10 @@ package com.spotify.app.security.auth;
 import com.spotify.app.exception.HeaderNotFoundException;
 import com.spotify.app.exception.ResourceNotFoundException;
 import com.spotify.app.mapper.UserMapper;
+import com.spotify.app.model.Playlist;
 import com.spotify.app.model.Role;
 import com.spotify.app.model.User;
+import com.spotify.app.repository.PlaylistRepository;
 import com.spotify.app.repository.RoleRepository;
 import com.spotify.app.repository.UserRepository;
 import com.spotify.app.security.jwt.JwtService;
@@ -26,6 +28,8 @@ public class AuthenticationService {
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
 
+    private final PlaylistRepository playlistRepository;
+
 
 
     public AuthenticationResponse register(RegisterRequest request) {
@@ -45,6 +49,12 @@ public class AuthenticationService {
                 .build();
         User savedUser = userRepository.save(user);
 
+        // Trigger create playlist liked song when register success
+        Playlist playlist = Playlist.builder()
+                .name("Liked Songs")
+                .build();
+        playlist.addUser(savedUser);
+        playlistRepository.save(playlist);
         var jwtToken = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
         return AuthenticationResponse.builder()

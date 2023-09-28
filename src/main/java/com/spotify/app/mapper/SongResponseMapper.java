@@ -34,7 +34,8 @@ public interface SongResponseMapper {
     default String getDuration(Song song) {
         int minute = song.getDuration()/60;
         int second = song.getDuration() - minute * 60 ;
-        String secondString = second % 10 > 0 ? second+"" : "0" + second;
+        String secondString = second > 9  ? String.valueOf(second) : "0".concat(String.valueOf(second));
+        System.out.println(second);
         return minute + ":" +secondString ;
     }
 }

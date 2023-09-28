@@ -15,5 +15,8 @@ public interface PlaylistMapper {
     PlaylistMapper INSTANCE = Mappers.getMapper(PlaylistMapper.class);
 
     @Mapping(target = "songs", source = "songDTOs")
-    PlaylistDTO playlistToPlaylistDTO(Playlist playlist, List<SongResponseDTO> songDTOs) ;
+    @Mapping(target = "sumSongCount", source = "sumSongCount")
+    @Mapping(target = "sumViewCount", source = "sumViewCount")
+    @Mapping(target = "likedCount", source = "likedCount")
+    PlaylistDTO playlistToPlaylistDTO(Playlist playlist,int sumSongCount,long sumViewCount, long likedCount ,List<SongResponseDTO> songDTOs) ;
 }

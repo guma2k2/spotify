@@ -44,41 +44,16 @@ public class Playlist {
     @Builder.Default
     private Set<Category> categories = new HashSet<>() ;
 
-
-    @Transient
-    public long getLikedCount() {
-        return this.playlistUserList.size();
-    }
-
-    @Transient
-    public long getSumViewCount() {
-        return playlistSongList.stream()
-                .mapToLong((playlistSong) -> playlistSong.getSong()
-                        .getViewCount())
-                .sum();
-    }
-
-    @Transient
-    public int getSumSongCount() {
-        return playlistSongList.stream()
-                .mapToInt((playlistSong) -> playlistSong.getSong() != null ? 1 : 0).sum();
-    }
-
     @Transient
     public String getImagePath() {
         String baseUrl = FileUploadUtil.baseUrl;
         if(image!=null) {
             return baseUrl+"/playlist/viewImage/" + this.id ;
         }
-        return FileUploadUtil.baseUrlFail;
-    }
-    @Transient
-    public String getThumbnailPath() {
-        String baseUrl = FileUploadUtil.baseUrl;
-        if(thumbnail!=null) {
-            return baseUrl+"/playlist/viewThumbnail/" + this.id ;
+        if(this.name.equals("Liked Songs")){
+            return FileUploadUtil.baseUrlImagePlaylistLikedSongs;
         }
-        return FileUploadUtil.baseUrlFail;
+        return FileUploadUtil.baseUrlPlaylistImage;
     }
 
 
@@ -87,6 +62,17 @@ public class Playlist {
         playlistUserList.add(playlistUser);
     }
 
+    @Transient
+    public String getThumbnailPath() {
+        String baseUrl = FileUploadUtil.baseUrl;
+        if(thumbnail!=null) {
+            return baseUrl+"/playlist/viewThumbnail/" + this.id ;
+        }
+        if (this.name.equals("Liked Songs")) {
+            return FileUploadUtil.baseUrlThumbnailPlaylistLikedSongs;
+        }
+        return FileUploadUtil.baseUrlPlaylistThumbnail;
+    }
 
     public void addSong(Song song) {
         PlaylistSong playlistSong = new PlaylistSong(this, song);

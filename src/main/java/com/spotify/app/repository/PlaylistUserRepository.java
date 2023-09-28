@@ -7,6 +7,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+import java.util.Optional;
+
 @Repository
 public interface PlaylistUserRepository extends JpaRepository<PlaylistUser, Long> {
 
@@ -17,5 +20,37 @@ public interface PlaylistUserRepository extends JpaRepository<PlaylistUser, Long
             """)
     @Modifying
     void deleteByUserAndPlaylist(@Param("userId") Long userId,
-                                        @Param("playlistId") Long playlistId);
+                                 @Param("playlistId") Long playlistId);
+
+
+    @Query("""
+            SELECT pu
+            FROM PlaylistUser pu
+            LEFT JOIN FETCH pu.user u
+            LEFT JOIN FETCH pu.playlist p 
+            WHERE u.id = :userId
+            """)
+    List<PlaylistUser> findByUserid(@Param("userId") Long userId);
+
+    @Query("""
+            SELECT pu
+            FROM PlaylistUser pu
+            LEFT JOIN FETCH pu.user u
+            LEFT JOIN FETCH pu.playlist p
+            WHERE u.id = :userId AND p.name <> 'Liked Songs'
+            """)
+    List<PlaylistUser> findByUseridWithoutLikedSong(@Param("userId") Long userId);
+
+
+
+    @Query("""
+            SELECT pu
+            FROM PlaylistUser pu
+            LEFT JOIN FETCH pu.user u
+            LEFT JOIN FETCH pu.playlist p
+            WHERE u.id = :userId AND p.name = 'Liked Songs'
+            """)
+    Optional<PlaylistUser> findLikedPlaylistByUserId(@Param("userId") Long userId);
+
+
 }

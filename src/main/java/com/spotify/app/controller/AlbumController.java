@@ -24,26 +24,34 @@ public class AlbumController {
     }
 
 
-    @PostMapping("/uploadFile/{albumId}")
-    @Operation(description = "Save file image end with `png` only")
+    @PostMapping(
+            value = "/uploadFile/{albumId}",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
     public ResponseEntity<?> uploadFiles(@RequestParam("image")MultipartFile image,
                                          @RequestParam("thumbnail") MultipartFile thumbnail,
                                          @PathVariable("albumId") Long albumId){
         albumService.uploadFiles(image,thumbnail,albumId);
         return ResponseEntity.ok().body(String.format("Upload files for album %d success",albumId));
     }
-    @GetMapping("/viewImage/{albumId}")
+
+    @GetMapping(
+            value = "/viewImage/{albumId}",
+            produces = {MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE}
+    )
     public ResponseEntity<?> viewImage(@PathVariable("albumId") Long albumId) {
         Album album = albumService.get(albumId);
         return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType("image/png"))
                 .body(album.getImage());
     }
-    @GetMapping("/viewThumbnail/{albumId}")
+    @GetMapping(
+            value = "/viewThumbnail/{albumId}",
+            produces = {MediaType.IMAGE_PNG_VALUE,MediaType.IMAGE_JPEG_VALUE}
+    )
     public ResponseEntity<?> viewThumbnail(@PathVariable("albumId") Long albumId) {
         Album album = albumService.get(albumId);
         return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType("image/png"))
                 .body(album.getThumbnail());
     }
+
 }

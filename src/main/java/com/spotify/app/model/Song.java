@@ -58,8 +58,8 @@ public class Song {
 
     @Transient
     public String getAudioPath() {
-        if (id == null || audio == null) return "https://www.pngitem.com/pimgs/m/150-1503945_transparent-user-png-default-user-image-png-png.png";
-        return "/song-audios/" + this.id + "/" + this.audio;
+        if (id == null || audio == null) return FileUploadUtil.baseUrlFail;
+        return FileUploadUtil.baseUrlAudio +  "/song-audios/" + this.id + "/" + this.audio;
     }
 
     @Transient

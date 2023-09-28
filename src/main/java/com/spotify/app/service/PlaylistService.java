@@ -42,26 +42,15 @@ public class PlaylistService {
     private final PlaylistUserRepository playlistUserRepository;
 
     public List<PlaylistResponseDTO> findByUserId(Long userId) {
-        return null ;
-    }
+        List<PlaylistUser> playlistUserList = playlistUserRepository.findByUseridWithoutLikedSong(userId);
 
+        List<Playlist> playlists = playlistUserList.stream().map(playlistUser -> playlistUser.getPlaylist()).toList();
 
-    public void addUserToLikedPlaylist(Long userId, Long playlistId) {
-        User user = userRepository.
-                findById(userId).
-                orElseThrow(() -> new ResourceNotFoundException("User not found"));
-
-        Playlist playlist = playlistRepository.
-                findById(playlistId).
-                orElseThrow(() -> new ResourceNotFoundException("Playlist not found"));
-
-        playlist.addUser(user);
-        playlistRepository.save(playlist);
-    }
-
-    @Transactional
-    public void removeUserFromLikedPlaylist(Long userId, Long playlistId) {
-        playlistUserRepository.deleteByUserAndPlaylist(userId,playlistId);
+        return playlists.
+                stream().
+                map(playlist -> playlistResponseMapper.
+                        playlistToPlaylistResponseDTOCustom(playlist,0,0l,0l)).
+                toList()  ;
     }
 
 
@@ -70,12 +59,24 @@ public class PlaylistService {
 
         // Find playlist by id
         Playlist playlist = playlistRepository.
-                findById(playlistId).orElseThrow(() ->
+                findByIdReturnUserLiked(playlistId).orElseThrow(() ->
                         new ResourceNotFoundException(String.format("playlist with id [%d] not found")));
+
+        List<PlaylistUser> playlistUserList = playlist.getPlaylistUserList();
+        long likedCount = playlistUserList.size();
 
 
         // get List playlistSong by playlist
         List<PlaylistSong> playlistSongs = playlistSongRepository.findByPlaylistId(playlistId);
+
+        int sumSongCount =  playlistSongs.stream()
+                .mapToInt((playlistSong) -> playlistSong.getSong() != null ? 1 : 0).sum();
+
+        long sumViewCount = playlistSongs.stream()
+                .mapToLong((playlistSong) -> playlistSong.getSong()
+                        .getViewCount())
+                .sum();
+
 
         // convert playlistSongs to songResponseDTOs
         List<SongResponseDTO> songResponseDTOS = playlistSongs
@@ -83,7 +84,7 @@ public class PlaylistService {
                 .map(playlistSong -> songService.findBySong(playlistSong.getSong(),playlistSong))
                 .collect(Collectors.toList());
 
-        return playlistMapper.playlistToPlaylistDTO(playlist, songResponseDTOS);
+        return playlistMapper.playlistToPlaylistDTO(playlist, sumSongCount, sumViewCount,likedCount, songResponseDTOS);
     }
 
 
@@ -143,7 +144,7 @@ public class PlaylistService {
         Playlist playlist =  playlistRepository
                 .findById(playlistId)
                 .orElseThrow(() ->
-                        new ResourceNotFoundException(String.format("playlist with id: [%d] not found",playlistId)));
+                        new ResourceNotFoundException(String.format("playlist with id: [%d] not found", playlistId)));
 
         return playlistResponseMapper.playlistToPlaylistResponseDTOCustom(playlist,0,0l,0l);
     }
@@ -177,6 +178,36 @@ public class PlaylistService {
                         ));
 
         playlist.removeSong(song);
+        playlistRepository.save(playlist);
+    }
+
+    public void addSongToLikedPlaylist(Long userId,Long songId) {
+
+        PlaylistUser playlistUser = playlistUserRepository.findLikedPlaylistByUserId(userId).orElseThrow();
+        Playlist playlist = playlistUser.getPlaylist();
+        Song song = songService.get(songId);
+
+        playlist.addSong(song);
+
+        playlistRepository.save(playlist);
+
+    }
+
+    public void removeSongFromLikedPlaylist(Long userId,Long songId) {
+
+        PlaylistUser playlistUser = playlistUserRepository.findLikedPlaylistByUserId(userId).orElseThrow();
+        Playlist playlist = playlistUser.getPlaylist();
+        Song song = songService.get(songId);
+
+        playlist.removeSong(song);
+
+        playlistRepository.save(playlist);
+    }
+
+    public void createPlaylistByUserId(Long userId) {
+        List<PlaylistUser> playlists = playlistUserRepository.findByUseridWithoutLikedSong(userId);
+        int totalOfPlaylist = playlists.size() + 1 ;
+        Playlist playlist = Playlist.builder().name(String.format("My Playlist #%d",totalOfPlaylist)).build();
         playlistRepository.save(playlist);
     }
 }

@@ -45,7 +45,6 @@ public class CategoryController {
     }
 
     @PutMapping("/admin/update/{categoryId}")
-    @Operation(description = "Save file image end with `png` only")
     public ResponseEntity<?> updateCategory(@RequestParam(value = "image",required = false) MultipartFile image,
                                             @RequestParam(value = "thumbnail",required = false) MultipartFile thumbnail,
                                             @PathVariable("categoryId") Integer categoryId,
@@ -72,18 +71,22 @@ public class CategoryController {
         return categoryService.getByIdForAdmin(categoryId);
     }
 
-    @GetMapping("/viewImage/{cateId}")
+    @GetMapping(
+            value = "/viewImage/{cateId}",
+            produces = {MediaType.IMAGE_PNG_VALUE,MediaType.IMAGE_JPEG_VALUE}
+    )
     public ResponseEntity<?> viewImage(@PathVariable("cateId") Integer cateId) {
         Category category = categoryService.get(cateId);
         return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType("image/png"))
                 .body(category.getImage());
     }
-    @GetMapping("/viewThumbnail/{cateId}")
+
+    @GetMapping(value = "/viewThumbnail/{cateId}",
+            produces = {MediaType.IMAGE_PNG_VALUE,MediaType.IMAGE_JPEG_VALUE}
+    )
     public ResponseEntity<?> viewThumbnail(@PathVariable("cateId") Integer cateId) {
         Category category = categoryService.get(cateId);
         return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType("image/png"))
                 .body(category.getThumbnail());
     }
 

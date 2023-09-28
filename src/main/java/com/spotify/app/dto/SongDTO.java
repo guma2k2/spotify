@@ -13,5 +13,5 @@ public record SongDTO (Long id,
                        String duration,
                        String audioPath,
                        String imagePath
-                       ) {
+) {
 }

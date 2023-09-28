@@ -35,6 +35,7 @@ public class SpotifyApplication {
         SpringApplication.run(SpotifyApplication.class, args) ;
     }
 
+
 //    @PostConstruct
 //    @Transactional
 //    public void init() {

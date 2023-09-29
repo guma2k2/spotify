@@ -129,6 +129,8 @@ public class PlaylistController {
 
 
     @GetMapping("/{userId}/create/playlist")
+    @Operation(description = "call this api to add playlist " +
+            "when undo like playlist or remove playlist")
     public ResponseEntity<?> createPlaylistByUserId(@PathVariable("userId") Long userId) {
         playlistService.createPlaylistByUserId(userId);
         return ResponseEntity.ok().body("playlist is created");

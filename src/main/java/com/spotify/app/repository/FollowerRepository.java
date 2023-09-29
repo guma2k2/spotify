@@ -20,7 +20,7 @@ public interface FollowerRepository extends JpaRepository<Follower,Long> {
             JOIN FETCH fi.role
             WHERE fi.id=:id
             """)
-    List<Follower> findByIdFollowingId(@Param("id") Long id);
+    List<Follower> findFollowingListByUseId(@Param("id") Long id);
 
 
     @Query("""

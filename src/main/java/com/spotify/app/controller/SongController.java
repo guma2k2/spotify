@@ -7,6 +7,7 @@ import com.spotify.app.service.SongService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -60,6 +61,7 @@ public class SongController {
     public ResponseEntity<?> viewImage(@PathVariable("songId") Long songId) {
         Song song = songService.get(songId);
         return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(""))
                 .body(song.getImage());
     }
 
@@ -104,10 +106,22 @@ public class SongController {
 //    }
 
     @GetMapping("/search/{name}")
+
     List<SongResponseDTO> findByNameFullText(
             @PathVariable("name") String name
     ) {
         return songService.findByNameFullText(name);
     }
+
+
+//    @GetMapping("/audio")
+//    public ResponseEntity<?> testing() {
+//        Song song = songService.get(1l);
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+//        headers.setContentDispositionFormData("attachment", "music.mp3");
+//
+//        return ResponseEntity.ok().headers(headers).body(song.getAudioTest());
+//    }
 
 }

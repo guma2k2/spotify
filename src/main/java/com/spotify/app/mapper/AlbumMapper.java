@@ -22,6 +22,9 @@ public interface AlbumMapper {
     @Mapping(target = "releaseDate", expression = "java(getReleaseDate(album))")
     AlbumDTO albumToAlbumDTO(Album album, List<SongDTO> songDTOS);
 
+
+    Album dtoToEntity(AlbumDTO albumDTO);
+
     default String getReleaseDate(Album album) {
         String pattern = "dd/MM/yyyy hh:mm:ss";
         DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern(pattern);

@@ -1,15 +1,16 @@
 package com.spotify.app.service;
 
+import com.spotify.app.dto.AlbumDTO;
 import com.spotify.app.dto.UserDTO;
 import com.spotify.app.dto.UserFollowingsPlaylists;
+import com.spotify.app.dto.request.AlbumRequest;
 import com.spotify.app.dto.response.PlaylistResponseDTO;
 import com.spotify.app.dto.response.UserResponseDTO;
+import com.spotify.app.dto.response.UserResponseNoAssociation;
 import com.spotify.app.enums.Gender;
 import com.spotify.app.exception.DuplicateResourceException;
 import com.spotify.app.exception.ResourceNotFoundException;
-import com.spotify.app.mapper.PlaylistResponseMapper;
-import com.spotify.app.mapper.UserMapper;
-import com.spotify.app.mapper.UserResponseMapper;
+import com.spotify.app.mapper.*;
 import com.spotify.app.model.*;
 import com.spotify.app.repository.*;
 import jakarta.transaction.Transactional;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -35,9 +37,10 @@ public class UserService {
     private final RoleRepository roleRepository ;
     private final PlaylistRepository playlistRepository;
     private final PlaylistUserRepository playlistUserRepository;
-
+    private final AlbumRequestMapper albumRequestMapper ;
     private final FollowerRepository followerRepository;
 
+    private final UserNoAssMapper userNoAssMapper;
     public UserDTO getUserById(Long userId) {
         Optional<User> user = userRepository.findByIdReturnRoleAndSongs(userId) ;
         if(!user.isPresent()) {
@@ -169,9 +172,9 @@ public class UserService {
 
         List<PlaylistResponseDTO> playlistResponseDTOS = playlists.stream().map(playlist -> playlistResponseMapper.playlistToPlaylistResponseDTOCustom(playlist,0,0,0)).toList() ;
 
-        List<User> followings = followerRepository.findByIdFollowingId(userId).stream().map(follower -> follower.getFollowedUser()).toList();
+        List<User> followings = followerRepository.findFollowingListByUseId(userId).stream().map(follower -> follower.getFollowedUser()).toList();
 
-        List<UserResponseDTO> userResponseDTOS = followings.stream().map(user -> userResponseMapper.userToUserResponse(user)).toList() ;
+        List<UserResponseNoAssociation> userResponseDTOS = followings.stream().map(user -> userNoAssMapper.userToUserDTO(user)).toList() ;
 
         return new UserFollowingsPlaylists(userResponseDTOS,playlistResponseDTOS);
     }
@@ -193,5 +196,17 @@ public class UserService {
     @Transactional
     public void removePlaylist(Long userId, Long playlistId) {
         playlistUserRepository.deleteByUserAndPlaylist(userId,playlistId);
+    }
+
+    @Transactional
+    public Long addAlbum(Long userId, AlbumRequest request) {
+        User user = userRepository.
+                findById(userId).
+                orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        Album album = albumRequestMapper.dtoToEntity(request);
+        album.setReleaseDate(LocalDateTime.now());
+        user.addAlbum(album);
+        userRepository.saveAndFlush(user);
+        return album.getId();
     }
 }

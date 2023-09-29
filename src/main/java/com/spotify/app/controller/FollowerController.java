@@ -1,11 +1,14 @@
 package com.spotify.app.controller;
 
 
+import com.spotify.app.dto.response.UserResponseNoAssociation;
 import com.spotify.app.service.FollowerService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/follower")
@@ -38,4 +41,14 @@ public class FollowerController {
         followerService.cancelFollowing(currentUserId,targetUserId);
         return ResponseEntity.ok().body("Removed from your artist");
     }
+    @GetMapping("/{userId}/followings")
+    @Operation(description =
+            "find all followings by userId when search type `artists`"
+    )
+    public List<UserResponseNoAssociation> following(
+            @PathVariable("userId") Long userId
+    ) {
+        return followerService.findAllFollowingsByUserId(userId);
+    }
+
 }

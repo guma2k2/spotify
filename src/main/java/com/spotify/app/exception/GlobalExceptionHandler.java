@@ -2,11 +2,10 @@ package com.spotify.app.exception;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.security.SignatureException;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
+import org.springframework.http.converter.HttpMessageConversionException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -58,6 +57,18 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
 
+    @ExceptionHandler({HttpMessageConversionException.class})
+    public ResponseEntity<Object> handleException(
+            HttpMessageConversionException ex) {
+
+        List<String> details = new ArrayList<>();
+        ApiError err = new ApiError(
+                LocalDateTime.now(),
+                HttpStatus.NOT_FOUND,
+                "Resource is exited" ,
+                details);
+        return ResponseEntity.badRequest().body(err);
+    }
     @Override
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
@@ -72,7 +83,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler({Exception.class})
-    public ResponseEntity<Object> handleSecurityException(Exception ex) {
+    public ResponseEntity<Object> handleSecurityException(Exception ex, HttpServletRequest request) {
         List<String> details = new ArrayList<>();
         details.add(ex.getMessage());
         ApiError err = new ApiError() ;

@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 public class AlbumService {
     private final AlbumRepository albumRepository ;
 
-
+    private final SongService songService;
     private final AlbumSongRepository albumSongRepository;
     private final AlbumMapper albumMapper ;
     public AlbumDTO findById(Long albumId) {
@@ -67,5 +67,19 @@ public class AlbumService {
 
     public Album get(Long albumId) {
         return albumRepository.findById(albumId).orElseThrow(() -> new ResourceNotFoundException("Album not found"));
+    }
+
+    public void addSong(Long albumId, Long songId) {
+        Album album = get(albumId);
+        Song song = songService.get(songId);
+        album.addSong(song);
+        albumRepository.save(album);
+    }
+
+    public void removeSong(Long albumId, Long songId) {
+        Album album = get(albumId);
+        Song song = songService.get(songId);
+        album.removeSong(song);
+        albumRepository.save(album);
     }
 }

@@ -55,6 +55,7 @@ public class SongService {
 
     public void saveSongAudio(MultipartFile multipartFile, Long songId) throws IOException {
         Song song = this.get(songId);
+//        song.setAudioTest(multipartFile.getBytes());
 
         if (!multipartFile.isEmpty()) {
             String fileName = StringUtils.cleanPath(multipartFile.getOriginalFilename());
@@ -74,7 +75,7 @@ public class SongService {
         Song song = songRepository.
                 findById(songId).
                 orElseThrow(() ->
-                        new ResourceNotFoundException(String.format("song with id: [%d] not found",songId)));
+                        new ResourceNotFoundException(String.format("song with id: [%d] not found", songId)));
 
         if(image != null) {
             try {

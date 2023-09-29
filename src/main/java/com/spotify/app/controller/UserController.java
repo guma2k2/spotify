@@ -1,11 +1,14 @@
 package com.spotify.app.controller;
 
+import com.spotify.app.dto.AlbumDTO;
 import com.spotify.app.dto.UserDTO;
 import com.spotify.app.dto.UserFollowingsPlaylists;
+import com.spotify.app.dto.request.AlbumRequest;
 import com.spotify.app.dto.response.UserResponseDTO;
 import com.spotify.app.model.User;
 import com.spotify.app.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -110,6 +113,18 @@ public class UserController {
         userService.removePlaylist(userId,playlistId);
         return ResponseEntity.ok().body(String.format("Remove playlist %d from user %d successful",playlistId,userId));
     }
+
+
+
+    @PostMapping("/{userID}/add/album")
+    public ResponseEntity<?> addUserToLikedPlaylist(
+            @PathVariable("userID") Long userID,
+            @Valid @RequestBody AlbumRequest request
+    ) {
+        Long albumId = userService.addAlbum(userID,request);
+        return ResponseEntity.ok().body(albumId);
+    }
+
 
 
 }

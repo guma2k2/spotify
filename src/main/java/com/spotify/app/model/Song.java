@@ -56,6 +56,11 @@ public class Song {
     private List<AlbumSong> albumSongList = new ArrayList<>();
 
 
+//    @Lob
+//    @Column(columnDefinition = "LONGBLOB")
+//    private byte[] audioTest ;
+
+
     @Transient
     public String getAudioPath() {
         if (id == null || audio == null) return FileUploadUtil.baseUrlFail;

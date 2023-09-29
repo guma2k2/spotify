@@ -54,4 +54,24 @@ public class AlbumController {
                 .body(album.getThumbnail());
     }
 
+    @GetMapping("/{albumId}/add/{songId}")
+    @Operation(description = "add song to liked Song by userId")
+    public void addLikedSongToPlaylistByUserId(
+            @PathVariable("albumId") Long albumId,
+            @PathVariable("songId") Long songId
+    ) {
+        albumService.addSong(albumId, songId);
+    }
+
+    @GetMapping("/{albumId}/remove/{songId}")
+    @Operation(description = "remove song from liked Song by userId")
+    public void removeFromLikedSongByUserId(
+            @PathVariable("albumId") Long albumId,
+            @PathVariable("songId") Long songId
+    ) {
+        albumService.removeSong(albumId,songId);
+    }
+
+
+
 }

@@ -1,5 +1,7 @@
 package com.spotify.app.service;
 
+import com.spotify.app.dto.response.UserResponseNoAssociation;
+import com.spotify.app.mapper.UserNoAssMapper;
 import com.spotify.app.model.Follower;
 import com.spotify.app.model.User;
 import com.spotify.app.repository.FollowerRepository;
@@ -9,6 +11,8 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @AllArgsConstructor
 @Slf4j
@@ -17,6 +21,8 @@ public class FollowerService {
     private final FollowerRepository followerRepository;
 
     private final UserService userService;
+
+    private final UserNoAssMapper userNoAssMapper;
 
     @Transactional
     public void addFollowing(Long I_id, Long U_id ) {
@@ -38,5 +44,17 @@ public class FollowerService {
         User I = userService.get(I_id);
         User U = userService.get(U_id);
         followerRepository.unfollowing(I,U);
+    }
+
+    public List<UserResponseNoAssociation> findAllFollowingsByUserId(Long userId) {
+
+        List<Follower> followers = followerRepository.findFollowingListByUseId(userId);
+
+        List<UserResponseNoAssociation> followings = followers.
+                stream().
+                map(follower -> userNoAssMapper.userToUserDTO(follower.getFollowedUser())).
+                toList();
+
+        return followings;
     }
 }

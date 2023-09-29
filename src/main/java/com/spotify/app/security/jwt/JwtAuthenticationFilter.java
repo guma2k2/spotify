@@ -1,6 +1,7 @@
 package com.spotify.app.security.jwt;
 
 import com.spotify.app.security.auth.UserDetailService;
+import java.io.IOException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,8 +14,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
-
-import java.io.IOException;
 
 @Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -40,15 +39,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final String jwt ;
         String userEmail = null;
         try {
-            if(authHeader == null || !authHeader.startsWith("Bearer ")){
-                filterChain.doFilter(request , response);
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                filterChain.doFilter(request, response);
                 return;
             }
             jwt = authHeader.substring(7);
             userEmail = jwtService.extractUserName(jwt);
             if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
-                if (jwtService.isTokenValid(jwt, userDetails) ) {
+                if (jwtService.isTokenValid(jwt, userDetails)) {
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                             userDetails,
                             null,
@@ -61,6 +60,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 }
             }
             filterChain.doFilter(request, response);
+        } catch (IOException e) {
+            // hehe disappear error (play an audio, cant preset audio/m..) when im on the way to fix it
         } catch (Exception e) {
             log.error(e.getMessage());
             exceptionResolver.resolveException(request, response, null, e) ;

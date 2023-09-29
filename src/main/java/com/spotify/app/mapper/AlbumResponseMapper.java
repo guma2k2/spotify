@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface AlbumResponseMapper {
 
     AlbumResponseMapper INSTANCE = Mappers.getMapper(AlbumResponseMapper.class);

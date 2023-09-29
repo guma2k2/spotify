@@ -40,16 +40,25 @@ public class SongService {
 
     private final SongResponseMapper songResponseMapper;
     private final SongMapper songMapper;
-    private final UserService userService;
 
+    private final AlbumResponseMapper albumResponseMapper;
+    private final UserService userService;
     private final UserRepository userRepository ;
+
+
     public Song get(Long songId) {
         return songRepository.findById(songId).orElseThrow(() -> new ResourceNotFoundException("Song not found")) ;
     }
 
     public SongResponseDTO getById(Long songId) {
         Song song = songRepository.findByIdCustom(songId).orElseThrow() ;
-        return songResponseMapper.songToSongResponseDTO(song,null,null);
+
+        if(song.getAlbumSongList().isEmpty()) {
+            return songResponseMapper.songToSongResponseDTO(song,null,null);
+        }
+        List<Album> albums = albumSongRepository.findBySongId(songId).stream().map(albumSong -> albumSong.getAlbum()).toList();
+        List<AlbumResponseDTO> albumResponseDTOS = albumResponseMapper.albumsToAlbumsResponseDTO(albums);
+        return songResponseMapper.songToSongResponseDTO(song,albumResponseDTOS,null);
     }
 
 

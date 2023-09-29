@@ -13,8 +13,9 @@ public record SongResponseDTO(Long id,
                               Genre genre ,
                               String createdAt,
                               String duration,
+                              long viewCount,
                               String audioPath,
                               String imagePath,
-                              Set<UserResponseDTO> users,
+                              Set<UserResponseNoAssociation> users,
                               List<AlbumResponseDTO> albums) {
 }

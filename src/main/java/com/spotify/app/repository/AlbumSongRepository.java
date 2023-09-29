@@ -22,11 +22,11 @@ public interface AlbumSongRepository extends JpaRepository<AlbumSong,Long> {
     List<AlbumSong> findByAlbumId(@Param("id") Long id) ;
 
     @Query("""
-            SELECT as
-            FROM AlbumSong as
-            JOIN FETCH as.album
-            JOIN FETCH as.song s
-            JOIN FETCH s.users
+            SELECT ab
+            FROM AlbumSong ab
+            LEFT JOIN FETCH ab.album a
+            LEFT JOIN FETCH ab.song s
+            LEFT JOIN FETCH s.users
             WHERE s.id = :id
             """)
     List<AlbumSong> findBySongId(@Param("id") Long id) ;

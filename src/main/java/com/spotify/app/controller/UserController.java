@@ -116,14 +116,7 @@ public class UserController {
 
 
 
-    @PostMapping("/{userID}/add/album")
-    public ResponseEntity<?> addUserToLikedPlaylist(
-            @PathVariable("userID") Long userID,
-            @Valid @RequestBody AlbumRequest request
-    ) {
-        Long albumId = userService.addAlbum(userID,request);
-        return ResponseEntity.ok().body(albumId);
-    }
+
 
 
 

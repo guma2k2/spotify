@@ -20,7 +20,9 @@ public interface AlbumMapper {
 
     @Mapping(target = "songs", source = "songDTOS")
     @Mapping(target = "releaseDate", expression = "java(getReleaseDate(album))")
-    AlbumDTO albumToAlbumDTO(Album album, List<SongDTO> songDTOS);
+    @Mapping(target = "songCount", source = "songCount")
+    @Mapping(target = "totalTime", source = "totalTime")
+    AlbumDTO albumToAlbumDTO(Album album, List<SongDTO> songDTOS,int songCount,String totalTime);
 
 
     Album dtoToEntity(AlbumDTO albumDTO);

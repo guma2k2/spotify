@@ -27,7 +27,6 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
-
     private final PlaylistRepository playlistRepository;
 
 

@@ -1,6 +1,5 @@
 package com.spotify.app.service;
 
-import com.spotify.app.dto.AlbumDTO;
 import com.spotify.app.dto.UserDTO;
 import com.spotify.app.dto.UserFollowingsPlaylists;
 import com.spotify.app.dto.request.AlbumRequest;
@@ -15,6 +14,7 @@ import com.spotify.app.model.*;
 import com.spotify.app.repository.*;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class UserService {
 
     private final UserRepository userRepository ;
@@ -39,8 +40,9 @@ public class UserService {
     private final PlaylistUserRepository playlistUserRepository;
     private final AlbumRequestMapper albumRequestMapper ;
     private final FollowerRepository followerRepository;
-
     private final UserNoAssMapper userNoAssMapper;
+
+    private final AlbumRepository albumRepository;
     public UserDTO getUserById(Long userId) {
         Optional<User> user = userRepository.findByIdReturnRoleAndSongs(userId) ;
         if(!user.isPresent()) {
@@ -111,8 +113,16 @@ public class UserService {
                 throw new RuntimeException(e.getMessage());
             }
         }
+
+        User savedUser = userRepository.save(user);
+        UserResponseDTO userResponseDTO=  userResponseMapper.userToUserResponse(savedUser) ;
         user.setGender(Gender.valueOf(gender));
-        return userResponseMapper.userToUserResponse(userRepository.save(user)) ;
+        Playlist playlist = Playlist.builder()
+                .name("Liked Songs")
+                .build();
+        playlist.addUser(savedUser);
+        playlistRepository.save(playlist);
+        return userResponseDTO;
     }
 
     public UserResponseDTO updateUser(String firstName,
@@ -198,15 +208,5 @@ public class UserService {
         playlistUserRepository.deleteByUserAndPlaylist(userId,playlistId);
     }
 
-    @Transactional
-    public Long addAlbum(Long userId, AlbumRequest request) {
-        User user = userRepository.
-                findById(userId).
-                orElseThrow(() -> new ResourceNotFoundException("User not found"));
-        Album album = albumRequestMapper.dtoToEntity(request);
-        album.setReleaseDate(LocalDateTime.now());
-        user.addAlbum(album);
-        userRepository.saveAndFlush(user);
-        return album.getId();
-    }
+
 }

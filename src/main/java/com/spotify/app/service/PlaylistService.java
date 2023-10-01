@@ -33,7 +33,6 @@ public class PlaylistService {
     private final PlaylistRepository playlistRepository ;
     private final PlaylistMapper playlistMapper;
     private final SongService songService;
-    private final UserRepository userRepository;
     private final PlaylistSongRepository playlistSongRepository;
 
     private final PlaylistResponseMapper playlistResponseMapper;
@@ -42,7 +41,7 @@ public class PlaylistService {
     private final PlaylistUserRepository playlistUserRepository;
 
     public List<PlaylistResponseDTO> findByUserId(Long userId) {
-        List<PlaylistUser> playlistUserList = playlistUserRepository.findByUseridWithoutLikedSong(userId);
+        List<PlaylistUser> playlistUserList = playlistUserRepository.findByUserid(userId);
 
         List<Playlist> playlists = playlistUserList.stream().map(playlistUser -> playlistUser.getPlaylist()).toList();
 

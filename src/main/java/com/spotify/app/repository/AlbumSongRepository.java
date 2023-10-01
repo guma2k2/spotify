@@ -12,11 +12,11 @@ import java.util.List;
 public interface AlbumSongRepository extends JpaRepository<AlbumSong,Long> {
 
     @Query("""
-            SELECT as
-            FROM AlbumSong as
-            JOIN FETCH as.album a
-            JOIN FETCH as.song s
-            JOIN FETCH s.users u
+            SELECT ab
+            FROM AlbumSong ab
+            LEFT JOIN FETCH ab.album a
+            LEFT JOIN FETCH ab.song s
+            LEFT JOIN FETCH s.users u
             WHERE a.id = :id
             """)
     List<AlbumSong> findByAlbumId(@Param("id") Long id) ;

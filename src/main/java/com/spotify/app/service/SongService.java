@@ -3,8 +3,7 @@ import com.spotify.app.dto.SongDTO;
 import com.spotify.app.enums.Genre;
 import com.spotify.app.mapper.SongMapper;
 import com.spotify.app.model.*;
-import com.spotify.app.repository.PlaylistSongRepository;
-import com.spotify.app.repository.UserRepository;
+import com.spotify.app.repository.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -15,8 +14,6 @@ import com.spotify.app.dto.response.SongResponseDTO;
 import com.spotify.app.exception.ResourceNotFoundException;
 import com.spotify.app.mapper.AlbumResponseMapper;
 import com.spotify.app.mapper.SongResponseMapper;
-import com.spotify.app.repository.AlbumSongRepository;
-import com.spotify.app.repository.SongRepository;
 import com.spotify.app.utility.FileUploadUtil;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -40,10 +37,11 @@ public class SongService {
 
     private final SongResponseMapper songResponseMapper;
     private final SongMapper songMapper;
-
     private final AlbumResponseMapper albumResponseMapper;
     private final UserService userService;
     private final UserRepository userRepository ;
+
+    private final AlbumRepository albumRepository;
 
 
     public Song get(Long songId) {
@@ -124,7 +122,6 @@ public class SongService {
 
     public void addSong(MultipartFile image, MultipartFile audio, String lyric, String genre, String name, int duration,Long userId) throws IOException {
         // Todo: check exit by name
-
         if(checkSongExitByName(name)) {
             throw new ResourceNotFoundException(String.format("song with name: [%s] not found",name));
         }
@@ -160,8 +157,18 @@ public class SongService {
         } else {
             if (song.getAudio().isEmpty()) song.setAudio(null);
         }
+    
+        Album album = Album.builder()
+                .name(song.getName())
+                .image(song.getImage())
+                .releaseDate(LocalDateTime.now())
+                .build();
+        Album savedAlbum = albumRepository.save(album);
+        user.addAlbum(savedAlbum);
         user.addSong(song);
+        album.addSong(song);
         userRepository.save(user);
+
     }
 
     private boolean checkSongExitByName(String name) {

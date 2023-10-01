@@ -61,7 +61,6 @@ public class SongController {
     public ResponseEntity<?> viewImage(@PathVariable("songId") Long songId) {
         Song song = songService.get(songId);
         return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(""))
                 .body(song.getImage());
     }
 
@@ -85,7 +84,7 @@ public class SongController {
     }
 
     @PostMapping("/admin/save")
-    public ResponseEntity<?> addPlaylist(@RequestParam("image") MultipartFile image,
+    public ResponseEntity<?> addPlaylist(@RequestParam(value = "image",required = false) MultipartFile image,
                                          @RequestParam("audio") MultipartFile audio,
                                          @RequestParam("lyric") String lyric,
                                          @RequestParam("genre") String genre,

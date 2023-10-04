@@ -37,6 +37,8 @@ public class User implements UserDetails {
 
     private String password ;
 
+    private LocalDateTime dateOfBrith;
+
     @Lob
     @Column(columnDefinition = "LONGBLOB")
     private byte[] photo;

@@ -1,5 +1,6 @@
 package com.spotify.app.service;
 import com.spotify.app.dto.SongDTO;
+import com.spotify.app.dto.response.SongResponse;
 import com.spotify.app.enums.Genre;
 import com.spotify.app.mapper.SongMapper;
 import com.spotify.app.model.*;
@@ -7,10 +8,8 @@ import com.spotify.app.repository.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
-import com.spotify.app.dto.response.AlbumResponseDTO;
-import com.spotify.app.dto.response.SongResponseDTO;
+import com.spotify.app.dto.response.AlbumResponse;
 import com.spotify.app.exception.ResourceNotFoundException;
 import com.spotify.app.mapper.AlbumResponseMapper;
 import com.spotify.app.mapper.SongResponseMapper;
@@ -19,7 +18,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import javax.sound.sampled.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -30,39 +28,32 @@ import java.util.stream.Collectors;
 public class SongService {
 
     private final SongRepository songRepository ;
-
     private final AlbumSongRepository albumSongRepository;
-
     private final PlaylistSongRepository playlistSongRepository;
-
     private final SongResponseMapper songResponseMapper;
     private final SongMapper songMapper;
     private final AlbumResponseMapper albumResponseMapper;
-    private final UserService userService;
     private final UserRepository userRepository ;
-
     private final AlbumRepository albumRepository;
-
 
     public Song get(Long songId) {
         return songRepository.findById(songId).orElseThrow(() -> new ResourceNotFoundException("Song not found")) ;
     }
 
-    public SongResponseDTO getById(Long songId) {
+    public SongResponse getById(Long songId) {
         Song song = songRepository.findByIdCustom(songId).orElseThrow() ;
 
         if(song.getAlbumSongList().isEmpty()) {
-            return songResponseMapper.songToSongResponseDTO(song,null,null);
+            return songResponseMapper.songToSongResponse(song,null,null);
         }
-        List<Album> albums = albumSongRepository.findBySongId(songId).stream().map(albumSong -> albumSong.getAlbum()).toList();
-        List<AlbumResponseDTO> albumResponseDTOS = albumResponseMapper.albumsToAlbumsResponseDTO(albums);
-        return songResponseMapper.songToSongResponseDTO(song,albumResponseDTOS,null);
+        List<Album> albums = albumSongRepository.findBySongId(songId).stream().map(AlbumSong::getAlbum).toList();
+        List<AlbumResponse> albumResponses = albumResponseMapper.albumsToAlbumsResponse(albums);
+        return songResponseMapper.songToSongResponse(song, albumResponses,null);
     }
 
 
     public void saveSongAudio(MultipartFile multipartFile, Long songId) throws IOException {
-        Song song = this.get(songId);
-//        song.setAudioTest(multipartFile.getBytes());
+        Song song = get(songId);
 
         if (!multipartFile.isEmpty()) {
             String fileName = StringUtils.cleanPath(multipartFile.getOriginalFilename());
@@ -95,19 +86,20 @@ public class SongService {
     }
 
 
-    public SongResponseDTO findBySong(Song song, PlaylistSong playlistSong) {
+    public SongResponse findBySong(Song song, PlaylistSong playlistSong) {
 
         List<AlbumSong> albumSongs = albumSongRepository.findBySongId(song.getId());
 
         List<Album> albums = albumSongs.stream().map(AlbumSong::getAlbum).collect(Collectors.toList());
 
-        List<AlbumResponseDTO> albumResponseDTOS = AlbumResponseMapper.INSTANCE.albumsToAlbumsResponseDTO(albums);
+        List<AlbumResponse> albumResponses = albumResponseMapper.albumsToAlbumsResponse(albums);
 
-        String pattern = "dd/MM/yyyy hh:mm:ss";
-        DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern(pattern);
+        String createdOn = formattedCreatedOnWithCorrectPattern(playlistSong);
 
-        return songResponseMapper.songToSongResponseDTO(song, albumResponseDTOS, playlistSong.getCreatedOn().format(dateFormat));
+        return songResponseMapper.songToSongResponse(song, albumResponses, createdOn);
     }
+
+
 
     public List<SongDTO> findByPlaylistId(Long playlistId) {
         List<PlaylistSong> playlistSongs =  playlistSongRepository.findByPlaylistId(playlistId);
@@ -120,53 +112,38 @@ public class SongService {
     }
 
 
-    public void addSong(MultipartFile image, MultipartFile audio, String lyric, String genre, String name, int duration,Long userId) throws IOException {
+    public void addSong(MultipartFile image,
+                        MultipartFile audio,
+                        String lyric,
+                        String genre,
+                        String name,
+                        int duration,
+                        Long userId) throws IOException {
+
         // Todo: check exit by name
         if(checkSongExitByName(name)) {
             throw new ResourceNotFoundException(String.format("song with name: [%s] not found",name));
         }
 
-        User user = userService.get(userId);
+        User user = getUserByUserId(userId);
 
-        Song song = new Song();
-        if(image != null) {
-            try {
-                song.setImage(image.getBytes());
-            } catch (IOException e) {
-                throw new ResourceNotFoundException(e.getMessage());
-            }
-        }
+        Song underSave = new Song();
 
-        song.setLyric(lyric);
-        song.setGenre(Genre.valueOf(genre));
-        song.setName(name);
-        song.setDuration(duration);
-        song.setReleaseDate(LocalDateTime.now());
-        Song savedSong = songRepository.save(song);
-        if (!audio.isEmpty()) {
-            String fileName = StringUtils.cleanPath(audio.getOriginalFilename());
-            song.setAudio(fileName);
+        saveSongImage(image,underSave);
+        underSave.setLyric(lyric);
+        underSave.setGenre(Genre.valueOf(genre));
+        underSave.setName(name);
+        underSave.setDuration(duration);
+        underSave.setReleaseDate(LocalDateTime.now());
 
-            String uploadDir = "song-audios/" + savedSong.getId();
-            FileUploadUtil.cleanDir(uploadDir);
-            try {
-                FileUploadUtil.saveFile(uploadDir, fileName, audio);
-            } catch (IOException e) {
-                throw new RuntimeException(e.getMessage());
-            }
-        } else {
-            if (song.getAudio().isEmpty()) song.setAudio(null);
-        }
-    
-        Album album = Album.builder()
-                .name(song.getName())
-                .image(song.getImage())
-                .releaseDate(LocalDateTime.now())
-                .build();
-        Album savedAlbum = albumRepository.save(album);
-        user.addAlbum(savedAlbum);
-        user.addSong(song);
-        album.addSong(song);
+        Song savedSong = songRepository.save(underSave);
+        saveSongAudio(audio,savedSong);
+
+        Album album = triggerCreateSingleAlbumWhenSaveSong(savedSong);
+
+        user.addAlbum(album);
+        user.addSong(underSave);
+        album.addSong(underSave);
         userRepository.save(user);
 
     }
@@ -174,14 +151,58 @@ public class SongService {
     private boolean checkSongExitByName(String name) {
         return songRepository.findByName(name).isPresent();
     }
-
-    public List<SongResponseDTO> findByNameFullText(String name) {
+    public List<SongResponse> findByNameFullText(String name) {
         List<Song> songs = songRepository.findByNameFullText(name);
-        List<SongResponseDTO> songResponseDTOS = songs
+        List<SongResponse> songResponses = songs
                 .stream()
                 .map(song ->
-                        songResponseMapper.songToSongResponseDTO(song,null,null))
+                        songResponseMapper.songToSongResponse(song,null,null))
                 .toList();
-        return songResponseDTOS;
+        return songResponses;
     }
+    public User getUserByUserId(Long userId) {
+        return userRepository.
+                findById(userId).
+                orElseThrow(() ->
+                        new ResourceNotFoundException(String.format("user %d not found", userId)));
+    }
+    private String formattedCreatedOnWithCorrectPattern(PlaylistSong playlistSong) {
+        String pattern = "dd/MM/yyyy hh:mm:ss";
+        DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern(pattern);
+        return playlistSong.getCreatedOn().format(dateFormat);
+    }
+    private void saveSongImage(MultipartFile image, Song underSave) {
+        if(image != null) {
+            try {
+                underSave.setImage(image.getBytes());
+            } catch (IOException e) {
+                throw new ResourceNotFoundException(e.getMessage());
+            }
+        }
+    }
+    private void saveSongAudio(MultipartFile audio, Song underSave) {
+        if (!audio.isEmpty()) {
+            String fileName = StringUtils.cleanPath(audio.getOriginalFilename());
+            underSave.setAudio(fileName);
+
+            String uploadDir = "song-audios/" + underSave.getId();
+            FileUploadUtil.cleanDir(uploadDir);
+            try {
+                FileUploadUtil.saveFile(uploadDir, fileName, audio);
+            } catch (IOException e) {
+                throw new RuntimeException(e.getMessage());
+            }
+        } else {
+            if (underSave.getAudio().isEmpty()) underSave.setAudio(null);
+        }
+    }
+    public Album triggerCreateSingleAlbumWhenSaveSong(Song song) {
+        Album album = Album.builder()
+                .name(song.getName())
+                .image(song.getImage())
+                .releaseDate(LocalDateTime.now())
+                .build();
+        return albumRepository.save(album);
+    }
+
 }

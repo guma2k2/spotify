@@ -3,9 +3,8 @@ package com.spotify.app.controller;
 
 import com.spotify.app.dto.AlbumDTO;
 import com.spotify.app.dto.request.AlbumRequest;
-import com.spotify.app.dto.response.AlbumResponseDTO;
+import com.spotify.app.dto.response.AlbumResponse;
 import com.spotify.app.model.Album;
-import com.spotify.app.model.User;
 import com.spotify.app.service.AlbumService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -78,7 +77,7 @@ public class AlbumController {
     }
 
     @GetMapping
-    public List<AlbumResponseDTO> findAll(){
+    public List<AlbumResponse> findAll(){
         return albumService.findAll();
     }
 
@@ -100,5 +99,9 @@ public class AlbumController {
     ) {
         return ResponseEntity.ok().body(albumService.updateAlbum(albumId, request));
     }
+
+
+
+
 
 }

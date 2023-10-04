@@ -2,10 +2,7 @@ package com.spotify.app.service;
 
 import com.spotify.app.dto.UserDTO;
 import com.spotify.app.dto.UserFollowingsPlaylists;
-import com.spotify.app.dto.request.AlbumRequest;
-import com.spotify.app.dto.response.PlaylistResponseDTO;
-import com.spotify.app.dto.response.UserResponseDTO;
-import com.spotify.app.dto.response.UserResponseNoAssociation;
+import com.spotify.app.dto.response.*;
 import com.spotify.app.enums.Gender;
 import com.spotify.app.exception.DuplicateResourceException;
 import com.spotify.app.exception.ResourceNotFoundException;
@@ -15,14 +12,19 @@ import com.spotify.app.repository.*;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,29 +33,30 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserRepository userRepository ;
+    private final PlaylistRepository playlistRepository;
     private final UserMapper userMapper;
     private final UserResponseMapper userResponseMapper;
-    private final PlaylistResponseMapper playlistResponseMapper;
+    private final SongResponseMapper songResponseMapper;
     private final PasswordEncoder passwordEncoder;
-    private final RoleRepository roleRepository ;
-    private final PlaylistRepository playlistRepository;
-    private final PlaylistUserRepository playlistUserRepository;
-    private final AlbumRequestMapper albumRequestMapper ;
-    private final FollowerRepository followerRepository;
-    private final UserNoAssMapper userNoAssMapper;
+    private final PlaylistUserService playlistUserService;
+    private final FollowerService followerService;
+    private final AlbumService albumService;
+    private final PlaylistService playlistService;
+    private final RoleService roleService;
+    private final int userPerPage = 10 ;
 
-    private final AlbumRepository albumRepository;
-    public UserDTO getUserById(Long userId) {
-        Optional<User> user = userRepository.findByIdReturnRoleAndSongs(userId) ;
-        if(!user.isPresent()) {
-            throw new ResourceNotFoundException("User not found") ;
-        }
-        return userMapper.userToUserDTO(user.get()) ;
+
+    public UserDTO findByIdReturnRoleAndSongs(Long userId) {
+        User user = userRepository.
+                findByIdReturnRoleAndSongs(userId).
+                orElseThrow(() ->
+                        new ResourceNotFoundException(String.format("user with id: %d not found",userId))) ;
+
+        return userMapper.userToUserDTO(user) ;
     }
 
     public void uploadPhoto(MultipartFile photo, Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found")) ;
+        User user = get(userId);
         try {
             user.setPhoto(photo.getBytes());
         } catch (IOException e) {
@@ -69,36 +72,55 @@ public class UserService {
                 orElseThrow(() -> new ResourceNotFoundException(String.format("user %d not found", userId)));
     }
 
-    public UserResponseDTO findByIdReturnWithRole(Long userId) {
-        User user = userRepository.
-                findById(userId).
-                orElseThrow(() -> new ResourceNotFoundException(String.format("user %d not found", userId)));
+    public UserResponse findByIdReturnWithRole(Long userId) {
+        User user = get(userId);
         return userResponseMapper.userToUserResponse(user);
     }
 
-    public List<UserResponseDTO> listAll() {
+    public List<UserResponse> listAll() {
+        // Todo: use pageable
         List<User> users = userRepository.findAllCustom();
 
         return users.stream().map(userResponseMapper::userToUserResponse).collect(Collectors.toList());
     }
 
-    public UserResponseDTO addUser(String firstName,
-                                   String lastName,
-                                   String email,
-                                   String password,
-                                   MultipartFile photoImage,
-                                   String roleName,
-                                   String gender) {
+    public Page<User> getUserPerPage(int numPage, String sortDir, String sortField, String keyword) {
+        Sort sort = Sort.by(sortField);
+        sort = sortDir.equals("asc") ? sort.ascending() : sort.descending();
+        Pageable pageable = PageRequest.of(numPage - 1, userPerPage, sort);
+        if(keyword != null) {
+            return userRepository.findAllWithKeyword(keyword, pageable);
+        }
+        return userRepository.findAll(pageable);
+    }
+
+    public PageResponse getPageResponse(int numPage, String sortDir, String sortField, String keyword) {
+        Page<User> usersPage = getUserPerPage(numPage,sortDir,sortField,keyword);
+
+        List<User> usersFromUserPage = usersPage.getContent();
+
+        List<UserResponse> users = userResponseMapper.usersToUsersResponse(usersFromUserPage);
+
+        int totalPage = usersPage.getTotalPages();
+
+        return new PageResponse(totalPage,numPage,sortDir,sortField, Collections.singletonList(users));
+    }
+
+    public UserResponse addUser(String firstName,
+                                String lastName,
+                                String email,
+                                String password,
+                                MultipartFile photoImage,
+                                String roleName,
+                                String gender) {
 
         if(checkUserExitByEmail(email)) {
-            throw new DuplicateResourceException(String.format("email : [%s] is existed", email));
+            throw new DuplicateResourceException(String.format("email : [%s] is registered", email));
         }
+        // get role by roleName
+        Role role = roleService.findByName(roleName);
 
-        Role role = roleRepository.
-                findByName(roleName).
-                orElseThrow(() -> new ResourceNotFoundException(String.format("[%s] not found",roleName))) ;
-
-        User user = User.builder()
+        User underSave = User.builder()
                 .firstName(firstName)
                 .lastName(lastName)
                 .email(email)
@@ -106,17 +128,12 @@ public class UserService {
                 .role(role)
                 .build();
 
-        if(!photoImage.isEmpty()) {
-            try {
-                user.setPhoto(photoImage.getBytes());
-            } catch (IOException e) {
-                throw new RuntimeException(e.getMessage());
-            }
-        }
+        saveUserPhotoImage(underSave, photoImage);
+        underSave.setGender(Gender.valueOf(gender));
+        User savedUser = userRepository.save(underSave);
 
-        User savedUser = userRepository.save(user);
-        UserResponseDTO userResponseDTO=  userResponseMapper.userToUserResponse(savedUser) ;
-        user.setGender(Gender.valueOf(gender));
+        // convert user to userResponseDTO
+        UserResponse userResponseDTO=  userResponseMapper.userToUserResponse(savedUser) ;
         Playlist playlist = Playlist.builder()
                 .name("Liked Songs")
                 .build();
@@ -125,49 +142,36 @@ public class UserService {
         return userResponseDTO;
     }
 
-    public UserResponseDTO updateUser(String firstName,
-                                      String lastName,
-                                      String email,
-                                      String password,
-                                      MultipartFile photoImage,
-                                      String roleName,
-                                      Long userId,
-                                      String gender
+    public UserResponse updateUser(String firstName,
+                                   String lastName,
+                                   String email,
+                                   String password,
+                                   MultipartFile photoImage,
+                                   String roleName,
+                                   Long userId,
+                                   String gender
     ) {
-        Optional<User> user = userRepository.findById(userId);
+        User underUpdate = get(userId);
 
-        if(user.isEmpty()) {
-            throw new ResourceNotFoundException(String.format("user with id : [%d] not found", userId));
-        }
-
-        if(checkUserExitByEmail(email) && !user.get().getEmail().equals(email)) {
+        if(checkUserExitByEmail(email) && !underUpdate.getEmail().equals(email)) {
             throw new DuplicateResourceException(String.format("email : [%s] is existed", email));
         }
 
-
-        User checkedUser = user.get();
-        checkedUser.setFirstName(firstName);
-        checkedUser.setLastName(lastName);
-        checkedUser.setEmail(email);
-
-        Role role = roleRepository.
-                findByName(roleName).
-                orElseThrow(() -> new ResourceNotFoundException(String.format("[%s] not found",roleName))) ;
-
-        checkedUser.setRole(role);
-        checkedUser.setGender(Gender.valueOf(gender));
         if(password != null) {
-            checkedUser.setPassword(passwordEncoder.encode(password));
+            underUpdate.setPassword(passwordEncoder.encode(password));
         }
 
-        if(photoImage != null) {
-            try {
-                checkedUser.setPhoto(photoImage.getBytes());
-            } catch (IOException e) {
-                throw new RuntimeException(e.getMessage());
-            }
-        }
-        return userResponseMapper.userToUserResponse(userRepository.save(checkedUser)) ;
+        saveUserPhotoImage(underUpdate, photoImage);
+        underUpdate.setFirstName(firstName);
+        underUpdate.setLastName(lastName);
+        underUpdate.setEmail(email);
+
+        Role role = roleService.findByName(roleName);
+
+        underUpdate.setRole(role);
+        underUpdate.setGender(Gender.valueOf(gender));
+
+        return userResponseMapper.userToUserResponse(userRepository.save(underUpdate)) ;
     }
 
 
@@ -178,26 +182,21 @@ public class UserService {
 
 
     public UserFollowingsPlaylists findByIdReturnFollowingsAndPlaylists (Long userId) {
-        List<Playlist> playlists = playlistUserRepository.findByUserid(userId).stream().map(playlistUser -> playlistUser.getPlaylist()).toList();
+        // get playlist by userId
+        List<PlaylistResponse> playlistResponses = playlistUserService.findByUserId(userId);
 
-        List<PlaylistResponseDTO> playlistResponseDTOS = playlists.stream().map(playlist -> playlistResponseMapper.playlistToPlaylistResponseDTOCustom(playlist,0,0,0)).toList() ;
+        // find all user who were followed by `userId`
+        List<UserNoAssociationResponse> userResponseDTOS = followerService.findAllFollowingsByUserId(userId);
 
-        List<User> followings = followerRepository.findFollowingListByUseId(userId).stream().map(follower -> follower.getFollowedUser()).toList();
-
-        List<UserResponseNoAssociation> userResponseDTOS = followings.stream().map(user -> userNoAssMapper.userToUserDTO(user)).toList() ;
-
-        return new UserFollowingsPlaylists(userResponseDTOS,playlistResponseDTOS);
+        return new UserFollowingsPlaylists(userResponseDTOS, playlistResponses);
     }
 
     @Transactional
     public void addPlaylist(Long userId, Long playlistId) {
-        User user = userRepository.
-                findById(userId).
-                orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        Playlist playlist = playlistRepository.
-                findById(playlistId).
-                orElseThrow(() -> new ResourceNotFoundException("Playlist not found"));
+        User user = get(userId);
+
+        Playlist playlist = playlistService.get(playlistId);
 
         user.addPlaylist(playlist);
         userRepository.save(user);
@@ -205,8 +204,38 @@ public class UserService {
 
     @Transactional
     public void removePlaylist(Long userId, Long playlistId) {
-        playlistUserRepository.deleteByUserAndPlaylist(userId,playlistId);
+        playlistUserService.deleteByUserAndPlaylist(userId, playlistId);
     }
 
+
+    public UserAlbumsSongs findByIdReturnSongsAlbums(Long userId) {
+        // get albums by user
+        List<AlbumResponse> albums = albumService.findAlbumByUserId(userId);
+
+        // get songs by user
+        User user = userRepository.findByIdReturnRoleAndSongs(userId).orElseThrow() ;
+
+        // convert songs to songResponses
+        List<SongResponse> songResponses = convertSongsToSongResponses(user.getSongs());
+
+        return new UserAlbumsSongs(albums, songResponses);
+    }
+
+    private List<SongResponse> convertSongsToSongResponses(Set<Song> songs) {
+        return songs.stream()
+                .map(song ->
+                        songResponseMapper.songToSongResponse(song,null,null))
+                .toList();
+    }
+
+    public void saveUserPhotoImage(User underSave, MultipartFile photoImage) {
+        if(photoImage != null) {
+            try {
+                underSave.setPhoto(photoImage.getBytes());
+            } catch (IOException e) {
+                throw new RuntimeException(e.getMessage());
+            }
+        }
+    }
 
 }

@@ -1,7 +1,7 @@
 package com.spotify.app.controller;
 
 
-import com.spotify.app.dto.response.UserResponseNoAssociation;
+import com.spotify.app.dto.response.UserNoAssociationResponse;
 import com.spotify.app.service.FollowerService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.AllArgsConstructor;
@@ -45,7 +45,7 @@ public class FollowerController {
     @Operation(description =
             "find all followings by userId when search type `artists`"
     )
-    public List<UserResponseNoAssociation> following(
+    public List<UserNoAssociationResponse> following(
             @PathVariable("userId") Long userId
     ) {
         return followerService.findAllFollowingsByUserId(userId);

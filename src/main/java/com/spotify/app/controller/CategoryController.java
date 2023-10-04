@@ -2,8 +2,7 @@ package com.spotify.app.controller;
 
 
 import com.spotify.app.dto.CategoryDTO;
-import com.spotify.app.dto.response.CategoryResponseDTO;
-import com.spotify.app.model.Album;
+import com.spotify.app.dto.response.CategoryResponse;
 import com.spotify.app.model.Category;
 import com.spotify.app.service.CategoryService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -67,7 +66,7 @@ public class CategoryController {
     }
     
     @GetMapping("/admin/{categoryId}")
-    public CategoryResponseDTO findByIdForAdmin(@PathVariable("categoryId") Integer categoryId) {
+    public CategoryResponse findByIdForAdmin(@PathVariable("categoryId") Integer categoryId) {
         return categoryService.getByIdForAdmin(categoryId);
     }
 
@@ -95,7 +94,7 @@ public class CategoryController {
         return categoryService.findByIdCustom(categoryId);
     }
     @GetMapping
-    public List<CategoryResponseDTO> getAll() {
+    public List<CategoryResponse> getAll() {
         return categoryService.listAll();
     }
 

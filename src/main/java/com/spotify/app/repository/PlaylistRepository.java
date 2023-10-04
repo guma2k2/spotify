@@ -21,6 +21,6 @@ public interface PlaylistRepository extends JpaRepository<Playlist, Long> {
             LEFT JOIN FETCH p.playlistUserList
             WHERE p.id = :id
             """)
-    Optional<Playlist> findByIdReturnUserLiked(@Param("id") Long id);
+    Optional<Playlist> findByIdReturnPlaylistUsers(@Param("id") Long id);
 
 }

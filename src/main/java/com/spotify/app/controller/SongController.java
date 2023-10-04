@@ -1,13 +1,10 @@
 package com.spotify.app.controller;
 
 import com.spotify.app.dto.SongDTO;
-import com.spotify.app.dto.response.SongResponseDTO;
+import com.spotify.app.dto.response.SongResponse;
 import com.spotify.app.model.Song;
 import com.spotify.app.service.SongService;
-import io.swagger.v3.oas.annotations.Operation;
-import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +22,7 @@ public class SongController {
 
 
     @GetMapping("/{songId}")
-    public SongResponseDTO getById(
+    public SongResponse getById(
             @PathVariable("songId") Long songId
     ) {
         return songService.getById(songId);
@@ -106,7 +103,7 @@ public class SongController {
 
     @GetMapping("/search/{name}")
 
-    List<SongResponseDTO> findByNameFullText(
+    List<SongResponse> findByNameFullText(
             @PathVariable("name") String name
     ) {
         return songService.findByNameFullText(name);

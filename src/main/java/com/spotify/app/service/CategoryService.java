@@ -1,7 +1,8 @@
 package com.spotify.app.service;
 
 import com.spotify.app.dto.CategoryDTO;
-import com.spotify.app.dto.response.CategoryResponseDTO;
+import com.spotify.app.dto.response.CategoryResponse;
+import com.spotify.app.exception.DuplicateResourceException;
 import com.spotify.app.exception.ResourceNotFoundException;
 import com.spotify.app.mapper.CategoryMapper;
 import com.spotify.app.mapper.CategoryResponseMapper;
@@ -30,6 +31,8 @@ public class CategoryService {
 
     private final PlaylistRepository playlistRepository;
 
+    private final int identifyOfCategoryHome = 1;
+
     public Set<CategoryDTO> listParent() {
         Set<Category> categories = categoryRepository.listAllParent();
         return CategoryMapper.INSTANCE.categoriesToCategoriesDTO(categories);
@@ -40,14 +43,15 @@ public class CategoryService {
         return CategoryMapper.INSTANCE.categoriesToCategoriesDTO(categories);
     }
 
-
-
     public Category get(Integer cateId) {
-        return categoryRepository.findById(cateId).orElseThrow(() -> new ResourceNotFoundException("Category not found"));
+        return categoryRepository.
+                findById(cateId).
+                orElseThrow(() ->
+                        new ResourceNotFoundException(String.format("category with id not found", cateId)));
     }
 
     public Set<CategoryDTO>  findCategoryNameHome() {
-        return listByParentId(1);
+        return listByParentId(identifyOfCategoryHome);
     }
 
     public CategoryDTO findByIdCustom(Integer id) {
@@ -57,6 +61,21 @@ public class CategoryService {
         return categoryMapper.categoryToCategoryDTO(category);
     }
 
+
+    private  void checkCategoryExitByTitleWhenUpdate(Category underCheck,String title) {
+        boolean check = categoryRepository.findByTitle(title).isPresent();
+        if (check && !underCheck.getTitle().equals(title)) {
+            throw new DuplicateResourceException(String.format("category with title : [%s] existed" , title));
+        }
+    }
+
+    private void checkCategoryExitByTitle(String title) {
+        boolean check = categoryRepository.findByTitle(title).isPresent();
+        if(check) {
+            throw new DuplicateResourceException(String.format("category with title : [%s] existed" , title));
+        }
+    }
+
     @Transactional
     public void updateCategory(MultipartFile image,
                                MultipartFile thumbnail,
@@ -64,126 +83,112 @@ public class CategoryService {
                                String title,
                                String categoryParentTitle
     ) {
-        Category category = categoryRepository.findById(categoryId).orElseThrow(() -> new ResourceNotFoundException("Category not found"));
+        Category underUpdate = get(categoryId);
 
-        if(checkCategoryExitByTitle(title) && !category.getTitle().equals(title)) {
-            throw new ResourceNotFoundException(String.format("category with title : [%s] existed" , title));
-        }
+        checkCategoryExitByTitleWhenUpdate(underUpdate, title);
+        underUpdate.setTitle(title);
 
         if(categoryParentTitle != null) {
-            Category parent = categoryRepository.
-                    findByTitle(categoryParentTitle).
-                    orElseThrow(() ->
-                            new ResourceNotFoundException(
-                                    String.format("category parent with id: %s not found", categoryParentTitle)
-                            ));
-            category.setCategoryParent(parent);
-        } else {
-            category.setCategoryParent(null);
+            Category parent = getByTitle(categoryParentTitle);
+            underUpdate.setCategoryParent(parent);
         }
 
-        category.setTitle(title);
+        saveCategoryImage(underUpdate, image);
+        saveCategoryThumbnail(underUpdate, thumbnail);
 
-        if (image != null) {
-            try {
-                category.setImage(image.getBytes());
-            } catch (IOException e) {
-                throw new ResourceNotFoundException(e.getMessage());
-            }
-        }
-        if (thumbnail != null) {
-            try {
-                category.setThumbnail(thumbnail.getBytes());
-            } catch (IOException e) {
-                throw new ResourceNotFoundException(e.getMessage());
-            }
-        }
-        categoryRepository.save(category);
+        categoryRepository.save(underUpdate);
     }
 
 
     @Transactional
-    public void addCategory(MultipartFile image, MultipartFile thumbnail, String title, String categoryParentTitle) {
-        Category category = new Category();
-        if(checkCategoryExitByTitle(title) && !category.getTitle().equals(title)) {
-            throw new ResourceNotFoundException(String.format("category with title : [%s] existed" , title));
-        }
-        category.setTitle(title);
-
+    public void addCategory(MultipartFile image,
+                            MultipartFile thumbnail,
+                            String title,
+                            String categoryParentTitle
+    ) {
+        Category underSave = new Category();
+        checkCategoryExitByTitle(title);
+        underSave.setTitle(title);
 
         if(categoryParentTitle != null) {
-            Category parent = categoryRepository.
-                    findByTitle(categoryParentTitle).
-                    orElseThrow(() ->
-                            new ResourceNotFoundException(
-                                    String.format("category parent with title: %s not found", categoryParentTitle)
-                            ));
-            category.setCategoryParent(parent);
+            Category parent = getByTitle(categoryParentTitle);
+            underSave.setCategoryParent(parent);
+        } else {
+            underSave.setCategoryParent(null);
         }
 
-        if (image != null) {
-            try {
-                category.setImage(image.getBytes());
-            } catch (IOException e) {
-                throw new ResourceNotFoundException(e.getMessage());
-            }
-        }
-        if (thumbnail != null) {
-            try {
-                category.setThumbnail(thumbnail.getBytes());
-            } catch (IOException e) {
-                throw new ResourceNotFoundException(e.getMessage());
-            }
-        }
-        categoryRepository.save(category);
+        saveCategoryImage(underSave, image);
+        saveCategoryThumbnail(underSave, thumbnail);
+
+        categoryRepository.save(underSave);
     }
 
-    public CategoryResponseDTO getByIdForAdmin(Integer categoryId) {
-        Category category = categoryRepository.findByIdWithParent(categoryId).orElseThrow(() ->
-                new ResourceNotFoundException(String.format("category with id : [%d] existed" , categoryId)));
-        return categoryResponseMapper.category2CategoryResponseDTO(category);
+
+    public Category getByTitle(String title) {
+        return categoryRepository.
+                findByTitle(title).
+                orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                String.format("category with title: %s not found", title)
+                        ));
     }
 
-    private boolean checkCategoryExitByTitle(String title) {
-        return categoryRepository.findByTitle(title).isPresent();
+    public CategoryResponse getByIdForAdmin(Integer categoryId) {
+        Category category = categoryRepository.
+                findByIdWithParent(categoryId).
+                orElseThrow(() ->
+                        new ResourceNotFoundException(String.format("category with id : [%d] existed", categoryId)));
+        return categoryResponseMapper.category2CategoryResponse(category);
     }
 
-    public List<CategoryResponseDTO> listAll() {
+    public List<CategoryResponse> listAll() {
         List<Category> categories = categoryRepository.findAll();
-        return categories.stream().map(categoryResponseMapper::category2CategoryResponseDTO).toList();
+        return categories.stream().map(categoryResponseMapper::category2CategoryResponse).toList();
     }
 
     public void addPlaylist(Integer categoryId, Long playlistId) {
-        Category category = categoryRepository.
-                findById(categoryId).
-                orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                String.format("category  with id: %d not found", categoryId)
-                        ));
-        Playlist playlist = playlistRepository.findById(playlistId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                String.format("playlist  with id: %d not found", playlistId)
-                        ));
+        Category category = get(categoryId);
+
+        Playlist playlist = getPlaylistByPlaylistId(playlistId);
 
         category.addPlaylist(playlist);
         categoryRepository.save(category);
     }
 
     public void removePlaylist(Integer categoryId, Long playlistId) {
-        Category category = categoryRepository.
-                findById(categoryId).
-                orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                String.format("category  with id: %d not found", categoryId)
-                        ));
-        Playlist playlist = playlistRepository.findById(playlistId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                String.format("playlist  with id: %d not found", playlistId)
-                        ));
+        Category category = get(categoryId);
+
+        Playlist playlist = getPlaylistByPlaylistId(playlistId);
 
         category.removePlaylist(playlist);
         categoryRepository.save(category);
+    }
+
+    public Playlist getPlaylistByPlaylistId(Long playlistId) {
+        return playlistRepository
+                .findById(playlistId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(String.format("playlist with id: [%d] not found",playlistId)));
+    }
+
+    private void saveCategoryImage(Category underSave, MultipartFile image) {
+        if (image != null) {
+            try {
+                underSave.setImage(image.getBytes());
+            } catch (IOException e) {
+                throw new ResourceNotFoundException(e.getMessage());
+            }
+        }
+
+    }
+
+    private void saveCategoryThumbnail(Category underSave, MultipartFile thumbnail) {
+        if (thumbnail != null) {
+            try {
+                underSave.setThumbnail(thumbnail.getBytes());
+            } catch (IOException e) {
+                throw new ResourceNotFoundException(e.getMessage());
+            }
+        }
     }
 }

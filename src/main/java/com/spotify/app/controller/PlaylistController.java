@@ -1,7 +1,7 @@
 package com.spotify.app.controller;
 
 import com.spotify.app.dto.PlaylistDTO;
-import com.spotify.app.dto.response.PlaylistResponseDTO;
+import com.spotify.app.dto.response.PlaylistResponse;
 import com.spotify.app.model.Playlist;
 import com.spotify.app.service.PlaylistService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -21,13 +21,13 @@ public class PlaylistController {
 
 
     @GetMapping("/findByUser/{userId}")
-    public List<PlaylistResponseDTO> findByUserId(@PathVariable("userId") Long userId) {
+    public List<PlaylistResponse> findByUserId(@PathVariable("userId") Long userId) {
         return playlistService.findByUserId(userId) ;
     }
 
     @GetMapping("/{id}")
     public PlaylistDTO findById(@PathVariable("id") Long id) {
-        return playlistService.findByIdWithSongs(id) ;
+        return playlistService.findByIdReturnSongs(id) ;
     }
 
 
@@ -95,13 +95,13 @@ public class PlaylistController {
     }
 
     @GetMapping
-    public List<PlaylistResponseDTO> listAll() {
+    public List<PlaylistResponse> listAll() {
         return playlistService.listAll();
     }
 
     @GetMapping("/admin/{playlistId}")
-    public PlaylistResponseDTO getPlaylistForAdmin(@PathVariable("playlistId") Long playlistId) {
-        return playlistService.getPlaylistForAdmin(playlistId);
+    public PlaylistResponse getPlaylistForAdmin(@PathVariable("playlistId") Long playlistId) {
+        return playlistService.getPlaylistByIdForAdmin(playlistId);
     }
     @GetMapping("/admin/{playlistId}/add/{songId}")
     public ResponseEntity<String> addPlaylist(

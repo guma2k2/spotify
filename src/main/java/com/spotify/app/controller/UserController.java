@@ -1,14 +1,13 @@
 package com.spotify.app.controller;
 
-import com.spotify.app.dto.AlbumDTO;
 import com.spotify.app.dto.UserDTO;
 import com.spotify.app.dto.UserFollowingsPlaylists;
-import com.spotify.app.dto.request.AlbumRequest;
-import com.spotify.app.dto.response.UserResponseDTO;
+import com.spotify.app.dto.response.PageResponse;
+import com.spotify.app.dto.response.UserAlbumsSongs;
+import com.spotify.app.dto.response.UserResponse;
 import com.spotify.app.model.User;
 import com.spotify.app.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
-import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -23,9 +22,11 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService ;
+
+
     @GetMapping("/{userId}")
     public UserDTO getById(@PathVariable("userId") Long userId) {
-        return userService.getUserById(userId) ;
+        return userService.findByIdReturnRoleAndSongs(userId) ;
     }
 
     @PostMapping("/uploadPhoto/{userId}")
@@ -50,39 +51,50 @@ public class UserController {
     }
 
     @GetMapping
-    public List<UserResponseDTO> listAll() {
-        return userService.listAll();
+    public PageResponse listAllFirstPage() {
+        return userService.getPageResponse(1,"desc", "id" , null);
     }
 
+    @GetMapping("/pageable/")
+    public PageResponse listAllPage(
+            @RequestParam("numPage") int numPage,
+            @RequestParam("sortDir") String sortDir,
+            @RequestParam("sortField") String sortField,
+            @RequestParam(value = "keyword", required = false) String keyword
+    ) {
+        return userService.getPageResponse(numPage, sortDir, sortField, keyword);
+    }
+
+
     @GetMapping("/admin/{userId}")
-    public UserResponseDTO listAll(
+    public UserResponse findByUserIdForAdmin(
             @PathVariable("userId") Long userId
     ) {
         return userService.findByIdReturnWithRole(userId);
     }
 
     @PostMapping("/admin/save")
-    public UserResponseDTO addUser(@RequestParam("firstName") String firstName,
-                                   @RequestParam("lastName") String lastName,
-                                   @RequestParam("email") String email,
-                                   @RequestParam("password") String password,
-                                   @RequestParam(value = "image",required = false) MultipartFile photoImage,
-                                   @RequestParam("roleName") String roleName,
-                                   @RequestParam("gender") String gender
+    public UserResponse addUser(@RequestParam("firstName") String firstName,
+                                @RequestParam("lastName") String lastName,
+                                @RequestParam("email") String email,
+                                @RequestParam("password") String password,
+                                @RequestParam(value = "image",required = false) MultipartFile photoImage,
+                                @RequestParam("roleName") String roleName,
+                                @RequestParam("gender") String gender
     ) {
         return userService.addUser(firstName, lastName, email, password, photoImage, roleName,gender);
     }
 
 
     @PutMapping("/admin/update/{userId}")
-    public UserResponseDTO updateUser(@RequestParam("firstName") String firstName,
-                                      @RequestParam("lastName") String lastName,
-                                      @RequestParam("email") String email,
-                                      @RequestParam("password") String password,
-                                      @RequestParam(value = "image",required = false) MultipartFile photoImage,
-                                      @RequestParam("roleName") String roleName,
-                                      @PathVariable("userId") Long userId,
-                                      @RequestParam("gender") String gender
+    public UserResponse updateUser(@RequestParam("firstName") String firstName,
+                                   @RequestParam("lastName") String lastName,
+                                   @RequestParam("email") String email,
+                                   @RequestParam("password") String password,
+                                   @RequestParam(value = "image",required = false) MultipartFile photoImage,
+                                   @RequestParam("roleName") String roleName,
+                                   @PathVariable("userId") Long userId,
+                                   @RequestParam("gender") String gender
     ) {
         return userService.updateUser(firstName, lastName, email, password, photoImage, roleName,userId,gender);
     }
@@ -112,6 +124,14 @@ public class UserController {
     ) {
         userService.removePlaylist(userId,playlistId);
         return ResponseEntity.ok().body(String.format("Remove playlist %d from user %d successful",playlistId,userId));
+    }
+
+
+    @GetMapping("/{userId}/songs/albums")
+    public UserAlbumsSongs findByIdReturnSongsAlbums(
+            @PathVariable("userId") Long userId
+    ) {
+        return userService.findByIdReturnSongsAlbums(userId);
     }
 
 

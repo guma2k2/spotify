@@ -4,7 +4,7 @@ package com.spotify.app.service;
 import com.spotify.app.dto.AlbumDTO;
 import com.spotify.app.dto.SongDTO;
 import com.spotify.app.dto.request.AlbumRequest;
-import com.spotify.app.dto.response.AlbumResponseDTO;
+import com.spotify.app.dto.response.AlbumResponse;
 import com.spotify.app.exception.ResourceNotFoundException;
 import com.spotify.app.mapper.AlbumMapper;
 import com.spotify.app.mapper.AlbumRequestMapper;
@@ -13,6 +13,8 @@ import com.spotify.app.mapper.SongMapper;
 import com.spotify.app.model.*;
 import com.spotify.app.repository.AlbumRepository;
 import com.spotify.app.repository.AlbumSongRepository;
+import com.spotify.app.repository.SongRepository;
+import com.spotify.app.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -27,12 +29,11 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class AlbumService {
     private final AlbumRepository albumRepository ;
-    private final SongService songService;
+    private final SongRepository songRepository ;
     private final AlbumSongRepository albumSongRepository;
     private final AlbumMapper albumMapper ;
-    private final UserService userService;
+    private final UserRepository userRepository;
     private final AlbumResponseMapper albumResponseMapper;
-
     private final AlbumRequestMapper albumRequestMapper;
     public AlbumDTO findById(Long albumId) {
 
@@ -57,63 +58,72 @@ public class AlbumService {
         return albumMapper.albumToAlbumDTO(album, songDTOS, songCount, totalTime);
     }
 
-    private String convertTotalTime(List<AlbumSong> albumSongs) {
-        long totalTime = albumSongs.stream()
-                .mapToLong((albumSong) -> albumSong.getSong()
-                        .getDuration())
-                .sum();
-        long hour = totalTime / 3600 ;
-        long minute = totalTime / 60 + (totalTime % 3600)*60 ;
-        return hour + " giờ " + minute + " phút";
-    }
+
 
 
     @Transactional
     public void uploadFiles(MultipartFile image, MultipartFile thumbnail, Long albumId) {
-        Album album = albumRepository.findById(albumId).orElseThrow(() -> new ResourceNotFoundException("Album not found"));
+        Album underSave = get(albumId);
+
+        saveAlbumImage(underSave,image);
+
+        saveAlbumThumbnail(underSave,thumbnail);
+
+        albumRepository.save(underSave);
+    }
+
+    public void saveAlbumImage(Album underSave, MultipartFile image) {
         if(image != null) {
             try {
-                album.setImage(image.getBytes());
+                underSave.setImage(image.getBytes());
             } catch (IOException e) {
                 throw new ResourceNotFoundException(e.getMessage());
             }
         }
+    }
+
+    public void saveAlbumThumbnail(Album underSave, MultipartFile thumbnail) {
         if(thumbnail != null) {
             try {
-                album.setThumbnail(thumbnail.getBytes());
+                underSave.setThumbnail(thumbnail.getBytes());
             } catch (IOException e) {
                 throw new ResourceNotFoundException(e.getMessage());
             }
         }
-        albumRepository.save(album);
     }
 
     public Album get(Long albumId) {
-        return albumRepository.findById(albumId).orElseThrow(() -> new ResourceNotFoundException("Album not found"));
+        return albumRepository.
+                findById(albumId).
+                orElseThrow(() ->
+                        new ResourceNotFoundException(String.format("album with id [%d] not found",albumId)));
     }
 
+
+    @Transactional
     public void addSong(Long albumId, Long songId) {
         Album album = get(albumId);
-        Song song = songService.get(songId);
+        Song song = getSongBySongId(songId);
         album.addSong(song);
         albumRepository.save(album);
     }
 
+    @Transactional
     public void removeSong(Long albumId, Long songId) {
         Album album = get(albumId);
-        Song song = songService.get(songId);
+        Song song = getSongBySongId(songId);
         album.removeSong(song);
         albumRepository.save(album);
     }
 
-    public List<AlbumResponseDTO> findAll() {
-        return albumRepository.findAll().stream().map(albumResponseMapper::albumToAlbumResponseDTO).toList();
+    public List<AlbumResponse> findAll() {
+        return albumRepository.findAll().stream().map(albumResponseMapper::albumToAlbumResponse).toList();
     }
 
 
     @Transactional
     public Long addAlbum(Long userId, AlbumRequest request) {
-        User user = userService.get(userId);
+        User user = getUserByUserId(userId);
         Album album = albumRequestMapper.dtoToEntity(request);
         album.setReleaseDate(LocalDateTime.now());
         album.setUser(user);
@@ -129,4 +139,42 @@ public class AlbumService {
         Album updatedAlbum = albumRepository.save(album);
         return updatedAlbum.getId();
     }
+
+    public List<AlbumResponse> findAlbumByUserId(Long userId) {
+        List<Album> albums = albumRepository.findByUserId(userId);
+        return albums.stream().map(albumResponseMapper::albumToAlbumResponse).toList();
+    }
+
+    public User getUserByUserId(Long userId) {
+        return userRepository.
+                findById(userId).
+                orElseThrow(() -> new ResourceNotFoundException(String.format("user %d not found", userId)));
+    }
+
+
+    public Song getSongBySongId(Long songId) {
+        return songRepository.
+                findById(songId).
+                orElseThrow(() ->
+                        new ResourceNotFoundException(String.format("song with id %d not found",songId))) ;
+    }
+
+    private String convertTotalTime(List<AlbumSong> albumSongs) {
+        long totalTime = albumSongs.stream()
+                .mapToLong((albumSong) -> albumSong.getSong()
+                        .getDuration())
+                .sum();
+        long hours= totalTime / 3600l ;
+        long minutes = (totalTime % 3600) / 60;
+        long seconds = totalTime % 60;
+        minutes = seconds > 0l ? minutes + 1l : minutes;
+        if(hours > 0) {
+            return hours + " giờ " + minutes + " phút";
+        }
+        return minutes + " phút " + seconds + " giây";
+    }
+
+
+
+
 }

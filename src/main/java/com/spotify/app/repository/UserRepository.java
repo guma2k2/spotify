@@ -1,6 +1,9 @@
 package com.spotify.app.repository;
 
+import com.spotify.app.model.Song;
 import com.spotify.app.model.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -39,6 +42,22 @@ public interface UserRepository extends JpaRepository<User, Long> {
             """)
     List<User> findAllCustom();
 
+    @Query("""
+            SELECT u
+            FROM User u
+            JOIN FETCH u.role
+            """)
+    Page<User> findAll(Pageable pageable);
+
+    @Query("""
+        SELECT u 
+        FROM User u 
+        JOIN FETCH u.role 
+        WHERE CONCAT(upper(u.firstName), upper(u.lastName), upper(u.email)) LIKE CONCAT('%', upper(:keyword), '%')
+        """)
+    Page<User> findAllWithKeyword(@Param("keyword") String keyword, Pageable pageable);
+
+
 
     @Query("""
             SELECT u
@@ -58,6 +77,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
             WHERE u.id = :userId
            """)
     Optional<User> findByIdReturnFollowingsAndPlaylists(@Param("userId") Long userId);
+
+
+
+
+
 
 
 }

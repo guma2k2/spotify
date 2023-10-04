@@ -1,7 +1,6 @@
 package com.spotify.app.dto;
 
-import com.spotify.app.dto.response.SongResponseDTO;
-import com.spotify.app.dto.response.UserResponseDTO;
+import com.spotify.app.dto.response.SongResponse;
 
 import java.util.List;
 
@@ -11,7 +10,7 @@ public record PlaylistDTO(Long id,
                           String imagePath,
                           String thumbnailPath,
                           int sumSongCount,
-                          long sumViewCount,
+                          String totalTime,
                           long likedCount,
-                          List<SongResponseDTO> songs) {
+                          List<SongResponse> songs) {
 }

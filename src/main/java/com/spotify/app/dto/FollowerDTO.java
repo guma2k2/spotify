@@ -1,8 +1,8 @@
 package com.spotify.app.dto;
 
-import com.spotify.app.dto.response.UserResponseDTO;
+import com.spotify.app.dto.response.UserResponse;
 
 import java.util.Set;
 
-public record FollowerDTO(Set<UserResponseDTO> followers, Set<UserResponseDTO> followings) {
+public record FollowerDTO(Set<UserResponse> followers, Set<UserResponse> followings) {
 }

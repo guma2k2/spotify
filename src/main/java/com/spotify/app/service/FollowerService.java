@@ -1,6 +1,7 @@
 package com.spotify.app.service;
 
-import com.spotify.app.dto.response.UserResponseNoAssociation;
+import com.spotify.app.dto.response.UserNoAssociationResponse;
+import com.spotify.app.exception.ResourceNotFoundException;
 import com.spotify.app.mapper.UserNoAssMapper;
 import com.spotify.app.model.Follower;
 import com.spotify.app.model.User;
@@ -20,41 +21,53 @@ public class FollowerService {
 
     private final FollowerRepository followerRepository;
 
-    private final UserService userService;
+    private final UserRepository userRepository;
 
     private final UserNoAssMapper userNoAssMapper;
 
     @Transactional
     public void addFollowing(Long I_id, Long U_id ) {
-//        log.info(String.valueOf(U_id));
-//        log.info(String.valueOf(I_id));
-        User I = userService.get(I_id);
-        User U = userService.get(U_id);
+        User I = getUserByUserId(I_id);
+        User U = getUserByUserId(U_id);
         Follower follower = Follower
                 .builder()
                 .followingUser(I)
                 .followedUser(U)
                 .build();
-        Follower saved = followerRepository.save(follower);
-//        log.info(String.valueOf(saved));
+        followerRepository.save(follower);
     }
 
     @Transactional
     public void cancelFollowing(Long I_id, Long U_id ) {
-        User I = userService.get(I_id);
-        User U = userService.get(U_id);
+        User I = getUserByUserId(I_id);
+        User U = getUserByUserId(U_id);
         followerRepository.unfollowing(I,U);
     }
 
-    public List<UserResponseNoAssociation> findAllFollowingsByUserId(Long userId) {
+    public List<UserNoAssociationResponse> findAllFollowingsByUserId(Long userId) {
+        // get all followed_id by [following_id <- (userId)]
+        List<Follower> followers = findFollowingListByUseId(userId);
 
-        List<Follower> followers = followerRepository.findFollowingListByUseId(userId);
-
-        List<UserResponseNoAssociation> followings = followers.
-                stream().
-                map(follower -> userNoAssMapper.userToUserDTO(follower.getFollowedUser())).
-                toList();
+        // convert to UserNoAssociationResponses (list of user with no associations)
+        List<UserNoAssociationResponse> followings = getFollowingsInFollowerTable(followers);
 
         return followings;
     }
+
+    private List<Follower> findFollowingListByUseId(Long userId) {
+        return followerRepository.findFollowingListByUseId(userId);
+    }
+
+    private List<UserNoAssociationResponse> getFollowingsInFollowerTable(List<Follower> followers) {
+        return followers.stream().
+                map(follower -> userNoAssMapper.userToUserDTO(follower.getFollowedUser())).
+                toList();
+    }
+
+    public User getUserByUserId(Long userId) {
+        return userRepository.
+                findById(userId).
+                orElseThrow(() -> new ResourceNotFoundException(String.format("user %d not found", userId)));
+    }
+
 }

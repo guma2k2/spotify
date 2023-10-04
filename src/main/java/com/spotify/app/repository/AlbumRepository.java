@@ -22,4 +22,14 @@ public interface AlbumRepository  extends JpaRepository<Album, Long> {
             """)
     Optional<Album> findByIdReturnSongs(@Param("albumId") Long albumId);
 
+
+
+    @Query("""
+            SELECT a
+            FROM Album a
+            LEFT JOIN FETCH a.user u
+            WHERE u.id = :userId
+            """)
+    List<Album> findByUserId(@Param("userId") Long userId);
+
 }

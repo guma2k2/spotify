@@ -1,5 +1,6 @@
 package com.spotify.app.dto;
 
+import com.spotify.app.dto.response.SongResponse;
 import com.spotify.app.dto.response.UserNoAssociationResponse;
 import jakarta.validation.constraints.NotBlank;
 
@@ -13,5 +14,5 @@ public record AlbumDTO(Long id,
                        String thumbnailPath,
                        int songCount,
                        String totalTime,
-                       List<SongDTO> songs) {
+                       List<SongResponse> songs) {
 }

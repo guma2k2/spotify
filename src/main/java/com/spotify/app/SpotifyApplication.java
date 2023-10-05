@@ -22,18 +22,6 @@ import java.util.List;
 @RestController
 public class SpotifyApplication {
 
-    private final EntityManager entityManager ;
-    private final PasswordEncoder passwordEncoder ;
-
-    private final RoleRepository roleRepository ;
-
-    private final CategoryRepository categoryRepository ;
-
-    private final PlaylistRepository playlistRepository;
-
-    private final AlbumRepository albumRepository;
-
-    private final SongRepository songRepository;
     public static void main(String[] args) {
         SpringApplication.run(SpotifyApplication.class, args) ;
     }

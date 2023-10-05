@@ -49,6 +49,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
             """)
     Page<User> findAll(Pageable pageable);
 
+
     @Query("""
         SELECT u 
         FROM User u 
@@ -68,15 +69,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
            """)
     Optional<User> findByIdReturnRoleAndSongs(@Param("userId") Long userId);
 
-    @Query("""
-            SELECT u
-            FROM User u
-            LEFT JOIN FETCH u.followingList s
-            LEFT JOIN FETCH u.playlistUserList p
-            LEFT JOIN FETCH u.role
-            WHERE u.id = :userId
-           """)
-    Optional<User> findByIdReturnFollowingsAndPlaylists(@Param("userId") Long userId);
 
 
 

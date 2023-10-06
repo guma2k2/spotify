@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface FollowerRepository extends JpaRepository<Follower,Long> {
@@ -31,5 +32,15 @@ public interface FollowerRepository extends JpaRepository<Follower,Long> {
             """)
     @Modifying
     void unfollowing(@Param("followingUser")User followingUser,
-                         @Param("followedUser")User followedUser);
+                     @Param("followedUser")User followedUser);
+
+
+
+    @Query("""
+            SELECT f
+            FROM Follower f
+            WHERE f.followingUser.id = :followingId AND f.followedUser.id = :followedId
+            """)
+    Optional<Follower> findByFollowingIdAndFollowedId(@Param("followingId")Long followingId,
+                                                      @Param("followedId")Long followedId);
 }

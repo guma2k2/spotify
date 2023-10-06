@@ -1,7 +1,7 @@
 package com.spotify.app.controller;
 
 import com.spotify.app.dto.UserDTO;
-import com.spotify.app.dto.UserFollowingsPlaylists;
+import com.spotify.app.dto.response.UserFollowingsPlaylists;
 import com.spotify.app.dto.response.PageResponse;
 import com.spotify.app.dto.response.UserAlbumsSongs;
 import com.spotify.app.dto.response.UserResponse;
@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.AllArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -30,12 +31,11 @@ public class UserController {
     }
 
     @PostMapping("/uploadPhoto/{userId}")
-    @Operation(description = "Save file image end with `png` only")
+    @Operation(description = "Save file image end with `png` or j only")
     public ResponseEntity<?> uploadPhoto(
             @RequestParam("photo") MultipartFile photo,
             @PathVariable("userId") Long userId
     ) {
-        // Todo:
         userService.uploadPhoto(photo, userId);
         return ResponseEntity.ok().body("Save photo of user success");
     }
@@ -51,6 +51,10 @@ public class UserController {
     }
 
     @GetMapping
+    public List<UserResponse> listAl() {
+        return userService.listAll();
+    }
+    @GetMapping("/firstPage")
     public PageResponse listAllFirstPage() {
         return userService.getPageResponse(1,"desc", "id" , null);
     }
@@ -62,6 +66,7 @@ public class UserController {
             @RequestParam("sortField") String sortField,
             @RequestParam(value = "keyword", required = false) String keyword
     ) {
+        System.out.println(numPage);
         return userService.getPageResponse(numPage, sortDir, sortField, keyword);
     }
 
@@ -134,10 +139,11 @@ public class UserController {
         return userService.findByIdReturnSongsAlbums(userId);
     }
 
-
-
-
-
-
+    @GetMapping("/{userId}/is/liked/{songId}")
+    public ResponseEntity<Boolean> checkCurrentUserIsLikedTargetSong(@PathVariable("userId") Long userId,
+                                                                     @PathVariable("songId") Long songId) {
+        boolean check = userService.checkCurrentUserIsLikedTargetSong(userId, songId);
+        return ResponseEntity.ok().body(check) ;
+    }
 
 }

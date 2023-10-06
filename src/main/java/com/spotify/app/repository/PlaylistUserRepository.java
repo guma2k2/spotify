@@ -42,15 +42,15 @@ public interface PlaylistUserRepository extends JpaRepository<PlaylistUser, Long
     List<PlaylistUser> findByUseridWithoutLikedSong(@Param("userId") Long userId);
 
 
-
     @Query("""
             SELECT pu
             FROM PlaylistUser pu
             LEFT JOIN FETCH pu.user u
             LEFT JOIN FETCH pu.playlist p
-            WHERE u.id = :userId AND p.name = 'Liked Songs'
+            WHERE u.id = :userId AND p.name = :playlistName
             """)
-    Optional<PlaylistUser> findLikedPlaylistByUserId(@Param("userId") Long userId);
+    Optional<PlaylistUser> findByUserIdAndName(@Param("userId") Long userId,
+                                               @Param("playlistName") String playlistName);
 
 
 }

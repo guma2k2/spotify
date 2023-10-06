@@ -1,7 +1,7 @@
 package com.spotify.app.service;
 
 import com.spotify.app.dto.UserDTO;
-import com.spotify.app.dto.UserFollowingsPlaylists;
+import com.spotify.app.dto.response.UserFollowingsPlaylists;
 import com.spotify.app.dto.response.*;
 import com.spotify.app.enums.Gender;
 import com.spotify.app.exception.DuplicateResourceException;
@@ -21,8 +21,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -42,7 +42,22 @@ public class UserService {
     private final AlbumService albumService;
     private final PlaylistService playlistService;
     private final RoleService roleService;
+
+    private final PlaylistSongService playlistSongService;
     private final int userPerPage = 10 ;
+
+
+
+
+    public boolean checkCurrentUserIsLikedTargetSong(Long userId, Long songId){
+        // find playlist by name and userId
+        Playlist playlist = playlistService.findByNameAndUserId(userId);
+
+        // find song by playlist and song
+        Song song =  playlistSongService.findByPlaylistIdAndSongId(playlist.getId(),songId);
+
+        return song != null;
+    }
 
 
     public UserDTO findByIdReturnRoleAndSongs(Long userId) {
@@ -93,7 +108,7 @@ public class UserService {
         return userRepository.findAll(pageable);
     }
 
-    public PageResponse getPageResponse(int numPage, String sortDir, String sortField, String keyword) {
+    public PageResponse<UserResponse> getPageResponse(int numPage, String sortDir, String sortField, String keyword) {
         Page<User> usersPage = getUserPerPage(numPage,sortDir,sortField,keyword);
 
         List<User> usersFromUserPage = usersPage.getContent();
@@ -102,7 +117,7 @@ public class UserService {
 
         int totalPage = usersPage.getTotalPages();
 
-        return new PageResponse(totalPage,numPage,sortDir,sortField, Collections.singletonList(users));
+        return new PageResponse(totalPage,numPage,sortDir,sortField, users);
     }
 
     public UserResponse addUser(String firstName,
@@ -126,10 +141,10 @@ public class UserService {
                 .password(passwordEncoder.encode(password))
                 .role(role)
                 .build();
-
-        saveUserPhotoImage(underSave, photoImage);
-        underSave.setGender(Gender.valueOf(gender));
         User savedUser = userRepository.save(underSave);
+        saveUserPhotoImage(savedUser, photoImage);
+        underSave.setGender(Gender.valueOf(gender));
+
 
         // convert user to userResponseDTO
         UserResponse userResponseDTO=  userResponseMapper.userToUserResponse(savedUser) ;
@@ -192,7 +207,6 @@ public class UserService {
 
     @Transactional
     public void addPlaylist(Long userId, Long playlistId) {
-
         User user = get(userId);
 
         Playlist playlist = playlistService.get(playlistId);
@@ -200,6 +214,7 @@ public class UserService {
         user.addPlaylist(playlist);
         userRepository.save(user);
     }
+
 
     @Transactional
     public void removePlaylist(Long userId, Long playlistId) {

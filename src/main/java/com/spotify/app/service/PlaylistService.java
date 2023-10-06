@@ -32,6 +32,20 @@ public class PlaylistService {
     private final PlaylistSongRepository playlistSongRepository;
     private final PlaylistResponseMapper playlistResponseMapper;
     private final PlaylistUserRepository playlistUserRepository;
+    public final String playlistNameHasAllLikedSongOfUser = "Liked Songs";
+
+
+
+
+    public Playlist findByNameAndUserId(Long userId) {
+        PlaylistUser playlistUser = playlistUserRepository.
+                findByUserIdAndName(userId, playlistNameHasAllLikedSongOfUser).
+                orElseThrow();
+
+        return playlistUser.getPlaylist();
+    }
+
+
 
 
     public Playlist get(Long playlistId) {
@@ -151,8 +165,9 @@ public class PlaylistService {
     }
 
     public void addSongToLikedPlaylist(Long userId,Long songId) {
-
-        PlaylistUser playlistUser = playlistUserRepository.findLikedPlaylistByUserId(userId).orElseThrow();
+        PlaylistUser playlistUser = playlistUserRepository.
+                findByUserIdAndName(userId,playlistNameHasAllLikedSongOfUser).
+                orElseThrow();
         Playlist playlist = playlistUser.getPlaylist();
         Song song = songService.get(songId);
 
@@ -163,8 +178,9 @@ public class PlaylistService {
     }
 
     public void removeSongFromLikedPlaylist(Long userId,Long songId) {
-
-        PlaylistUser playlistUser = playlistUserRepository.findLikedPlaylistByUserId(userId).orElseThrow();
+        PlaylistUser playlistUser = playlistUserRepository.
+                findByUserIdAndName(userId,playlistNameHasAllLikedSongOfUser).
+                orElseThrow();
         Playlist playlist = playlistUser.getPlaylist();
         Song song = songService.get(songId);
 

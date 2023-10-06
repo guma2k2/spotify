@@ -19,6 +19,7 @@ public class PlaylistUserService {
 
     private final PlaylistResponseMapper playlistResponseMapper;
 
+
     public List<PlaylistResponse> findByUserId (Long userId) {
 
         List<Playlist> playlists = findPlaylistsByUser(userId);
@@ -42,4 +43,6 @@ public class PlaylistUserService {
                 map(PlaylistUser::getPlaylist).
                 toList();
     }
+
+
 }

@@ -70,4 +70,8 @@ public class FollowerService {
                 orElseThrow(() -> new ResourceNotFoundException(String.format("user %d not found", userId)));
     }
 
+    public boolean checkCurrentUserFollowedTargetUser(Long currentUserId, Long targetUserId) {
+        return followerRepository.findByFollowingIdAndFollowedId(currentUserId,targetUserId).isPresent();
+    }
+
 }

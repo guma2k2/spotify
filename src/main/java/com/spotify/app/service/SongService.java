@@ -130,6 +130,7 @@ public class SongService {
         Song underSave = new Song();
 
         saveSongImage(image,underSave);
+
         underSave.setLyric(lyric);
         underSave.setGenre(Genre.valueOf(genre));
         underSave.setName(name);

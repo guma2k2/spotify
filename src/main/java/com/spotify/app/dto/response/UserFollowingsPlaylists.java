@@ -1,4 +1,4 @@
-package com.spotify.app.dto;
+package com.spotify.app.dto.response;
 
 import com.spotify.app.dto.response.PlaylistResponse;
 import com.spotify.app.dto.response.UserNoAssociationResponse;

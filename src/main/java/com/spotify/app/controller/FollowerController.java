@@ -51,4 +51,17 @@ public class FollowerController {
         return followerService.findAllFollowingsByUserId(userId);
     }
 
+
+    @GetMapping("/is/{currentUserId}/followed/{targetUserId}")
+    public ResponseEntity<Boolean> checkCurrentUserFollowedTargetUser(
+            @PathVariable("currentUserId") Long currentUserId,
+            @PathVariable("targetUserId") Long targetUserId
+    ) {
+        return ResponseEntity.
+                ok().
+                body(
+                    followerService.checkCurrentUserFollowedTargetUser(currentUserId,targetUserId)
+                );
+    }
+
 }

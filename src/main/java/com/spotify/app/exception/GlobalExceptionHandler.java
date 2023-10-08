@@ -35,7 +35,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         ApiError err = new ApiError(
                 LocalDateTime.now(),
                 HttpStatus.NOT_FOUND,
-                "An error occur in service" ,
+                "An error occurred" ,
                 details);
 
         return ResponseEntityBuilder.build(err);
@@ -92,7 +92,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         if(ex instanceof SignatureException) {
             err.setStatus(HttpStatus.valueOf(403));
-            err.setMessage("JWT Signature not valid");
+            err.setMessage("JWT Signature was not valid");
             return ResponseEntityBuilder.build(err) ;
         }
 

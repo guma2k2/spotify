@@ -35,11 +35,14 @@ public class Song {
 
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss")
     private LocalDateTime releaseDate ;
+
     private long viewCount ;
 
     @Enumerated(EnumType.STRING)
     private Genre genre ;
+
     private int duration;
+
     private String audio;
     @Lob
     @Column(columnDefinition = "LONGBLOB")
@@ -71,7 +74,7 @@ public class Song {
     public String getImagePath() {
         String baseUrl = FileUploadUtil.baseUrl;
         if(image!=null) {
-            return baseUrl+"/song/viewImage/" + this.id ;
+            return baseUrl+ "/song/viewImage/" + this.id ;
         }
         return FileUploadUtil.baseUrlFail;
     }

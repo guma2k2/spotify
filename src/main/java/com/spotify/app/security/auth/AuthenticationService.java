@@ -30,11 +30,10 @@ public class AuthenticationService {
     private final PlaylistRepository playlistRepository;
 
 
-
     public AuthenticationResponse register(RegisterRequest request) {
 //        log.info(request.getEmail());
         if(userRepository.findByEmail(request.getEmail()).isPresent()){
-            throw  new ResourceNotFoundException("The email exited");
+            throw  new ResourceNotFoundException(String.format("email: %s exited",request.getEmail()));
         }
 
         Role role = roleRepository.findByName("ROLE_CUSTOMER").orElseThrow();

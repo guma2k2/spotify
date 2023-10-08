@@ -40,6 +40,7 @@ public class PlaylistController {
         playlistService.addSongToLikedPlaylist(userId, songId);
     }
 
+
     @GetMapping("/user/{userId}/remove/{songId}")
     @Operation(description = "remove song from liked Song by userId")
     public void removeFromLikedSongByUserId(
@@ -48,6 +49,7 @@ public class PlaylistController {
     ) {
         playlistService.removeSongFromLikedPlaylist(userId,songId);
     }
+
 
     @PutMapping("/admin/update/{playlistId}")
     @Operation(description = "Save file image end with `png` only")
@@ -103,7 +105,10 @@ public class PlaylistController {
     public PlaylistResponse getPlaylistForAdmin(@PathVariable("playlistId") Long playlistId) {
         return playlistService.getPlaylistByIdForAdmin(playlistId);
     }
+
+
     @GetMapping("/admin/{playlistId}/add/{songId}")
+    @Operation(description = "add song to target playlist")
     public ResponseEntity<String> addPlaylist(
             @PathVariable("playlistId") Long playlistId,
             @PathVariable("songId") Long songId

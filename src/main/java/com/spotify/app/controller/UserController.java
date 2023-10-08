@@ -30,10 +30,10 @@ public class UserController {
         return userService.findByIdReturnRoleAndSongs(userId) ;
     }
 
-    @PostMapping("/uploadPhoto/{userId}")
+    @PostMapping("/upload/image/{userId}")
     @Operation(description = "Save file image end with `png` or j only")
     public ResponseEntity<?> uploadPhoto(
-            @RequestParam("photo") MultipartFile photo,
+            @RequestParam("image") MultipartFile photo,
             @PathVariable("userId") Long userId
     ) {
         userService.uploadPhoto(photo, userId);

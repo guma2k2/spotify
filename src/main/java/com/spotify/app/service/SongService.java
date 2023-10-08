@@ -1,5 +1,6 @@
 package com.spotify.app.service;
 import com.spotify.app.dto.SongDTO;
+import com.spotify.app.dto.request.SongRequest;
 import com.spotify.app.dto.response.SongResponse;
 import com.spotify.app.enums.Genre;
 import com.spotify.app.mapper.SongMapper;
@@ -20,6 +21,7 @@ import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 @Service
@@ -121,7 +123,7 @@ public class SongService {
                         Long userId) throws IOException {
 
         // Todo: check exit by name
-        if(checkSongExitByName(name)) {
+        if(checkSongExitByName(name.trim())) {
             throw new ResourceNotFoundException(String.format("song with name: [%s] not found",name));
         }
 
@@ -206,4 +208,33 @@ public class SongService {
         return albumRepository.save(album);
     }
 
+    public void saveSong(SongRequest request) {
+        if(checkSongExitByName(request.name().trim())) {
+            throw new ResourceNotFoundException(String.format("song with name: [%s] not found",request.name()));
+        }
+
+        List<User> users = new ArrayList<>();
+        for(Long userId : request.usersId()){
+            User user = getUserByUserId(userId);
+            users.add(user);
+        }
+
+        Song underSave = new Song();
+
+        underSave.setLyric(request.lyric());
+        underSave.setGenre(Genre.valueOf(request.genre()));
+        underSave.setName(request.name());
+        underSave.setDuration(request.duration());
+        underSave.setReleaseDate(LocalDateTime.now());
+
+        Song savedSong = songRepository.save(underSave);
+
+        Album album = triggerCreateSingleAlbumWhenSaveSong(savedSong);
+
+        users.get(0).addAlbum(album);
+
+        users.forEach(user -> user.addSong(underSave));
+        album.addSong(underSave);
+        userRepository.saveAll(users);
+    }
 }

@@ -15,14 +15,17 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithAnonymousUser;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+import org.testcontainers.shaded.com.github.dockerjava.core.MediaType;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -38,16 +41,11 @@ public class UserControllerTest {
     @MockBean
     private JwtService jwtService;
 
-
     @Autowired
     private MockMvc mockMvc;
 
     @Test
-    @DisplayName("Hello")
-    @WithAnonymousUser
     public void shouldReturnListUserDTO() throws Exception {
-//        Long id, String firstName, String lastName, String fullName, String email, Gender
-//        gender, String photoImagePath, RoleDTO role
         Long userId = 1l ;
         RoleDTO roleDTO = new RoleDTO(1,"ROLE_CUSTOMER");
         UserResponse userResponse =
@@ -55,10 +53,12 @@ public class UserControllerTest {
                         "test",
                         "test test",
                         "test@gmail.com",
-                        Gender.MALE,"",
+                        Gender.MALE,
+                        "",
                         roleDTO);
 
         when(userService.findByIdReturnWithRole(userId)).thenReturn(userResponse);
-        mockMvc.perform(get("/api/v1/user/admin/"+ userId)).andExpect(status().is(200));
+        mockMvc.perform(get("/api/v1/user/admin/"+ userId))
+                .andExpect(status().is(200));
     }
 }

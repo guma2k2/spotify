@@ -1,9 +1,11 @@
 package com.spotify.app.controller;
 
 import com.spotify.app.dto.SongDTO;
+import com.spotify.app.dto.request.SongRequest;
 import com.spotify.app.dto.response.SongResponse;
 import com.spotify.app.model.Song;
 import com.spotify.app.service.SongService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -28,7 +30,7 @@ public class SongController {
         return songService.getById(songId);
     }
 
-    @PostMapping("/uploadAudio/{songId}")
+    @PostMapping("/upload/audio/{songId}")
     public ResponseEntity<?> uploadPhoto(
             @RequestParam("audio") MultipartFile audio,
             @PathVariable("songId") Long songId
@@ -40,7 +42,7 @@ public class SongController {
         return ResponseEntity.ok().body("OK");
     }
 
-    @PostMapping("/uploadImage/{songId}")
+    @PostMapping("/upload/image/{songId}")
     public ResponseEntity<?> uploadImage(
             @RequestParam("image") MultipartFile image,
             @PathVariable("songId") Long songId
@@ -92,6 +94,13 @@ public class SongController {
         songService.addSong(image,audio, lyric,genre,name,duration,userId);
         return ResponseEntity.ok().body("Save playlist success");
     }
+
+    @PostMapping("/test/admin/save")
+    public ResponseEntity<?> savePlaylist(@Valid SongRequest request)  {
+        songService.saveSong(request);
+        return ResponseEntity.ok().body("Save playlist success");
+    }
+
 
 //    @PostMapping("/admin/save")
 //    @Operation(description = "Save file image end with `png` only")

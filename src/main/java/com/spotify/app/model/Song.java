@@ -44,9 +44,8 @@ public class Song {
     private int duration;
 
     private String audio;
-    @Lob
-    @Column(columnDefinition = "LONGBLOB")
-    private byte[] image ;
+
+    private String image;
 
     @ManyToMany(mappedBy = "songs")
     @Builder.Default

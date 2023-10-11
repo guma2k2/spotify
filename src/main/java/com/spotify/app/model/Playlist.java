@@ -23,13 +23,12 @@ public class Playlist {
     private String name ;
 
     @Column(length = 300)
+
     private String description;
-    @Lob
-    @Column(columnDefinition = "LONGBLOB")
-    private byte[] image;
-    @Lob
-    @Column(columnDefinition = "LONGBLOB")
-    private byte[] thumbnail;
+
+    private String image;
+
+    private String thumbnail;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "playlist")
     @Builder.Default

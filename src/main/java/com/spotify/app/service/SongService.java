@@ -37,6 +37,7 @@ public class SongService {
     private final AlbumResponseMapper albumResponseMapper;
     private final UserRepository userRepository ;
     private final AlbumRepository albumRepository;
+    private final S3Service s3Service;
 
     public Song get(Long songId) {
         return songRepository.findById(songId).orElseThrow(() -> new ResourceNotFoundException("Song not found")) ;
@@ -78,15 +79,27 @@ public class SongService {
                         new ResourceNotFoundException(String.format("song with id: [%d] not found", songId)));
 
         if(image != null) {
+            song.setImage(image.getOriginalFilename());
             try {
-                song.setImage(image.getBytes());
+                s3Service.putObject(String.format("song/%d/%s",song.getId(),image.getOriginalFilename()),image.getBytes());
             } catch (IOException e) {
-                throw new ResourceNotFoundException(e.getMessage());
+                throw new RuntimeException(e.getMessage());
             }
         }
         songRepository.save(song);
     }
+    public byte[] getSongImage(Long songId) {
+        Song underGet = get(songId);
+        if (underGet.getImage().isEmpty()) {
+            throw new ResourceNotFoundException(
+                    "song with id image :[%d] not found".formatted(songId));
+        }
 
+        byte[] songImage = s3Service.getObject(
+                "song/%d/%s".formatted(songId, underGet.getImage())
+        );
+        return songImage;
+    }
 
     public SongResponse findBySong(Song song, PlaylistSong playlistSong) {
 
@@ -100,8 +113,6 @@ public class SongService {
 
         return songResponseMapper.songToSongResponse(song, albumResponses, createdOn);
     }
-
-
 
     public List<SongDTO> findByPlaylistId(Long playlistId) {
         List<PlaylistSong> playlistSongs =  playlistSongRepository.findByPlaylistId(playlistId);
@@ -131,7 +142,7 @@ public class SongService {
 
         Song underSave = new Song();
 
-        saveSongImage(image,underSave);
+        saveSongImage(image,underSave.getId());
 
         underSave.setLyric(lyric);
         underSave.setGenre(Genre.valueOf(genre));
@@ -174,15 +185,8 @@ public class SongService {
         DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern(pattern);
         return playlistSong.getCreatedOn().format(dateFormat);
     }
-    private void saveSongImage(MultipartFile image, Song underSave) {
-        if(image != null) {
-            try {
-                underSave.setImage(image.getBytes());
-            } catch (IOException e) {
-                throw new ResourceNotFoundException(e.getMessage());
-            }
-        }
-    }
+
+
     private void saveSongAudio(MultipartFile audio, Song underSave) {
         if (!audio.isEmpty()) {
             String fileName = StringUtils.cleanPath(audio.getOriginalFilename());

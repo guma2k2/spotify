@@ -58,9 +58,9 @@ public class SongController {
             produces = {MediaType.IMAGE_PNG_VALUE,MediaType.IMAGE_JPEG_VALUE}
     )
     public ResponseEntity<?> viewImage(@PathVariable("songId") Long songId) {
-        Song song = songService.get(songId);
+
         return ResponseEntity.ok()
-                .body(song.getImage());
+                .body(songService.getSongImage(songId));
     }
 
     @GetMapping("/findBy/playlist/{playlistId}")

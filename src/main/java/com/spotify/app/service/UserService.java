@@ -71,10 +71,8 @@ public class UserService {
 
     public void uploadPhoto(MultipartFile photo, Long userId) {
         User user = get(userId);
-        try {
-            user.setPhoto(photo.getBytes());
-        } catch (IOException e) {
-            throw new ResourceNotFoundException(e.getMessage());
+        if (!photo.isEmpty()) {
+            user.setPhoto(photo.getOriginalFilename());
         }
 
         userRepository.save(user);
@@ -244,11 +242,7 @@ public class UserService {
 
     public void saveUserPhotoImage(User underSave, MultipartFile photoImage) {
         if(photoImage != null) {
-            try {
-                underSave.setPhoto(photoImage.getBytes());
-            } catch (IOException e) {
-                throw new RuntimeException(e.getMessage());
-            }
+            underSave.setPhoto(photoImage.getOriginalFilename());
         }
     }
 

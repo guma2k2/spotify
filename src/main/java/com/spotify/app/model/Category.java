@@ -22,13 +22,9 @@ public class Category {
     @Column(length = 200)
     private String title ;
 
-    @Lob
-    @Column(columnDefinition = "LONGBLOB")
-    private byte[] image;
+    private String image;
 
-    @Lob
-    @Column(columnDefinition = "LONGBLOB")
-    private byte[] thumbnail;
+    private String thumbnail;
 
 
     @ManyToOne(fetch = FetchType.LAZY)

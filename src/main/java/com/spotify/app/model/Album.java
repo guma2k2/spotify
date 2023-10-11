@@ -26,13 +26,11 @@ public class Album {
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm")
     private LocalDateTime releaseDate ;
 
-    @Lob
-    @Column(columnDefinition = "LONGBLOB")
-    private byte[] image ;
+    private String image ;
 
     @Lob
     @Column(columnDefinition = "LONGBLOB")
-    private byte[] thumbnail;
+    private String thumbnail;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")

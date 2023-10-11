@@ -39,9 +39,7 @@ public class User implements UserDetails {
 
     private LocalDateTime dateOfBrith;
 
-    @Lob
-    @Column(columnDefinition = "LONGBLOB")
-    private byte[] photo;
+    private String photo;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "role_id")

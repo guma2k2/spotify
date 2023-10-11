@@ -17,12 +17,11 @@ public interface SongRepository extends JpaRepository<Song, Long> {
     @Query("""
             SELECT s
             FROM Song s
-            JOIN FETCH s.users u
+            LEFT JOIN FETCH s.users u
             LEFT JOIN FETCH s.albumSongList
             WHERE s.id = :songId
             """)
     Optional<Song> findByIdCustom( @Param("songId") Long songId ) ;
-
 
 
 

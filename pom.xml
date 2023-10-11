@@ -19,6 +19,7 @@
 		<io.jsonwebtoken.jjwt-impl.version>0.11.5</io.jsonwebtoken.jjwt-impl.version>
 		<io.jsonwebtoken.jjwt.version>0.9.1</io.jsonwebtoken.jjwt.version>
 		<io.jsonwebtoken.jjwt-jackson.version>0.11.5</io.jsonwebtoken.jjwt-jackson.version>
+		<software.amazon.awssdk.s3.version>2.20.68</software.amazon.awssdk.s3.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -131,6 +132,11 @@
 			<groupId>org.testcontainers</groupId>
 			<artifactId>junit-jupiter</artifactId>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>software.amazon.awssdk</groupId>
+			<artifactId>s3</artifactId>
+			<version>${software.amazon.awssdk.s3.version}</version>
 		</dependency>
 	</dependencies>
 

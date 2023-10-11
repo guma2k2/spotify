@@ -173,22 +173,14 @@ public class CategoryService {
 
     private void saveCategoryImage(Category underSave, MultipartFile image) {
         if (image != null) {
-            try {
-                underSave.setImage(image.getBytes());
-            } catch (IOException e) {
-                throw new ResourceNotFoundException(e.getMessage());
-            }
+            underSave.setImage(image.getOriginalFilename());
         }
 
     }
 
     private void saveCategoryThumbnail(Category underSave, MultipartFile thumbnail) {
         if (thumbnail != null) {
-            try {
-                underSave.setThumbnail(thumbnail.getBytes());
-            } catch (IOException e) {
-                throw new ResourceNotFoundException(e.getMessage());
-            }
+            underSave.setImage(thumbnail.getOriginalFilename());;
         }
     }
 }

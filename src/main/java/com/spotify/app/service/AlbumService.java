@@ -71,21 +71,13 @@ public class AlbumService {
 
     public void saveAlbumImage(Album underSave, MultipartFile image) {
         if(image != null) {
-            try {
-                underSave.setImage(image.getBytes());
-            } catch (IOException e) {
-                throw new ResourceNotFoundException(e.getMessage());
-            }
+            underSave.setImage(image.getOriginalFilename());
         }
     }
 
     public void saveAlbumThumbnail(Album underSave, MultipartFile thumbnail) {
         if(thumbnail != null) {
-            try {
-                underSave.setThumbnail(thumbnail.getBytes());
-            } catch (IOException e) {
-                throw new ResourceNotFoundException(e.getMessage());
-            }
+            underSave.setThumbnail(thumbnail.getOriginalFilename());
         }
     }
 

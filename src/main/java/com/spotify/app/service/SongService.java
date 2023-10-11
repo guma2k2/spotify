@@ -43,7 +43,7 @@ public class SongService {
     }
 
     public SongResponse getById(Long songId) {
-        Song song = songRepository.findByIdCustom(songId).orElseThrow() ;
+        Song song = songRepository.findByIdReturnUsersAlbums(songId).orElseThrow() ;
 
         if(song.getAlbumSongList().isEmpty()) {
             return songResponseMapper.songToSongResponse(song,null,null);

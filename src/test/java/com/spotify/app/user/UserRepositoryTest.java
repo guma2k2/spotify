@@ -32,13 +32,11 @@ public class UserRepositoryTest extends AbstractTestcontainers {
 
     @Autowired
     private UserRepository underTest ;
-
-
     @Autowired
     private RoleRepository roleRepository;
 
     @BeforeEach
-    public void initData() {
+    public void setUp() {
         underTest.deleteAll();
     }
 

@@ -33,13 +33,11 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(UserController.class)
+@AutoConfigureMockMvc
 public class UserControllerTest {
 
     @MockBean
     private UserService userService ;
-
-    @MockBean
-    private JwtService jwtService;
 
     @Autowired
     private MockMvc mockMvc;
@@ -59,6 +57,6 @@ public class UserControllerTest {
 
         when(userService.findByIdReturnWithRole(userId)).thenReturn(userResponse);
         mockMvc.perform(get("/api/v1/user/admin/"+ userId))
-                .andExpect(status().is(200));
+                .andExpect(status().isOk());
     }
 }

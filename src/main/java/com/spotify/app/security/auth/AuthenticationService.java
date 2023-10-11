@@ -1,7 +1,9 @@
 package com.spotify.app.security.auth;
+import com.spotify.app.enums.Gender;
 import com.spotify.app.exception.HeaderNotFoundException;
 import com.spotify.app.exception.ResourceNotFoundException;
 import com.spotify.app.mapper.UserMapper;
+import com.spotify.app.mapper.UserResponseMapper;
 import com.spotify.app.model.Playlist;
 import com.spotify.app.model.Role;
 import com.spotify.app.model.User;
@@ -12,11 +14,14 @@ import com.spotify.app.security.jwt.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cglib.core.Local;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -28,21 +33,24 @@ public class AuthenticationService {
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
     private final PlaylistRepository playlistRepository;
-
+    private final UserResponseMapper userResponseMapper;
 
     public AuthenticationResponse register(RegisterRequest request) {
 //        log.info(request.getEmail());
-        if(userRepository.findByEmail(request.getEmail()).isPresent()){
-            throw  new ResourceNotFoundException(String.format("email: %s exited",request.getEmail()));
+        if(userRepository.findByEmail(request.email()).isPresent()){
+            throw  new ResourceNotFoundException(String.format("email: %s exited",request.email()));
         }
 
         Role role = roleRepository.findByName("ROLE_CUSTOMER").orElseThrow();
 
         User user = User.builder()
-                .firstName(request.getFirstName())
-                .lastName(request.getLastName())
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
+                .firstName(request.firstName())
+                .lastName(request.lastName())
+                .email(request.email())
+                .gender(Gender.valueOf(request.gender()))
+                .createdOn(LocalDateTime.now())
+                .dateOfBrith(LocalDateTime.of(request.year(),request.month(),request.day(),0,0))
+                .password(passwordEncoder.encode(request.password()))
                 .role(role)
                 .build();
         User savedUser = userRepository.save(user);
@@ -58,19 +66,19 @@ public class AuthenticationService {
         return AuthenticationResponse.builder()
                 .accessToken(jwtToken)
                 .refreshToken(refreshToken)
-                .user(UserMapper.INSTANCE.userToUserDTO(savedUser))
+                .user(userResponseMapper.userToUserResponse(user))
                 .build();
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        request.getEmail(),
-                        request.getPassword()
+                        request.email(),
+                        request.password()
                 )
         );
 
-        User user = userRepository.findByEmail(request.getEmail())
+        User user = userRepository.findByEmail(request.email())
                 .orElseThrow(() -> new ResourceNotFoundException("User cannot be found by email"));
 
         var jwtToken = jwtService.generateToken(user);
@@ -78,7 +86,7 @@ public class AuthenticationService {
         return AuthenticationResponse.builder()
                 .accessToken(jwtToken)
                 .refreshToken(refreshToken)
-                .user(UserMapper.INSTANCE.userToUserDTO(user))
+                .user(userResponseMapper.userToUserResponse(user))
                 .build();
     }
 
@@ -106,7 +114,7 @@ public class AuthenticationService {
                 authResponse = AuthenticationResponse.builder()
                         .accessToken(accessToken)
                         .refreshToken(refreshToken)
-                        .user(UserMapper.INSTANCE.userToUserDTO(user))
+                        .user(userResponseMapper.userToUserResponse(user))
                         .build();
             }
         }

@@ -2,12 +2,15 @@ package com.spotify.app;
 
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.MountableFile;
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 
 @Testcontainers
@@ -33,5 +36,11 @@ public abstract class AbstractTestcontainers {
     static void setUp() {
         mySQLContainer.withInitScript("schema.sql");
         mySQLContainer.start();
+    }
+
+    @Test
+    void connectionEstablished() {
+        assertThat(mySQLContainer.isCreated()).isTrue();
+        assertThat(mySQLContainer.isRunning()).isTrue();
     }
 }

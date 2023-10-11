@@ -44,5 +44,9 @@ public class PlaylistUserService {
                 toList();
     }
 
+    public boolean checkUserIsAddedPlaylist(Long userId, Long playlistId) {
+        return playlistUserRepository.findByUserAndPlaylist(userId, playlistId).isPresent();
+    }
+
 
 }

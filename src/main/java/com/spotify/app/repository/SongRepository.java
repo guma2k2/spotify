@@ -21,10 +21,7 @@ public interface SongRepository extends JpaRepository<Song, Long> {
             LEFT JOIN FETCH s.albumSongList
             WHERE s.id = :songId
             """)
-    Optional<Song> findByIdCustom( @Param("songId") Long songId ) ;
-
-
-
+    Optional<Song> findByIdReturnUsersAlbums( @Param("songId") Long songId ) ;
 
     @Query("""
             SELECT s
@@ -34,26 +31,6 @@ public interface SongRepository extends JpaRepository<Song, Long> {
             """)
     List<Song> findByNameFullText(@Param("name") String name);
 
-
-
-    //    @Query("""
-//            SELECT s
-//            FROM Song s
-//            WHERE EXISTS (
-//                SELECT ps.song
-//                FROM PlaylistSong ps
-//                INNER JOIN ps.playlist p
-//                WHERE p.id = :playlistId
-//            )
-//            """)
-//    List<Song> findByPlaylistId( @Param("playlistId") Long playlistId ) ;
-    @Query("""
-            SELECT s
-            FROM Song s
-            WHERE s.name = :name
-            """)
     Optional<Song> findByName(@Param("name") String name);
-
-
 
 }

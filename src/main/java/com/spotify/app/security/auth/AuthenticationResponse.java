@@ -2,6 +2,7 @@ package com.spotify.app.security.auth;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.spotify.app.dto.UserDTO;
+import com.spotify.app.dto.response.UserResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,6 +21,6 @@ public class AuthenticationResponse {
     @JsonProperty("refresh_token")
     private String refreshToken ;
 
-    private UserDTO user ;
+    private UserResponse user ;
 
 }

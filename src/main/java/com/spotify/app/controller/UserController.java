@@ -25,6 +25,7 @@ public class UserController {
     private final UserService userService ;
 
 
+
     @GetMapping("/{userId}")
     public UserDTO getById(@PathVariable("userId") Long userId) {
         return userService.findByIdReturnRoleAndSongs(userId) ;
@@ -117,8 +118,8 @@ public class UserController {
             @PathVariable("playlistId") Long playlistId,
             @PathVariable("userId") Long userId
     ) {
-        userService.addPlaylist(userId,playlistId);
-        return ResponseEntity.ok().body(String.format("Add playlist %d by user %d successful",playlistId,userId));
+        String message = userService.addPlaylist(userId, playlistId);
+        return ResponseEntity.ok().body(message);
     }
 
     @GetMapping("/{userId}/remove/{playlistId}")
@@ -127,8 +128,8 @@ public class UserController {
             @PathVariable("playlistId") Long playlistId,
             @PathVariable("userId") Long userId
     ) {
-        userService.removePlaylist(userId,playlistId);
-        return ResponseEntity.ok().body(String.format("Remove playlist %d from user %d successful",playlistId,userId));
+        String message = userService.removePlaylist(userId, playlistId);
+        return ResponseEntity.ok().body(message);
     }
 
 

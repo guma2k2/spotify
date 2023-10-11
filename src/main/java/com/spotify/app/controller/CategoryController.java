@@ -44,15 +44,18 @@ public class CategoryController {
     }
 
     @PutMapping("/admin/update/{categoryId}")
-    public ResponseEntity<?> updateCategory(@RequestParam(value = "image",required = false) MultipartFile image,
-                                            @RequestParam(value = "thumbnail",required = false) MultipartFile thumbnail,
-                                            @PathVariable("categoryId") Integer categoryId,
-                                            @RequestParam("title") String title,
-                                            @RequestParam(value = "categoryParentTitle",required = false) String categoryParentTitle
+    public ResponseEntity<?> updateCategory(
+            @RequestParam(value = "image",required = false) MultipartFile image,
+            @RequestParam(value = "thumbnail",required = false) MultipartFile thumbnail,
+            @PathVariable("categoryId") Integer categoryId,
+            @RequestParam("title") String title,
+            @RequestParam(value = "categoryParentTitle",required = false) String categoryParentTitle
     ){
         categoryService.updateCategory(image,thumbnail,categoryId,title ,categoryParentTitle);
         return ResponseEntity.ok().body(String.format("update category %d success", categoryId));
     }
+
+
 
     @PostMapping("/admin/save")
     @Operation(description = "Save file image end with `png` only")

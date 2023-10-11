@@ -5,6 +5,7 @@ import com.spotify.app.dto.request.SongRequest;
 import com.spotify.app.dto.response.SongResponse;
 import com.spotify.app.model.Song;
 import com.spotify.app.service.SongService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.MediaType;
@@ -82,33 +83,25 @@ public class SongController {
         return songService.get(songId);
     }
 
-    @PostMapping("/admin/save")
-    public ResponseEntity<?> addPlaylist(@RequestParam(value = "image",required = false) MultipartFile image,
-                                         @RequestParam("audio") MultipartFile audio,
-                                         @RequestParam("lyric") String lyric,
-                                         @RequestParam("genre") String genre,
-                                         @RequestParam("name") String name,
-                                         @RequestParam("duration") int duration,
-                                         @RequestParam("userId") Long userId
-    ) throws IOException {
-        songService.addSong(image,audio, lyric,genre,name,duration,userId);
-        return ResponseEntity.ok().body("Save playlist success");
-    }
+//    @PostMapping("/admin/save")
+//    public ResponseEntity<?> addPlaylist(@RequestParam(value = "image",required = false) MultipartFile image,
+//                                         @RequestParam("audio") MultipartFile audio,
+//                                         @RequestParam("lyric") String lyric,
+//                                         @RequestParam("genre") String genre,
+//                                         @RequestParam("name") String name,
+//                                         @RequestParam("duration") int duration,
+//                                         @RequestParam("userId") Long userId
+//    ) throws IOException {
+//        songService.addSong(image,audio, lyric,genre,name,duration,userId);
+//        return ResponseEntity.ok().body("Save playlist success");
+//    }
 
-    @PostMapping("/test/admin/save")
+    @PostMapping("/artist/save")
     public ResponseEntity<?> savePlaylist(@Valid SongRequest request)  {
         songService.saveSong(request);
         return ResponseEntity.ok().body("Save playlist success");
     }
 
-
-//    @PostMapping("/admin/save")
-//    @Operation(description = "Save file image end with `png` only")
-//    public ResponseEntity<?> addPlaylistV2(
-//            @Valid @RequestBody SongDTO request
-//    ) throws IOException {
-//        return ResponseEntity.ok().body("Save playlist success");
-//    }
 
     @GetMapping("/search/{name}")
 

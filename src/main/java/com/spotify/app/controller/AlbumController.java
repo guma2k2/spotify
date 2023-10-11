@@ -32,9 +32,11 @@ public class AlbumController {
             value = "/uploadFile/{albumId}",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE
     )
-    public ResponseEntity<?> uploadFiles(@RequestParam(value = "image",required = false)MultipartFile image,
-                                         @RequestParam(value = "thumbnail",required = false) MultipartFile thumbnail,
-                                         @PathVariable("albumId") Long albumId){
+    public ResponseEntity<?> uploadFiles (
+            @RequestParam(value = "image",required = false)MultipartFile image,
+            @RequestParam(value = "thumbnail",required = false) MultipartFile thumbnail,
+            @PathVariable("albumId") Long albumId
+    ){
         albumService.uploadFiles(image,thumbnail,albumId);
         return ResponseEntity.ok().body(String.format("Upload files for album %d success",albumId));
     }

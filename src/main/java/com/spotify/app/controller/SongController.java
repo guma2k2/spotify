@@ -11,9 +11,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.io.IOException;
 import java.util.List;
+
 
 @RestController
 @RequestMapping("/api/v1/song")
@@ -31,7 +31,7 @@ public class SongController {
     }
 
     @PostMapping("/upload/audio/{songId}")
-    public ResponseEntity<?> uploadPhoto(
+    public ResponseEntity<?> uploadAudio(
             @RequestParam("audio") MultipartFile audio,
             @PathVariable("songId") Long songId
     ) throws IOException {
@@ -49,8 +49,17 @@ public class SongController {
     )  {
 
         songService.saveSongImage(image, songId);
-
         return ResponseEntity.ok().body("Save image of song success");
+    }
+
+
+    @GetMapping(value = "/audio/{songId}",produces = "audio/mpeg")
+    public ResponseEntity<?> streamAudio(
+            @PathVariable("songId") Long songId
+    ) {
+
+        return ResponseEntity.ok()
+                .body(songService.getSongAudio(songId));
     }
 
     @GetMapping(
@@ -84,14 +93,13 @@ public class SongController {
 
     @PostMapping("/admin/save")
     public ResponseEntity<?> addPlaylist(@RequestParam(value = "image",required = false) MultipartFile image,
-                                         @RequestParam("audio") MultipartFile audio,
                                          @RequestParam("lyric") String lyric,
                                          @RequestParam("genre") String genre,
                                          @RequestParam("name") String name,
                                          @RequestParam("duration") int duration,
                                          @RequestParam("userId") Long userId
     ) throws IOException {
-        songService.addSong(image,audio, lyric,genre,name,duration,userId);
+        songService.addSong(image, lyric,genre,name,duration,userId);
         return ResponseEntity.ok().body("Save playlist success");
     }
 
@@ -101,15 +109,6 @@ public class SongController {
         return ResponseEntity.ok().body("Save playlist success");
     }
 
-
-//    @PostMapping("/admin/save")
-//    @Operation(description = "Save file image end with `png` only")
-//    public ResponseEntity<?> addPlaylistV2(
-//            @Valid @RequestBody SongDTO request
-//    ) throws IOException {
-//        return ResponseEntity.ok().body("Save playlist success");
-//    }
-
     @GetMapping("/search/{name}")
 
     List<SongResponse> findByNameFullText(
@@ -118,15 +117,15 @@ public class SongController {
         return songService.findByNameFullText(name);
     }
 
-
-//    @GetMapping("/audio")
-//    public ResponseEntity<?> testing() {
-//        Song song = songService.get(1l);
-//        HttpHeaders headers = new HttpHeaders();
-//        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-//        headers.setContentDispositionFormData("attachment", "music.mp3");
-//
-//        return ResponseEntity.ok().headers(headers).body(song.getAudioTest());
+    //    @PostMapping("/admin/save")
+//    @Operation(description = "Save file image end with `png` only")
+//    public ResponseEntity<?> addPlaylistV2(
+//            @Valid @RequestBody SongDTO request
+//    ) throws IOException {
+//        return ResponseEntity.ok().body("Save playlist success");
 //    }
+
+
+
 
 }

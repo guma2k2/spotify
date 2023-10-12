@@ -65,9 +65,12 @@ public class User implements UserDetails {
     @JsonManagedReference
     private Set<Song> songs = new HashSet<>();
 
+
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "user")
     @Builder.Default
     private List<PlaylistUser> playlistUserList = new ArrayList<>();
+
+
 
     @OneToMany(cascade = CascadeType.ALL,orphanRemoval = true, mappedBy = "followedUser")
     @Builder.Default

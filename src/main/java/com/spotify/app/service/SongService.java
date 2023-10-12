@@ -55,33 +55,28 @@ public class SongService {
     }
 
 
-    public void saveSongAudio(MultipartFile multipartFile, Long songId) throws IOException {
+    public void saveSongAudio(MultipartFile audio, Long songId) throws IOException {
         Song song = get(songId);
 
-        if (!multipartFile.isEmpty()) {
-            String fileName = StringUtils.cleanPath(multipartFile.getOriginalFilename());
-            song.setAudio(fileName);
-
-            String uploadDir = "song-audios/" + songId;
-
-            FileUploadUtil.cleanDir(uploadDir);
-            FileUploadUtil.saveFile(uploadDir, fileName, multipartFile);
-
-        } else {
-            if (song.getAudio().isEmpty()) song.setAudio(null);
+        if(audio != null) {
+            song.setAudio(audio.getOriginalFilename());
+            try {
+                s3Service.putObject(String.format("song/audio/%d/%s",song.getId(),audio.getOriginalFilename()),audio.getBytes());
+            } catch (IOException e) {
+                throw new RuntimeException(e.getMessage());
+            }
         }
         songRepository.save(song);
     }
     public void saveSongImage(MultipartFile image, Long songId) {
-        Song song = songRepository.
-                findById(songId).
-                orElseThrow(() ->
-                        new ResourceNotFoundException(String.format("song with id: [%d] not found", songId)));
-
+        Song song = get(songId);
         if(image != null) {
             song.setImage(image.getOriginalFilename());
             try {
-                s3Service.putObject(String.format("song/%d/%s",song.getId(),image.getOriginalFilename()),image.getBytes());
+                if(!song.getImage().isEmpty()) {
+                    s3Service.removeObject(String.format("song/image/%d/%s",song.getId(),image.getOriginalFilename()));
+                }
+                s3Service.putObject(String.format("song/image/%d/%s",song.getId(),image.getOriginalFilename()),image.getBytes());
             } catch (IOException e) {
                 throw new RuntimeException(e.getMessage());
             }
@@ -96,9 +91,22 @@ public class SongService {
         }
 
         byte[] songImage = s3Service.getObject(
-                "song/%d/%s".formatted(songId, underGet.getImage())
+                "song/image/%d/%s".formatted(songId, underGet.getImage())
         );
         return songImage;
+    }
+
+    public byte[] getSongAudio(Long songId) {
+        Song underGet = get(songId);
+        if (underGet.getImage().isEmpty()) {
+            throw new ResourceNotFoundException(
+                    "song with id audio :[%d] not found".formatted(songId));
+        }
+
+        byte[] songAudio = s3Service.getObject(
+                "song/audio/%d/%s".formatted(songId, underGet.getAudio())
+        );
+        return songAudio;
     }
 
     public SongResponse findBySong(Song song, PlaylistSong playlistSong) {
@@ -126,7 +134,6 @@ public class SongService {
 
 
     public void addSong(MultipartFile image,
-                        MultipartFile audio,
                         String lyric,
                         String genre,
                         String name,
@@ -151,7 +158,6 @@ public class SongService {
         underSave.setReleaseDate(LocalDateTime.now());
 
         Song savedSong = songRepository.save(underSave);
-        saveSongAudio(audio,savedSong);
 
         Album album = triggerCreateSingleAlbumWhenSaveSong(savedSong);
 
@@ -187,22 +193,6 @@ public class SongService {
     }
 
 
-    private void saveSongAudio(MultipartFile audio, Song underSave) {
-        if (!audio.isEmpty()) {
-            String fileName = StringUtils.cleanPath(audio.getOriginalFilename());
-            underSave.setAudio(fileName);
-
-            String uploadDir = "song-audios/" + underSave.getId();
-            FileUploadUtil.cleanDir(uploadDir);
-            try {
-                FileUploadUtil.saveFile(uploadDir, fileName, audio);
-            } catch (IOException e) {
-                throw new RuntimeException(e.getMessage());
-            }
-        } else {
-            if (underSave.getAudio().isEmpty()) underSave.setAudio(null);
-        }
-    }
     public Album triggerCreateSingleAlbumWhenSaveSong(Song song) {
         Album album = Album.builder()
                 .name(song.getName())

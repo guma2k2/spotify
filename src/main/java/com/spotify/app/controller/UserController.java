@@ -39,15 +39,15 @@ public class UserController {
         userService.uploadPhoto(photo, userId);
         return ResponseEntity.ok().body("Save photo of user success");
     }
+
+
     @GetMapping(
             value = "/viewPhoto/{userId}",
             produces = {MediaType.IMAGE_PNG_VALUE,MediaType.IMAGE_JPEG_VALUE}
     )
     public ResponseEntity<?> viewPhotoImage(@PathVariable("userId") Long userId) {
-        User user = userService.get(userId);
         return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType("image/png"))
-                .body(user.getPhoto());
+                .body(userService.getPhotoImage(userId));
     }
 
     @GetMapping
@@ -83,11 +83,10 @@ public class UserController {
                                 @RequestParam("lastName") String lastName,
                                 @RequestParam("email") String email,
                                 @RequestParam("password") String password,
-                                @RequestParam(value = "image",required = false) MultipartFile photoImage,
                                 @RequestParam("roleName") String roleName,
                                 @RequestParam("gender") String gender
     ) {
-        return userService.addUser(firstName, lastName, email, password, photoImage, roleName,gender);
+        return userService.addUser(firstName, lastName, email, password, roleName,gender);
     }
 
 
@@ -96,12 +95,11 @@ public class UserController {
                                    @RequestParam("lastName") String lastName,
                                    @RequestParam("email") String email,
                                    @RequestParam("password") String password,
-                                   @RequestParam(value = "image",required = false) MultipartFile photoImage,
                                    @RequestParam("roleName") String roleName,
                                    @PathVariable("userId") Long userId,
                                    @RequestParam("gender") String gender
     ) {
-        return userService.updateUser(firstName, lastName, email, password, photoImage, roleName,userId,gender);
+        return userService.updateUser(firstName, lastName, email, password, roleName,userId,gender);
     }
 
 

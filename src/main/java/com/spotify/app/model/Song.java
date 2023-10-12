@@ -59,15 +59,23 @@ public class Song {
 
 
 //    @Lob
-//    @Column(columnDefinition = "LONGBLOB")
 //    private byte[] audioTest ;
 
 
     @Transient
     public String getAudioPath() {
-        if (id == null || audio == null) return FileUploadUtil.baseUrlFail;
-        return FileUploadUtil.baseUrlAudio +  "/song-audios/" + this.id + "/" + this.audio;
+        String baseUrl = FileUploadUtil.baseUrl;
+        if(audio!=null) {
+            return baseUrl+ "/song/audio/" + this.id ;
+        }
+        return FileUploadUtil.baseUrlFail;
     }
+
+//    @Transient
+//    public String getAudioPath() {
+//        if (id == null || audio == null) return FileUploadUtil.baseUrlFail;
+//        return FileUploadUtil.baseUrlAudio +  "/song-audios/" + this.id + "/" + this.audio;
+//    }
 
     @Transient
     public String getImagePath() {

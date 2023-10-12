@@ -6,6 +6,7 @@ import com.spotify.app.exception.DuplicateResourceException;
 import com.spotify.app.exception.ResourceNotFoundException;
 import com.spotify.app.mapper.CategoryMapper;
 import com.spotify.app.mapper.CategoryResponseMapper;
+import com.spotify.app.model.Album;
 import com.spotify.app.model.Category;
 import com.spotify.app.model.Playlist;
 import com.spotify.app.repository.CategoryRepository;
@@ -32,6 +33,8 @@ public class CategoryService {
     private final PlaylistRepository playlistRepository;
 
     private final int identifyOfCategoryHome = 1;
+
+    private final S3Service s3Service;
 
     public Set<CategoryDTO> listParent() {
         Set<Category> categories = categoryRepository.listAllParent();
@@ -77,8 +80,7 @@ public class CategoryService {
     }
 
     @Transactional
-    public void updateCategory(MultipartFile image,
-                               MultipartFile thumbnail,
+    public void updateCategory(
                                Integer categoryId,
                                String title,
                                String categoryParentTitle
@@ -92,19 +94,14 @@ public class CategoryService {
             Category parent = getByTitle(categoryParentTitle);
             underUpdate.setCategoryParent(parent);
         }
-
-        saveCategoryImage(underUpdate, image);
-        saveCategoryThumbnail(underUpdate, thumbnail);
-
         categoryRepository.save(underUpdate);
     }
 
 
     @Transactional
-    public void addCategory(MultipartFile image,
-                            MultipartFile thumbnail,
-                            String title,
-                            String categoryParentTitle
+    public void addCategory(
+                    String title,
+                    String categoryParentTitle
     ) {
         Category underSave = new Category();
         checkCategoryExitByTitle(title);
@@ -117,8 +114,6 @@ public class CategoryService {
             underSave.setCategoryParent(null);
         }
 
-        saveCategoryImage(underSave, image);
-        saveCategoryThumbnail(underSave, thumbnail);
 
         categoryRepository.save(underSave);
     }
@@ -171,16 +166,58 @@ public class CategoryService {
                         new ResourceNotFoundException(String.format("playlist with id: [%d] not found",playlistId)));
     }
 
-    private void saveCategoryImage(Category underSave, MultipartFile image) {
+    public void saveCategoryImage(MultipartFile image, Integer categoryId) {
+        Category underSave = get(categoryId);
         if (image != null) {
             underSave.setImage(image.getOriginalFilename());
+            try {
+                s3Service.putObject(
+                        String.format("category/image/%d/%s",categoryId,image.getOriginalFilename()),image.getBytes());
+            } catch (IOException e) {
+                throw new RuntimeException(e.getMessage());
+            }
+            categoryRepository.save(underSave);
         }
-
     }
 
-    private void saveCategoryThumbnail(Category underSave, MultipartFile thumbnail) {
+    public void saveCategoryThumbnail(MultipartFile thumbnail, Integer categoryId) {
+        Category underSave = get(categoryId);
         if (thumbnail != null) {
-            underSave.setImage(thumbnail.getOriginalFilename());;
+            underSave.setImage(thumbnail.getOriginalFilename());
+            try {
+                s3Service.putObject(
+                        String.format("category/thumbnail/%d/%s",categoryId,thumbnail.getOriginalFilename()),thumbnail.getBytes());
+            } catch (IOException e) {
+                throw new RuntimeException(e.getMessage());
+            }
+            categoryRepository.save(underSave);
         }
     }
+
+    public byte[] getCategoryImage(Integer categoryId) {
+        Category underGet = get(categoryId);
+        if (underGet.getImage().isEmpty()) {
+            throw new ResourceNotFoundException(
+                    "category id :[%d] not found image".formatted(categoryId));
+        }
+
+        byte[] albumImage = s3Service.getObject(
+                "category/image/%d/%s".formatted(categoryId, underGet.getImage())
+        );
+        return albumImage;
+    }
+
+    public byte[] getCategoryThumbnail(Integer categoryId) {
+        Category underGet = get(categoryId);
+        if (underGet.getThumbnail().isEmpty()) {
+            throw new ResourceNotFoundException(
+                    "category id :[%d] not found thumbnail".formatted(categoryId));
+        }
+
+        byte[] categoryThumbnail = s3Service.getObject(
+                "category/thumbnail/%d/%s".formatted(categoryId, underGet.getThumbnail())
+        );
+        return categoryThumbnail;
+    }
+
 }

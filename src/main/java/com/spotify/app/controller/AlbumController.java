@@ -102,8 +102,4 @@ public class AlbumController {
         return ResponseEntity.ok().body(albumService.updateAlbum(albumId, request));
     }
 
-
-
-
-
 }

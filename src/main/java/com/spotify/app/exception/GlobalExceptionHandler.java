@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
 import org.springframework.http.converter.HttpMessageConversionException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -38,6 +39,20 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 "An error occurred" ,
                 details);
 
+        return ResponseEntityBuilder.build(err);
+    }
+
+    @ExceptionHandler({BadCredentialsException.class})
+    public ResponseEntity<Object> handleException(
+            BadCredentialsException ex) {
+        List<String> details = new ArrayList<>();
+        details.add(ex.getMessage());
+
+        ApiError err = new ApiError(
+                LocalDateTime.now(),
+                HttpStatus.NOT_FOUND,
+                "username or password was not corrected" ,
+                details);
         return ResponseEntityBuilder.build(err);
     }
 

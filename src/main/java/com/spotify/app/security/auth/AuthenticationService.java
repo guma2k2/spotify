@@ -104,7 +104,6 @@ public class AuthenticationService {
         userEmail = jwtService.extractUserName(refreshToken);
         AuthenticationResponse authResponse = null;
 
-//        log.info(refreshToken);
         if (userEmail != null) {
             User user = userRepository.findByEmail(userEmail)
                     .orElseThrow(() ->

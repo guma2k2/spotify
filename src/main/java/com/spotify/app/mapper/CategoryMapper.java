@@ -14,6 +14,5 @@ import java.util.Set;
 public interface CategoryMapper {
     CategoryMapper INSTANCE = Mappers.getMapper( CategoryMapper.class );
     CategoryDTO categoryToCategoryDTO(Category category);
-
     Set<CategoryDTO> categoriesToCategoriesDTO(Set<Category> categories);
 }

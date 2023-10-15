@@ -8,5 +8,4 @@ public class ResponseEntityBuilder {
         return new ResponseEntity<>(apiError,apiError.getStatus());
     }
 
-
 }

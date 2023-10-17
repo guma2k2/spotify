@@ -3,9 +3,11 @@ import com.spotify.app.dto.SongDTO;
 import com.spotify.app.dto.request.SongRequest;
 import com.spotify.app.dto.response.SongResponse;
 import com.spotify.app.enums.Genre;
+import com.spotify.app.exception.DuplicateResourceException;
 import com.spotify.app.mapper.SongMapper;
 import com.spotify.app.model.*;
 import com.spotify.app.repository.*;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -72,10 +74,7 @@ public class SongService {
         songRepository.save(song);
     }
     public void saveSongImage(MultipartFile image, Long songId) {
-        Song song = songRepository.
-                findById(songId).
-                orElseThrow(() ->
-                        new ResourceNotFoundException(String.format("song with id: [%d] not found", songId)));
+        Song song = get(songId);
 
         if(image != null) {
             try {
@@ -114,43 +113,6 @@ public class SongService {
     }
 
 
-    public void addSong(MultipartFile image,
-                        MultipartFile audio,
-                        String lyric,
-                        String genre,
-                        String name,
-                        int duration,
-                        Long userId) throws IOException {
-
-        // Todo: check exit by name
-        if(checkSongExitByName(name.trim())) {
-            throw new ResourceNotFoundException(String.format("song with name: [%s] not found",name));
-        }
-
-        User user = getUserByUserId(userId);
-
-        Song underSave = new Song();
-
-        saveSongImage(image,underSave);
-
-        underSave.setLyric(lyric);
-        underSave.setGenre(Genre.valueOf(genre));
-        underSave.setName(name);
-        underSave.setDuration(duration);
-        underSave.setReleaseDate(LocalDateTime.now());
-
-        Song savedSong = songRepository.save(underSave);
-        saveSongAudio(audio,savedSong);
-
-        Album album = triggerCreateSingleAlbumWhenSaveSong(savedSong);
-
-        user.addAlbum(album);
-        user.addSong(underSave);
-        album.addSong(underSave);
-        userRepository.save(user);
-
-    }
-
     private boolean checkSongExitByName(String name) {
         return songRepository.findByName(name).isPresent();
     }
@@ -174,31 +136,7 @@ public class SongService {
         DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern(pattern);
         return playlistSong.getCreatedOn().format(dateFormat);
     }
-    private void saveSongImage(MultipartFile image, Song underSave) {
-        if(image != null) {
-            try {
-                underSave.setImage(image.getBytes());
-            } catch (IOException e) {
-                throw new ResourceNotFoundException(e.getMessage());
-            }
-        }
-    }
-    private void saveSongAudio(MultipartFile audio, Song underSave) {
-        if (!audio.isEmpty()) {
-            String fileName = StringUtils.cleanPath(audio.getOriginalFilename());
-            underSave.setAudio(fileName);
 
-            String uploadDir = "song-audios/" + underSave.getId();
-            FileUploadUtil.cleanDir(uploadDir);
-            try {
-                FileUploadUtil.saveFile(uploadDir, fileName, audio);
-            } catch (IOException e) {
-                throw new RuntimeException(e.getMessage());
-            }
-        } else {
-            if (underSave.getAudio().isEmpty()) underSave.setAudio(null);
-        }
-    }
     public Album triggerCreateSingleAlbumWhenSaveSong(Song song) {
         Album album = Album.builder()
                 .name(song.getName())
@@ -220,10 +158,9 @@ public class SongService {
         }
 
         Song underSave = new Song();
-
+        underSave.setName(request.name());
         underSave.setLyric(request.lyric());
         underSave.setGenre(Genre.valueOf(request.genre()));
-        underSave.setName(request.name());
         underSave.setDuration(request.duration());
         underSave.setReleaseDate(LocalDateTime.now());
 
@@ -237,4 +174,25 @@ public class SongService {
         album.addSong(underSave);
         userRepository.saveAll(users);
     }
+
+    public void updateSong(SongRequest request, Long songId) {
+        Song underUpdate = get(songId);
+        if(checkSongExitByName(request.name().trim()) && !underUpdate.getName().equals(request.name())) {
+            throw new DuplicateResourceException(String.format("song with name: [%s] exited",request.name()));
+        }
+        underUpdate.setName(request.name());
+        underUpdate.setLyric(request.lyric());
+        underUpdate.setGenre(Genre.valueOf(request.genre()));
+        underUpdate.setDuration(request.duration());
+        songRepository.save(underUpdate);
+    }
+
+
+    @Transactional
+    public void updateStatus(Long songId){
+        Song underUpdate = get(songId);
+        songRepository.updateStatus(songId,!underUpdate.isStatus());
+    }
+
+
 }

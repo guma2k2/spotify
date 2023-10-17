@@ -12,6 +12,8 @@ public record SongDTO (Long id,
                        Genre genre ,
                        String duration,
                        long viewCount,
+                       boolean status,
+                       String label,
                        String audioPath,
                        String imagePath
 ) {

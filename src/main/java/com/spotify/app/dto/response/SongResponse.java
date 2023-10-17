@@ -15,6 +15,8 @@ public record SongResponse(Long id,
                            long viewCount,
                            String audioPath,
                            String imagePath,
+                           boolean status,
+                           String label,
                            Set<UserNoAssociationResponse> users,
                            List<AlbumResponse> albums) {
 }

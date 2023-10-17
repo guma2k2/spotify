@@ -48,6 +48,12 @@ public class Song {
     @Column(columnDefinition = "LONGBLOB")
     private byte[] image ;
 
+    @Builder.Default
+    private boolean status = true;
+
+    @Column(length = 30)
+    private String label;
+
     @ManyToMany(mappedBy = "songs")
     @Builder.Default
     @JsonBackReference

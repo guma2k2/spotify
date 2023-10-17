@@ -2,6 +2,7 @@ package com.spotify.app.repository;
 
 import com.spotify.app.model.Song;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -32,5 +33,14 @@ public interface SongRepository extends JpaRepository<Song, Long> {
     List<Song> findByNameFullText(@Param("name") String name);
 
     Optional<Song> findByName(@Param("name") String name);
+
+
+    @Query("""
+            UPDATE Song s
+            SET s.status = :status
+            WHERE s.id = :songId
+            """)
+    @Modifying
+    void updateStatus(@Param("songId") Long songId, @Param("status") boolean status);
 
 }

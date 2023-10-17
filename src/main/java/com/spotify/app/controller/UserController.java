@@ -67,7 +67,6 @@ public class UserController {
             @RequestParam("sortField") String sortField,
             @RequestParam(value = "keyword", required = false) String keyword
     ) {
-        System.out.println(numPage);
         return userService.getPageResponse(numPage, sortDir, sortField, keyword);
     }
 

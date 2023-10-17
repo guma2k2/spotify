@@ -96,11 +96,29 @@ public class SongController {
 //        return ResponseEntity.ok().body("Save playlist success");
 //    }
 
-    @PostMapping("/artist/save")
-    public ResponseEntity<?> savePlaylist(@Valid SongRequest request)  {
+    @PostMapping
+    public ResponseEntity<?> saveSong(@Valid SongRequest request)  {
         songService.saveSong(request);
-        return ResponseEntity.ok().body("Save playlist success");
+        return ResponseEntity.ok().body("Save song success");
     }
+
+    @PutMapping("/{songId}")
+    public ResponseEntity<?> updateSong(@Valid SongRequest request,
+                                        @PathVariable("songId") Long songId
+    )  {
+        songService.updateSong(request, songId);
+        return ResponseEntity.ok().body("update song success");
+    }
+
+    @PutMapping("/status/{songId}")
+    public ResponseEntity<?> updateStatus(
+            @PathVariable("songId") Long songId
+    )  {
+        songService.updateStatus(songId);
+        return ResponseEntity.ok().body("update status of song success");
+    }
+
+
 
 
     @GetMapping("/search/{name}")
@@ -111,15 +129,5 @@ public class SongController {
         return songService.findByNameFullText(name);
     }
 
-
-//    @GetMapping("/audio")
-//    public ResponseEntity<?> testing() {
-//        Song song = songService.get(1l);
-//        HttpHeaders headers = new HttpHeaders();
-//        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-//        headers.setContentDispositionFormData("attachment", "music.mp3");
-//
-//        return ResponseEntity.ok().headers(headers).body(song.getAudioTest());
-//    }
 
 }

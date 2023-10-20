@@ -97,17 +97,18 @@ public class SongController {
 //    }
 
     @PostMapping
-    public ResponseEntity<?> saveSong(@Valid SongRequest request)  {
-        songService.saveSong(request);
-        return ResponseEntity.ok().body("Save song success");
+    public ResponseEntity<?> saveSong(
+            @Valid SongRequest request
+    )  {
+        return ResponseEntity.ok().body(songService.saveSong(request));
     }
 
     @PutMapping("/{songId}")
-    public ResponseEntity<?> updateSong(@Valid SongRequest request,
-                                        @PathVariable("songId") Long songId
+    public ResponseEntity<?> updateSong(
+            @Valid SongRequest request,
+            @PathVariable("songId") Long songId
     )  {
-        songService.updateSong(request, songId);
-        return ResponseEntity.ok().body("update song success");
+        return ResponseEntity.ok().body(songService.updateSong(request, songId));
     }
 
     @PutMapping("/status/{songId}")

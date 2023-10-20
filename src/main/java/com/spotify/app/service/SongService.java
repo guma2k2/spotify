@@ -146,7 +146,7 @@ public class SongService {
         return albumRepository.save(album);
     }
 
-    public void saveSong(SongRequest request) {
+    public SongDTO saveSong(SongRequest request) {
         if(checkSongExitByName(request.name().trim())) {
             throw new ResourceNotFoundException(String.format("song with name: [%s] not found",request.name()));
         }
@@ -172,10 +172,11 @@ public class SongService {
 
         users.forEach(user -> user.addSong(underSave));
         album.addSong(underSave);
-        userRepository.saveAll(users);
+        userRepository.saveAllAndFlush(users);
+        return songMapper.songToSongDTO(savedSong);
     }
 
-    public void updateSong(SongRequest request, Long songId) {
+    public SongDTO updateSong(SongRequest request, Long songId) {
         Song underUpdate = get(songId);
         if(checkSongExitByName(request.name().trim()) && !underUpdate.getName().equals(request.name())) {
             throw new DuplicateResourceException(String.format("song with name: [%s] exited",request.name()));
@@ -184,7 +185,7 @@ public class SongService {
         underUpdate.setLyric(request.lyric());
         underUpdate.setGenre(Genre.valueOf(request.genre()));
         underUpdate.setDuration(request.duration());
-        songRepository.save(underUpdate);
+        return songMapper.songToSongDTO(songRepository.save(underUpdate));
     }
 
 

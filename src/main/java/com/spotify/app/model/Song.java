@@ -81,7 +81,7 @@ public class Song {
     public String getImagePath() {
         String baseUrl = FileUploadUtil.baseUrl;
         if(image!=null) {
-            return baseUrl+ "/song/viewImage/" + this.id ;
+            return baseUrl+ "/song/view/image/" + this.id ;
         }
         return FileUploadUtil.baseUrlFail;
     }

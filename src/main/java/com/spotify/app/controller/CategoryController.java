@@ -90,7 +90,7 @@ public class CategoryController {
     }
 
     @GetMapping(
-            value = "/viewImage/{categoryId}",
+            value = "/view/image/{categoryId}",
             produces = {MediaType.IMAGE_PNG_VALUE,MediaType.IMAGE_JPEG_VALUE}
     )
     public ResponseEntity<?> viewImage(@PathVariable("categoryId") Integer categoryId) {
@@ -99,7 +99,7 @@ public class CategoryController {
     }
 
 
-    @GetMapping(value = "/viewThumbnail/{categoryId}",
+    @GetMapping(value = "/view/thumbnail/{categoryId}",
             produces = {MediaType.IMAGE_PNG_VALUE,MediaType.IMAGE_JPEG_VALUE}
     )
     public ResponseEntity<?> viewThumbnail(@PathVariable("categoryId") Integer categoryId) {

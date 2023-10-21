@@ -55,18 +55,22 @@ public class SongService {
     }
 
 
-    public void saveSongAudio(MultipartFile audio, Long songId) throws IOException {
+    public void saveSongAudio(MultipartFile audio, Long songId) {
         Song song = get(songId);
 
         if(audio != null) {
             song.setAudio(audio.getOriginalFilename());
             try {
+                if(!song.getAudio().isEmpty()) {
+                    s3Service.removeObject(String.format("song/audio/%d/%s",song.getId(),audio.getOriginalFilename()));
+                }
                 s3Service.putObject(String.format("song/audio/%d/%s",song.getId(),audio.getOriginalFilename()),audio.getBytes());
+                songRepository.save(song);
             } catch (IOException e) {
                 throw new RuntimeException(e.getMessage());
             }
         }
-        songRepository.save(song);
+
     }
     public void saveSongImage(MultipartFile image, Long songId) {
         Song song = get(songId);
@@ -77,11 +81,12 @@ public class SongService {
                     s3Service.removeObject(String.format("song/image/%d/%s",song.getId(),image.getOriginalFilename()));
                 }
                 s3Service.putObject(String.format("song/image/%d/%s",song.getId(),image.getOriginalFilename()),image.getBytes());
+                songRepository.save(song);
             } catch (IOException e) {
                 throw new RuntimeException(e.getMessage());
             }
         }
-        songRepository.save(song);
+
     }
     public byte[] getSongImage(Long songId) {
         Song underGet = get(songId);

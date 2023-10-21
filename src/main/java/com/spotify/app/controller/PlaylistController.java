@@ -96,7 +96,7 @@ public class PlaylistController {
     }
 
     @GetMapping(
-            value = "/viewImage/{playlistId}",
+            value = "/view/image/{playlistId}",
             produces = {MediaType.IMAGE_PNG_VALUE,MediaType.IMAGE_JPEG_VALUE}
     )
     public ResponseEntity<?> viewImage(@PathVariable("playlistId") Long playlistId) {
@@ -104,7 +104,7 @@ public class PlaylistController {
                 .body(playlistService.getPlaylistImage(playlistId));
     }
     @GetMapping(
-            value = "/viewThumbnail/{playlistId}",
+            value = "/view/thumbnail/{playlistId}",
             produces = {MediaType.IMAGE_PNG_VALUE,MediaType.IMAGE_JPEG_VALUE}
     )
     public ResponseEntity<?> viewThumbnail(@PathVariable("playlistId") Long playlistId) {

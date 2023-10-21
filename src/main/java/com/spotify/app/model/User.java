@@ -95,7 +95,7 @@ public class User implements UserDetails {
     public String getPhotoImagePath() {
         String baseUrl = FileUploadUtil.baseUrl;
         if(photo!=null) {
-            return baseUrl+"/user/viewPhoto/" + this.id ;
+            return baseUrl+"/user/view/photo/" + this.id ;
         }
         return FileUploadUtil.baseUrlFail;
     }

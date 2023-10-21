@@ -33,7 +33,6 @@ public class AlbumController {
             @RequestParam("image") MultipartFile image,
             @PathVariable("songId") Long songId
     )  {
-
         albumService.saveAlbumImage(image, songId);
         return ResponseEntity.ok().body("Save image of song success");
     }
@@ -49,7 +48,7 @@ public class AlbumController {
     }
 
     @GetMapping(
-            value = "/viewImage/{albumId}",
+            value = "/view/image/{albumId}",
             produces = {MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE}
     )
     public ResponseEntity<?> viewImage(@PathVariable("albumId") Long albumId) {
@@ -58,7 +57,7 @@ public class AlbumController {
     }
 
     @GetMapping(
-            value = "/viewThumbnail/{albumId}",
+            value = "/view/thumbnail/{albumId}",
             produces = {MediaType.IMAGE_PNG_VALUE,MediaType.IMAGE_JPEG_VALUE}
     )
     public ResponseEntity<?> viewThumbnail(@PathVariable("albumId") Long albumId) {

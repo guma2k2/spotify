@@ -42,7 +42,7 @@ public class UserController {
 
 
     @GetMapping(
-            value = "/viewPhoto/{userId}",
+            value = "/view/photo/{userId}",
             produces = {MediaType.IMAGE_PNG_VALUE,MediaType.IMAGE_JPEG_VALUE}
     )
     public ResponseEntity<?> viewPhotoImage(@PathVariable("userId") Long userId) {

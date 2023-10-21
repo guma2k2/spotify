@@ -63,7 +63,7 @@ public class SongController {
     }
 
     @GetMapping(
-            value = "/viewImage/{songId}",
+            value = "/view/image/{songId}",
             produces = {MediaType.IMAGE_PNG_VALUE,MediaType.IMAGE_JPEG_VALUE}
     )
     public ResponseEntity<?> viewImage(@PathVariable("songId") Long songId) {

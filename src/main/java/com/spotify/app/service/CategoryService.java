@@ -171,6 +171,9 @@ public class CategoryService {
         if (image != null) {
             underSave.setImage(image.getOriginalFilename());
             try {
+                if(!underSave.getImage().isEmpty()) {
+                    s3Service.removeObject(String.format("category/image/%d/%s",underSave.getId(),image.getOriginalFilename()));
+                }
                 s3Service.putObject(
                         String.format("category/image/%d/%s",categoryId,image.getOriginalFilename()),image.getBytes());
             } catch (IOException e) {
@@ -183,14 +186,18 @@ public class CategoryService {
     public void saveCategoryThumbnail(MultipartFile thumbnail, Integer categoryId) {
         Category underSave = get(categoryId);
         if (thumbnail != null) {
-            underSave.setImage(thumbnail.getOriginalFilename());
+            underSave.setThumbnail(thumbnail.getOriginalFilename());
             try {
+                if(!underSave.getImage().isEmpty()) {
+                    s3Service.removeObject(String.format("category/thumbnail/%d/%s",underSave.getId(),thumbnail.getOriginalFilename()));
+                }
                 s3Service.putObject(
                         String.format("category/thumbnail/%d/%s",categoryId,thumbnail.getOriginalFilename()),thumbnail.getBytes());
+                categoryRepository.save(underSave);
             } catch (IOException e) {
                 throw new RuntimeException(e.getMessage());
             }
-            categoryRepository.save(underSave);
+
         }
     }
 

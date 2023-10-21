@@ -75,8 +75,12 @@ public class AlbumService {
         if(image != null) {
             underSave.setImage(image.getOriginalFilename());
             try {
+                if(!underSave.getImage().isEmpty()) {
+                    s3Service.removeObject(String.format("album/image/%d/%s",underSave.getId(),image.getOriginalFilename()));
+                }
                 s3Service.putObject(
                         String.format("album/image/%d/%s",underSave.getId(),image.getOriginalFilename()),image.getBytes());
+                albumRepository.save(underSave);
             } catch (IOException e) {
                 throw new RuntimeException(e.getMessage());
             }
@@ -88,12 +92,17 @@ public class AlbumService {
         if(thumbnail != null) {
             underSave.setThumbnail(thumbnail.getOriginalFilename());
             try {
+                if(!underSave.getThumbnail().isEmpty()) {
+                    s3Service.removeObject(String.format("album/thumbnail/%d/%s",underSave.getId(),thumbnail.getOriginalFilename()));
+                }
                 s3Service.putObject(
                         String.format("album/thumbnail/%d/%s",underSave.getId(),thumbnail.getOriginalFilename()),thumbnail.getBytes());
+                albumRepository.save(underSave);
             } catch (IOException e) {
                 throw new RuntimeException(e.getMessage());
             }
         }
+
     }
 
     public byte[] getAlbumImage(Long albumId) {
@@ -104,7 +113,7 @@ public class AlbumService {
         }
 
         byte[] albumImage = s3Service.getObject(
-                "album/thumbnail/%d/%s".formatted(albumId, underGet.getImage())
+                "album/image/%d/%s".formatted(albumId, underGet.getImage())
         );
         return albumImage;
     }

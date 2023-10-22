@@ -42,7 +42,7 @@ public class UserService {
     private final AlbumService albumService;
     private final PlaylistService playlistService;
     private final RoleService roleService;
-
+    private final S3Service s3Service;
     private final PlaylistSongService playlistSongService;
     private final int userPerPage = 10 ;
 
@@ -69,16 +69,7 @@ public class UserService {
         return userMapper.userToUserDTO(user) ;
     }
 
-    public void uploadPhoto(MultipartFile photo, Long userId) {
-        User user = get(userId);
-        try {
-            user.setPhoto(photo.getBytes());
-        } catch (IOException e) {
-            throw new ResourceNotFoundException(e.getMessage());
-        }
 
-        userRepository.save(user);
-    }
 
     public User get(Long userId) {
         return userRepository.
@@ -124,7 +115,6 @@ public class UserService {
                                 String lastName,
                                 String email,
                                 String password,
-                                MultipartFile photoImage,
                                 String roleName,
                                 String gender) {
 
@@ -142,9 +132,7 @@ public class UserService {
                 .role(role)
                 .build();
         User savedUser = userRepository.save(underSave);
-        saveUserPhotoImage(savedUser, photoImage);
         underSave.setGender(Gender.valueOf(gender));
-
 
         // convert user to userResponseDTO
         UserResponse userResponseDTO=  userResponseMapper.userToUserResponse(savedUser) ;
@@ -160,7 +148,6 @@ public class UserService {
                                    String lastName,
                                    String email,
                                    String password,
-                                   MultipartFile photoImage,
                                    String roleName,
                                    Long userId,
                                    String gender
@@ -175,7 +162,6 @@ public class UserService {
             underUpdate.setPassword(passwordEncoder.encode(password));
         }
 
-        saveUserPhotoImage(underUpdate, photoImage);
         underUpdate.setFirstName(firstName);
         underUpdate.setLastName(lastName);
         underUpdate.setEmail(email);
@@ -254,14 +240,31 @@ public class UserService {
                 .toList();
     }
 
-    public void saveUserPhotoImage(User underSave, MultipartFile photoImage) {
-        if(photoImage != null) {
+    public void uploadPhoto(MultipartFile photo, Long userId) {
+        User user = get(userId);
+        if (!photo.isEmpty()) {
+            user.setPhoto(photo.getOriginalFilename());
             try {
-                underSave.setPhoto(photoImage.getBytes());
+                s3Service.putObject(
+                        String.format("user/photo/%d/%s",userId,photo.getOriginalFilename()),photo.getBytes());
             } catch (IOException e) {
                 throw new RuntimeException(e.getMessage());
             }
+            userRepository.save(user);
         }
+    }
+
+    public byte[] getPhotoImage(Long userId) {
+        User underGet = get(userId);
+        if (underGet.getPhoto().isEmpty()) {
+            throw new ResourceNotFoundException(
+                    "user id :[%d] not found photo".formatted(userId));
+        }
+
+        byte[] playlistImage = s3Service.getObject(
+                "user/photo/%d/%s".formatted(userId, underGet.getPhoto())
+        );
+        return playlistImage;
     }
 
 }

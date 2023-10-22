@@ -1,0 +1,29 @@
+application:
+  security:
+    jwt:
+      secret-key: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+      expiration: '600000'
+      refresh-token:
+        expiration: '14400000'
+
+spring:
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: 'true'
+    hibernate:
+      ddl-auto: update
+    show-sql: 'true'
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+  datasource:
+    password: 'password'
+    username: admin
+    url: jdbc:mysql://db-awss.cg62znhurkgd.ap-southeast-2.rds.amazonaws.com:3306/spotify-aws
+aws:
+  bucket:
+    name: thuanvn
+  region: ap-southeast-2

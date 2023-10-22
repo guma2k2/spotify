@@ -44,9 +44,8 @@ public class Song {
     private int duration;
 
     private String audio;
-    @Lob
-    @Column(columnDefinition = "LONGBLOB")
-    private byte[] image ;
+
+    private String image;
 
     @Builder.Default
     private boolean status = true;
@@ -66,21 +65,29 @@ public class Song {
 
 
 //    @Lob
-//    @Column(columnDefinition = "LONGBLOB")
 //    private byte[] audioTest ;
 
 
     @Transient
     public String getAudioPath() {
-        if (id == null || audio == null) return FileUploadUtil.baseUrlFail;
-        return FileUploadUtil.baseUrlAudio +  "/song-audios/" + this.id + "/" + this.audio;
+        String baseUrl = FileUploadUtil.baseUrl;
+        if(audio!=null) {
+            return baseUrl+ "/song/audio/" + this.id ;
+        }
+        return FileUploadUtil.baseUrlFail;
     }
+
+//    @Transient
+//    public String getAudioPath() {
+//        if (id == null || audio == null) return FileUploadUtil.baseUrlFail;
+//        return FileUploadUtil.baseUrlAudio +  "/song-audios/" + this.id + "/" + this.audio;
+//    }
 
     @Transient
     public String getImagePath() {
         String baseUrl = FileUploadUtil.baseUrl;
         if(image!=null) {
-            return baseUrl+ "/song/viewImage/" + this.id ;
+            return baseUrl+ "/song/view/image/" + this.id ;
         }
         return FileUploadUtil.baseUrlFail;
     }

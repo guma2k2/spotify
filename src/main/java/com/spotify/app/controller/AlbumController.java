@@ -28,36 +28,41 @@ public class AlbumController {
     }
 
 
-    @PostMapping(
-            value = "/uploadFile/{albumId}",
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
-    )
-    public ResponseEntity<?> uploadFiles (
-            @RequestParam(value = "image",required = false)MultipartFile image,
-            @RequestParam(value = "thumbnail",required = false) MultipartFile thumbnail,
-            @PathVariable("albumId") Long albumId
-    ){
-        albumService.uploadFiles(image,thumbnail,albumId);
-        return ResponseEntity.ok().body(String.format("Upload files for album %d success",albumId));
+    @PostMapping("/upload/image/{songId}")
+    public ResponseEntity<?> uploadImage(
+            @RequestParam("image") MultipartFile image,
+            @PathVariable("songId") Long songId
+    )  {
+        albumService.saveAlbumImage(image, songId);
+        return ResponseEntity.ok().body("Save image of song success");
+    }
+
+    @PostMapping("/upload/thumbnail/{songId}")
+    public ResponseEntity<?> uploadThumbnail(
+            @RequestParam("image") MultipartFile thumbnail,
+            @PathVariable("songId") Long songId
+    )  {
+
+        albumService.saveAlbumThumbnail(thumbnail, songId);
+        return ResponseEntity.ok().body("Save image of song success");
     }
 
     @GetMapping(
-            value = "/viewImage/{albumId}",
+            value = "/view/image/{albumId}",
             produces = {MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE}
     )
     public ResponseEntity<?> viewImage(@PathVariable("albumId") Long albumId) {
-        Album album = albumService.get(albumId);
         return ResponseEntity.ok()
-                .body(album.getImage());
+                .body(albumService.getAlbumImage(albumId));
     }
+
     @GetMapping(
-            value = "/viewThumbnail/{albumId}",
+            value = "/view/thumbnail/{albumId}",
             produces = {MediaType.IMAGE_PNG_VALUE,MediaType.IMAGE_JPEG_VALUE}
     )
     public ResponseEntity<?> viewThumbnail(@PathVariable("albumId") Long albumId) {
-        Album album = albumService.get(albumId);
         return ResponseEntity.ok()
-                .body(album.getThumbnail());
+                .body(albumService.getAlbumThumbnail(albumId));
     }
 
     @GetMapping("/{albumId}/add/{songId}")
@@ -101,5 +106,9 @@ public class AlbumController {
     ) {
         return ResponseEntity.ok().body(albumService.updateAlbum(albumId, request));
     }
+
+
+
+
 
 }

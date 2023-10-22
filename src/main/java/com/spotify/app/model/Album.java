@@ -26,13 +26,11 @@ public class Album {
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm")
     private LocalDateTime releaseDate ;
 
-    @Lob
-    @Column(columnDefinition = "LONGBLOB")
-    private byte[] image ;
+    private String image ;
 
     @Lob
     @Column(columnDefinition = "LONGBLOB")
-    private byte[] thumbnail;
+    private String thumbnail;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
@@ -48,7 +46,7 @@ public class Album {
     public String getImagePath() {
         String baseUrl = FileUploadUtil.baseUrl;
         if(image!=null) {
-            return baseUrl+"/album/viewImage/" + this.id ;
+            return baseUrl+"/album/view/image/" + this.id ;
         }
         return FileUploadUtil.baseUrlFail;
     }
@@ -57,7 +55,7 @@ public class Album {
     public String getThumbnailPath() {
         String baseUrl = FileUploadUtil.baseUrl;
         if(thumbnail!=null) {
-            return baseUrl+"/album/viewThumbnail/" + this.id ;
+            return baseUrl+"/album/view/thumbnail/" + this.id ;
         }
         return FileUploadUtil.baseUrlFail;
     }

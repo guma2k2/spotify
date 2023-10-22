@@ -23,13 +23,12 @@ public class Playlist {
     private String name ;
 
     @Column(length = 300)
+
     private String description;
-    @Lob
-    @Column(columnDefinition = "LONGBLOB")
-    private byte[] image;
-    @Lob
-    @Column(columnDefinition = "LONGBLOB")
-    private byte[] thumbnail;
+
+    private String image;
+
+    private String thumbnail;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "playlist")
     @Builder.Default
@@ -48,7 +47,7 @@ public class Playlist {
     public String getImagePath() {
         String baseUrl = FileUploadUtil.baseUrl;
         if(image!=null) {
-            return baseUrl+"/playlist/viewImage/" + this.id ;
+            return baseUrl+"/playlist/view/image/" + this.id ;
         }
         if(this.name.equals("Liked Songs")){
             return FileUploadUtil.baseUrlImagePlaylistLikedSongs;
@@ -66,7 +65,7 @@ public class Playlist {
     public String getThumbnailPath() {
         String baseUrl = FileUploadUtil.baseUrl;
         if(thumbnail!=null) {
-            return baseUrl+"/playlist/viewThumbnail/" + this.id ;
+            return baseUrl+"/playlist/view/thumbnail/" + this.id ;
         }
         if (this.name.equals("Liked Songs")) {
             return FileUploadUtil.baseUrlThumbnailPlaylistLikedSongs;

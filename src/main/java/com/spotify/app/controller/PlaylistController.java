@@ -59,7 +59,7 @@ public class PlaylistController {
                                             @RequestParam("description") String description,
                                             @RequestParam("name") String name
     ){
-        playlistService.updatePlaylist(image,thumbnail,playlistId,description,name);
+        playlistService.updatePlaylist(playlistId,description,name);
         return ResponseEntity.ok().body(String.format("Update playlist %d success", playlistId));
     }
 
@@ -70,30 +70,46 @@ public class PlaylistController {
                                          @RequestParam("description") String description,
                                          @RequestParam("name") String name
     ){
-        playlistService.addPlaylist(image,thumbnail,description,name);
+        playlistService.addPlaylist(description,name);
         return ResponseEntity.ok().body("Save playlist success");
     }
 
 
+    @PostMapping("/upload/image/{playlistId}")
+    public ResponseEntity<?> uploadImage(
+            @RequestParam("image") MultipartFile image,
+            @PathVariable("playlistId") Long playlistId
+    )  {
 
+        playlistService.savePlaylistImage(image, playlistId);
+        return ResponseEntity.ok().body("Save image of playlist success");
+    }
+
+    @PostMapping("/upload/thumbnail/{playlistId}")
+    public ResponseEntity<?> uploadThumbnail(
+            @RequestParam("thumbnail") MultipartFile thumbnail,
+            @PathVariable("playlistId") Long playlistId
+    )  {
+
+        playlistService.savePlaylistThumbnail(thumbnail, playlistId);
+        return ResponseEntity.ok().body("Save thumbnail of playlist success");
+    }
 
     @GetMapping(
-            value = "/viewImage/{playlistId}",
+            value = "/view/image/{playlistId}",
             produces = {MediaType.IMAGE_PNG_VALUE,MediaType.IMAGE_JPEG_VALUE}
     )
     public ResponseEntity<?> viewImage(@PathVariable("playlistId") Long playlistId) {
-        Playlist playlist = playlistService.get(playlistId);
         return ResponseEntity.ok()
-                .body(playlist.getImage());
+                .body(playlistService.getPlaylistImage(playlistId));
     }
     @GetMapping(
-            value = "/viewThumbnail/{playlistId}",
+            value = "/view/thumbnail/{playlistId}",
             produces = {MediaType.IMAGE_PNG_VALUE,MediaType.IMAGE_JPEG_VALUE}
     )
     public ResponseEntity<?> viewThumbnail(@PathVariable("playlistId") Long playlistId) {
-        Playlist playlist = playlistService.get(playlistId);
         return ResponseEntity.ok()
-                .body(playlist.getThumbnail());
+                .body(playlistService.getPlaylistThumbnail(playlistId));
     }
 
     @GetMapping

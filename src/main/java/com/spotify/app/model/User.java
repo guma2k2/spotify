@@ -39,9 +39,7 @@ public class User implements UserDetails {
 
     private LocalDateTime dateOfBrith;
 
-    @Lob
-    @Column(columnDefinition = "LONGBLOB")
-    private byte[] photo;
+    private String photo;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "role_id")
@@ -67,9 +65,12 @@ public class User implements UserDetails {
     @JsonManagedReference
     private Set<Song> songs = new HashSet<>();
 
+
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "user")
     @Builder.Default
     private List<PlaylistUser> playlistUserList = new ArrayList<>();
+
+
 
     @OneToMany(cascade = CascadeType.ALL,orphanRemoval = true, mappedBy = "followedUser")
     @Builder.Default
@@ -94,13 +95,9 @@ public class User implements UserDetails {
     public String getPhotoImagePath() {
         String baseUrl = FileUploadUtil.baseUrl;
         if(photo!=null) {
-            return baseUrl+"/user/viewPhoto/" + this.id ;
+            return baseUrl+"/user/view/photo/" + this.id ;
         }
         return FileUploadUtil.baseUrlFail;
-    }
-
-    public void addFollowing(Follower follower) {
-        followingList.add(follower);
     }
 
 

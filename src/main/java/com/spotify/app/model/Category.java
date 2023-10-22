@@ -22,13 +22,9 @@ public class Category {
     @Column(length = 200)
     private String title ;
 
-    @Lob
-    @Column(columnDefinition = "LONGBLOB")
-    private byte[] image;
+    private String image;
 
-    @Lob
-    @Column(columnDefinition = "LONGBLOB")
-    private byte[] thumbnail;
+    private String thumbnail;
 
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -54,7 +50,7 @@ public class Category {
     public String getImagePath() {
         String baseUrl = FileUploadUtil.baseUrl;
         if(image!=null) {
-            return baseUrl+"/category/viewImage/" + this.id ;
+            return baseUrl+"/category/view/image/" + this.id ;
         }
         return FileUploadUtil.baseUrlFail;
     }
@@ -62,7 +58,7 @@ public class Category {
     public String getThumbnailPath() {
         String baseUrl = FileUploadUtil.baseUrl;
         if(thumbnail!=null) {
-            return baseUrl+"/category/viewThumbnail/" + this.id ;
+            return baseUrl+"/category/view/thumbnail/" + this.id ;
         }
         return FileUploadUtil.baseUrlFail;
     }

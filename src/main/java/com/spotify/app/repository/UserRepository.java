@@ -69,11 +69,4 @@ public interface UserRepository extends JpaRepository<User, Long> {
            """)
     Optional<User> findByIdReturnRoleAndSongs(@Param("userId") Long userId);
 
-
-
-
-
-
-
-
 }

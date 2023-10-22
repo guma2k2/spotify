@@ -45,51 +45,66 @@ public class CategoryController {
 
     @PutMapping("/admin/update/{categoryId}")
     public ResponseEntity<?> updateCategory(
-            @RequestParam(value = "image",required = false) MultipartFile image,
-            @RequestParam(value = "thumbnail",required = false) MultipartFile thumbnail,
-            @PathVariable("categoryId") Integer categoryId,
-            @RequestParam("title") String title,
-            @RequestParam(value = "categoryParentTitle",required = false) String categoryParentTitle
+                        @PathVariable("categoryId") Integer categoryId,
+                        @RequestParam("title") String title,
+                        @RequestParam(value = "categoryParentTitle",required = false) String categoryParentTitle
     ){
-        categoryService.updateCategory(image,thumbnail,categoryId,title ,categoryParentTitle);
+        categoryService.updateCategory(categoryId,title ,categoryParentTitle);
         return ResponseEntity.ok().body(String.format("update category %d success", categoryId));
     }
 
-
-
     @PostMapping("/admin/save")
     @Operation(description = "Save file image end with `png` only")
-    public ResponseEntity<?> addCategory(@RequestParam(value = "image",required = false) MultipartFile image,
-                                         @RequestParam(value = "thumbnail",required = false) MultipartFile thumbnail,
-                                         @RequestParam("title") String title,
-                                         @RequestParam(value = "categoryParentTitle",required = false) String categoryParentTitle
+    public ResponseEntity<?> addCategory(
+            @RequestParam("title") String title,
+            @RequestParam(value = "categoryParentTitle",required = false) String categoryParentTitle
     ){
-        categoryService.addCategory(image,thumbnail, title, categoryParentTitle);
+        categoryService.addCategory(title, categoryParentTitle);
         return ResponseEntity.ok().body("save category success");
     }
-    
+
+    @PostMapping("/upload/image/{categoryId}")
+    public ResponseEntity<?> uploadImage(
+            @RequestParam("image") MultipartFile image,
+            @PathVariable("categoryId") Integer catId
+    )  {
+
+        categoryService.saveCategoryImage(image, catId);
+        return ResponseEntity.ok().body("Save image of category success");
+    }
+
+    @PostMapping("/upload/thumbnail/{categoryId}")
+    public ResponseEntity<?> uploadThumbnail(
+            @RequestParam("thumbnail") MultipartFile thumbnail,
+            @PathVariable("categoryId") Integer catId
+    )  {
+
+        categoryService.saveCategoryThumbnail(thumbnail, catId);
+        return ResponseEntity.ok().body("Save thumbnail of category success");
+    }
+
+
     @GetMapping("/admin/{categoryId}")
     public CategoryResponse findByIdForAdmin(@PathVariable("categoryId") Integer categoryId) {
         return categoryService.getByIdForAdmin(categoryId);
     }
 
     @GetMapping(
-            value = "/viewImage/{cateId}",
+            value = "/view/image/{categoryId}",
             produces = {MediaType.IMAGE_PNG_VALUE,MediaType.IMAGE_JPEG_VALUE}
     )
-    public ResponseEntity<?> viewImage(@PathVariable("cateId") Integer cateId) {
-        Category category = categoryService.get(cateId);
+    public ResponseEntity<?> viewImage(@PathVariable("categoryId") Integer categoryId) {
         return ResponseEntity.ok()
-                .body(category.getImage());
+                .body(categoryService.getCategoryImage(categoryId));
     }
 
-    @GetMapping(value = "/viewThumbnail/{cateId}",
+
+    @GetMapping(value = "/view/thumbnail/{categoryId}",
             produces = {MediaType.IMAGE_PNG_VALUE,MediaType.IMAGE_JPEG_VALUE}
     )
-    public ResponseEntity<?> viewThumbnail(@PathVariable("cateId") Integer cateId) {
-        Category category = categoryService.get(cateId);
+    public ResponseEntity<?> viewThumbnail(@PathVariable("categoryId") Integer categoryId) {
         return ResponseEntity.ok()
-                .body(category.getThumbnail());
+                .body(categoryService.getCategoryThumbnail(categoryId));
     }
 
     @GetMapping("/{cateId}")

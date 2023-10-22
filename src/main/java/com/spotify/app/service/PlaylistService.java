@@ -32,6 +32,7 @@ public class PlaylistService {
     private final PlaylistSongRepository playlistSongRepository;
     private final PlaylistResponseMapper playlistResponseMapper;
     private final PlaylistUserRepository playlistUserRepository;
+    private final S3Service s3Service;
     public final String playlistNameHasAllLikedSongOfUser = "Liked Songs";
 
 
@@ -44,9 +45,6 @@ public class PlaylistService {
 
         return playlistUser.getPlaylist();
     }
-
-
-
 
     public Playlist get(Long playlistId) {
         return playlistRepository
@@ -119,11 +117,9 @@ public class PlaylistService {
 
 
     @Transactional
-    public void updatePlaylist(MultipartFile image, MultipartFile thumbnail, Long playlistId,String desc, String name) {
+    public void updatePlaylist(Long playlistId,String desc, String name) {
         Playlist underSave = get(playlistId);
 
-        savePlaylistImage(underSave,image);
-        savePlaylistThumbnail(underSave,thumbnail);
         underSave.setDescription(desc);
         underSave.setName(name);
 
@@ -131,12 +127,10 @@ public class PlaylistService {
     }
 
     @Transactional
-    public void addPlaylist(MultipartFile image, MultipartFile thumbnail,String desc, String name) {
+    public void addPlaylist(String desc, String name) {
         Playlist underSave = new Playlist();
         underSave.setDescription(desc);
         underSave.setName(name);
-        savePlaylistImage(underSave,image);
-        savePlaylistThumbnail(underSave,thumbnail);
         playlistRepository.save(underSave);
     }
 
@@ -196,26 +190,64 @@ public class PlaylistService {
         playlistRepository.save(playlist);
     }
 
-    private void savePlaylistImage(Playlist underSave, MultipartFile image) {
+    public void savePlaylistImage(MultipartFile image, Long playlistId) {
+        Playlist underSave = get(playlistId);
         if (image != null) {
+            underSave.setImage(image.getOriginalFilename());
             try {
-                underSave.setImage(image.getBytes());
+                s3Service.putObject(
+                        String.format("playlist/image/%d/%s",playlistId,image.getOriginalFilename()),image.getBytes());
             } catch (IOException e) {
-                throw new ResourceNotFoundException(e.getMessage());
+                throw new RuntimeException(e.getMessage());
             }
+            playlistRepository.save(underSave);
         }
 
     }
 
-    private void savePlaylistThumbnail(Playlist underSave, MultipartFile thumbnail) {
+    public void savePlaylistThumbnail(MultipartFile thumbnail, Long playlistId) {
+        Playlist underSave = get(playlistId);
         if (thumbnail != null) {
+            underSave.setThumbnail(thumbnail.getOriginalFilename());
             try {
-                underSave.setThumbnail(thumbnail.getBytes());
+                s3Service.putObject(
+                        String.format("playlist/thumbnail/%d/%s",playlistId,thumbnail.getOriginalFilename()),thumbnail.getBytes());
             } catch (IOException e) {
-                throw new ResourceNotFoundException(e.getMessage());
+                throw new RuntimeException(e.getMessage());
             }
+            playlistRepository.save(underSave);
         }
     }
+
+    public byte[] getPlaylistImage(Long playlistId) {
+        Playlist underGet = get(playlistId);
+        if (underGet.getImage().isEmpty()) {
+            throw new ResourceNotFoundException(
+                    "playlist id :[%d] not found image".formatted(playlistId));
+        }
+
+        byte[] playlistImage = s3Service.getObject(
+                "playlist/image/%d/%s".formatted(playlistId, underGet.getImage())
+        );
+        return playlistImage;
+    }
+
+    public byte[] getPlaylistThumbnail(Long playlistId) {
+        Playlist underGet = get(playlistId);
+        if (underGet.getThumbnail().isEmpty()) {
+            throw new ResourceNotFoundException(
+                    "playlist id :[%d] not found thumbnail".formatted(playlistId));
+        }
+
+        byte[] categoryThumbnail = s3Service.getObject(
+                "playlist/thumbnail/%d/%s".formatted(playlistId, underGet.getThumbnail())
+        );
+        return categoryThumbnail;
+    }
+
+
+
+
 
     private String convertTotalTime(List<PlaylistSong> playlistSongs) {
 

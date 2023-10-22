@@ -9,6 +9,8 @@ import com.spotify.app.model.*;
 import com.spotify.app.repository.*;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -20,11 +22,13 @@ import com.spotify.app.utility.FileUploadUtil;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 @Service
 @AllArgsConstructor
@@ -39,7 +43,9 @@ public class SongService {
     private final AlbumResponseMapper albumResponseMapper;
     private final UserRepository userRepository ;
     private final AlbumRepository albumRepository;
+    private final S3Service s3Service;
 
+    private final RestTemplate restTemplate;
     public Song get(Long songId) {
         return songRepository.findById(songId).orElseThrow(() -> new ResourceNotFoundException("Song not found")) ;
     }
@@ -56,36 +62,64 @@ public class SongService {
     }
 
 
-    public void saveSongAudio(MultipartFile multipartFile, Long songId) throws IOException {
+    public void saveSongAudio(MultipartFile audio, Long songId) {
         Song song = get(songId);
 
-        if (!multipartFile.isEmpty()) {
-            String fileName = StringUtils.cleanPath(multipartFile.getOriginalFilename());
-            song.setAudio(fileName);
-
-            String uploadDir = "song-audios/" + songId;
-
-            FileUploadUtil.cleanDir(uploadDir);
-            FileUploadUtil.saveFile(uploadDir, fileName, multipartFile);
-
-        } else {
-            if (song.getAudio().isEmpty()) song.setAudio(null);
+        if(audio != null) {
+            song.setAudio(audio.getOriginalFilename());
+            try {
+                if(!song.getAudio().isEmpty()) {
+                    s3Service.removeObject(String.format("song/audio/%d/%s",song.getId(),audio.getOriginalFilename()));
+                }
+                s3Service.putObject(String.format("song/audio/%d/%s",song.getId(),audio.getOriginalFilename()),audio.getBytes());
+                songRepository.save(song);
+            } catch (IOException e) {
+                throw new RuntimeException(e.getMessage());
+            }
         }
-        songRepository.save(song);
+
     }
     public void saveSongImage(MultipartFile image, Long songId) {
         Song song = get(songId);
-
         if(image != null) {
+            song.setImage(image.getOriginalFilename());
             try {
-                song.setImage(image.getBytes());
+                if(!song.getImage().isEmpty()) {
+                    s3Service.removeObject(String.format("song/image/%d/%s",song.getId(),image.getOriginalFilename()));
+                }
+                s3Service.putObject(String.format("song/image/%d/%s",song.getId(),image.getOriginalFilename()),image.getBytes());
+                songRepository.save(song);
             } catch (IOException e) {
-                throw new ResourceNotFoundException(e.getMessage());
+                throw new RuntimeException(e.getMessage());
             }
         }
-        songRepository.save(song);
+
+    }
+    public byte[] getSongImage(Long songId) {
+        Song underGet = get(songId);
+        if (underGet.getImage().isEmpty()) {
+            throw new ResourceNotFoundException(
+                    "song with id image :[%d] not found".formatted(songId));
+        }
+
+        byte[] songImage = s3Service.getObject(
+                "song/image/%d/%s".formatted(songId, underGet.getImage())
+        );
+        return songImage;
     }
 
+    public byte[] getSongAudio(Long songId) {
+        Song underGet = get(songId);
+        if (underGet.getImage().isEmpty()) {
+            throw new ResourceNotFoundException(
+                    "song with id audio :[%d] not found".formatted(songId));
+        }
+
+        byte[] songAudio = s3Service.getObject(
+                "song/audio/%d/%s".formatted(songId, underGet.getAudio())
+        );
+        return songAudio;
+    }
 
     public SongResponse findBySong(Song song, PlaylistSong playlistSong) {
 
@@ -113,6 +147,8 @@ public class SongService {
     }
 
 
+
+
     private boolean checkSongExitByName(String name) {
         return songRepository.findByName(name).isPresent();
     }
@@ -136,6 +172,7 @@ public class SongService {
         DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern(pattern);
         return playlistSong.getCreatedOn().format(dateFormat);
     }
+
 
     public Album triggerCreateSingleAlbumWhenSaveSong(Song song) {
         Album album = Album.builder()
@@ -161,6 +198,7 @@ public class SongService {
         underSave.setName(request.name());
         underSave.setLyric(request.lyric());
         underSave.setGenre(Genre.valueOf(request.genre()));
+        underSave.setName(request.name());
         underSave.setDuration(request.duration());
         underSave.setReleaseDate(LocalDateTime.now());
 
@@ -196,4 +234,23 @@ public class SongService {
     }
 
 
+    public List<SongResponse> findBySentiment(String sentiment) {
+        log.info(sentiment);
+        List<Song> songs = songRepository.findByLabelReturnUsersAlbums(getLabelBySentiment(sentiment));
+        log.warn(String.valueOf(songs.size()));
+        return songs.stream().map(song -> getById(song.getId())).toList();
+    }
+
+    public String getLabelBySentiment(String sentiment) {
+        String url = "http://127.0.0.1:8000/sentiment";
+        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(url)
+                .queryParam("text", sentiment);
+        // when
+        ResponseEntity<String> underGet = restTemplate.getForEntity(builder.toUriString(),String.class);
+        if(underGet.getStatusCode().is4xxClientError()) {
+            throw new ResourceNotFoundException("an error occurred");
+        }
+        log.info(underGet.getBody());
+        return Objects.requireNonNull(underGet.getBody()).substring(1, underGet.getBody().length()-1);
+    }
 }

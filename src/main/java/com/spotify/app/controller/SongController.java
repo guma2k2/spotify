@@ -5,7 +5,6 @@ import com.spotify.app.dto.request.SongRequest;
 import com.spotify.app.dto.response.SongResponse;
 import com.spotify.app.model.Song;
 import com.spotify.app.service.SongService;
-import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.MediaType;
@@ -32,7 +31,7 @@ public class SongController {
     }
 
     @PostMapping("/upload/audio/{songId}")
-    public ResponseEntity<?> uploadPhoto(
+    public ResponseEntity<?> uploadAudio(
             @RequestParam("audio") MultipartFile audio,
             @PathVariable("songId") Long songId
     ) throws IOException {
@@ -50,18 +49,27 @@ public class SongController {
     )  {
 
         songService.saveSongImage(image, songId);
-
         return ResponseEntity.ok().body("Save image of song success");
     }
 
+
+    @GetMapping(value = "/audio/{songId}",produces = "audio/mpeg")
+    public ResponseEntity<?> streamAudio(
+            @PathVariable("songId") Long songId
+    ) {
+
+        return ResponseEntity.ok()
+                .body(songService.getSongAudio(songId));
+    }
+
     @GetMapping(
-            value = "/viewImage/{songId}",
+            value = "/view/image/{songId}",
             produces = {MediaType.IMAGE_PNG_VALUE,MediaType.IMAGE_JPEG_VALUE}
     )
     public ResponseEntity<?> viewImage(@PathVariable("songId") Long songId) {
-        Song song = songService.get(songId);
+
         return ResponseEntity.ok()
-                .body(song.getImage());
+                .body(songService.getSongImage(songId));
     }
 
     @GetMapping("/findBy/playlist/{playlistId}")
@@ -83,18 +91,15 @@ public class SongController {
         return songService.get(songId);
     }
 
-//    @PostMapping("/admin/save")
-//    public ResponseEntity<?> addPlaylist(@RequestParam(value = "image",required = false) MultipartFile image,
-//                                         @RequestParam("audio") MultipartFile audio,
-//                                         @RequestParam("lyric") String lyric,
-//                                         @RequestParam("genre") String genre,
-//                                         @RequestParam("name") String name,
-//                                         @RequestParam("duration") int duration,
-//                                         @RequestParam("userId") Long userId
-//    ) throws IOException {
-//        songService.addSong(image,audio, lyric,genre,name,duration,userId);
-//        return ResponseEntity.ok().body("Save playlist success");
-//    }
+
+
+    @PostMapping("/test/admin/save")
+    public ResponseEntity<?> savePlaylist(@Valid SongRequest request)  {
+        songService.saveSong(request);
+        return ResponseEntity.ok().body("Save playlist success");
+    }
+
+
 
     @PostMapping
     public ResponseEntity<?> saveSong(
@@ -123,11 +128,16 @@ public class SongController {
 
 
     @GetMapping("/search/{name}")
-
     List<SongResponse> findByNameFullText(
             @PathVariable("name") String name
     ) {
         return songService.findByNameFullText(name);
+    }
+
+
+    @GetMapping("/find/by/sentiment/{sentiment}")
+    public List<SongResponse> findBySentiment(@PathVariable("sentiment")String sentiment) {
+        return songService.findBySentiment(sentiment);
     }
 
 

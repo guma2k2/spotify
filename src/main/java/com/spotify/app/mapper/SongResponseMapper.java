@@ -26,7 +26,7 @@ public interface SongResponseMapper {
                                        String createdOn);
 
     default String getReleaseDate(Song song) {
-        String pattern = "dd/MM/yyyy hh:mm:ss";
+        String pattern = " mm/dd/yyyy hh:mm:ss";
         DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern(pattern);
         return song.getReleaseDate().format(dateFormat) ;
     }

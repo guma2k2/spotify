@@ -34,7 +34,7 @@ public interface SongRepository extends JpaRepository<Song, Long> {
             LEFT JOIN FETCH s.albumSongList
             WHERE s.label = :label
             """)
-    List<Song> findByLabelReturnUsersAlbums( @Param("label") String label ) ;
+    List<Song> findByLabelReturnUsersAlbums( @Param("label") String label) ;
 
     @Query("""
             SELECT s
@@ -55,8 +55,6 @@ public interface SongRepository extends JpaRepository<Song, Long> {
     void updateStatus(@Param("songId") Long songId, @Param("status") boolean status);
 
     Optional<Song> findByName(String name);
-
-
 
 
 }

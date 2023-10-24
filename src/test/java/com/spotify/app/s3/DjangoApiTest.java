@@ -1,4 +1,4 @@
-package com.spotify.app;
+package com.spotify.app.s3;
 
 import static org.hamcrest.Matchers.*;
 import lombok.AllArgsConstructor;

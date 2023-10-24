@@ -1,6 +1,7 @@
 package com.spotify.app;
 
 import lombok.extern.slf4j.Slf4j;
+import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -16,6 +17,19 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 @Testcontainers
 @Slf4j
 public abstract class AbstractTestcontainers {
+
+
+    @BeforeAll
+    static void beforeAll() {
+        Flyway flyway = Flyway
+                .configure()
+                .dataSource(
+                        mySQLContainer.getJdbcUrl(),
+                        mySQLContainer.getUsername(),
+                        mySQLContainer.getPassword()
+                ).load();
+        flyway.migrate();
+    }
     @Container
     protected static final MySQLContainer<?> mySQLContainer =
             new MySQLContainer<>("mysql:latest")
@@ -32,11 +46,11 @@ public abstract class AbstractTestcontainers {
         registry.add("spring.datasource.password", mySQLContainer::getPassword);
     }
 
-    @BeforeAll
-    static void setUp() {
-        mySQLContainer.withInitScript("schema.sql");
-        mySQLContainer.start();
-    }
+//    @BeforeAll
+//    static void setUp() {
+//        mySQLContainer.withInitScript("schema.sql");
+//        mySQLContainer.start();
+//    }
 
     @Test
     void connectionEstablished() {

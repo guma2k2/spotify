@@ -27,7 +27,7 @@ public class UserIT {
         // given
         Long userId = 1l;
         String url = USER_PATH.concat(String.format("/%d",userId));
-        log.info(url);
+//        log.info(url);
         ResponseEntity<UserResponse> response = restTemplate.
                 exchange(url, HttpMethod.GET,null,UserResponse.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -38,10 +38,10 @@ public class UserIT {
     public void shouldReturnFail__WhenGivenUnValidId(){
         Long userId = 0l ;
         String url = USER_PATH.concat(String.format("/%d",userId));
-        log.info(url);
+//        log.info(url);
         ResponseEntity<UserResponse> response = restTemplate.
                 exchange(url, HttpMethod.GET,null,UserResponse.class);
-        log.info(String.valueOf(response.getBody()));
+//        log.info(String.valueOf(response.getBody()));
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
 

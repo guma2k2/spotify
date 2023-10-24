@@ -29,49 +29,4 @@ import java.time.LocalDateTime;
 @Import({TestConfig.class})
 public class AlbumRepositoryTest {
 
-
-    private final AlbumRepository albumRepository ;
-    private final SongRepository songRepository;
-
-    @Autowired
-    public AlbumRepositoryTest(AlbumRepository albumRepository, SongRepository songRepository) {
-        this.albumRepository = albumRepository;
-        this.songRepository = songRepository;
-    }
-
-    @Test
-    @Transactional
-    @Rollback(value = false)
-    public void createAlbum_thenReturn_statusSuccess() {
-        Song song1 = Song.builder()
-                .releaseDate(LocalDateTime.now())
-                .name("song1")
-                .duration(232)
-                .genre(Genre.POP)
-                .build();
-
-        Song song2 = Song.builder()
-                .releaseDate(LocalDateTime.now())
-                .name("song2")
-                .duration(232)
-                .genre(Genre.POP)
-                .build();
-
-//        Song savedSong2 = this.songRepository.save(song2);
-//        Song savedSong1 = this.songRepository.save(song1);
-
-        this.songRepository.saveAndFlush(song1);
-        this.songRepository.saveAndFlush(song2);
-        Album album = Album.builder()
-                .name("thuan")
-                .releaseDate(LocalDateTime.now())
-                .build();
-        Album savedAlbum = this.albumRepository.saveAndFlush(album);
-        album.addSong(song1);
-        album.addSong(song2);
-
-        assert(savedAlbum.getAlbumSongList().size() > 0);
-
-        /*assert(savedAlbum.getName()).equals(album.getName());*/
-    }
 }

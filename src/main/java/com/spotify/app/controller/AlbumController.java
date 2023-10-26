@@ -47,23 +47,7 @@ public class AlbumController {
         return ResponseEntity.ok().body("Save image of song success");
     }
 
-    @GetMapping(
-            value = "/view/image/{albumId}",
-            produces = {MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE}
-    )
-    public ResponseEntity<?> viewImage(@PathVariable("albumId") Long albumId) {
-        return ResponseEntity.ok()
-                .body(albumService.getAlbumImage(albumId));
-    }
 
-    @GetMapping(
-            value = "/view/thumbnail/{albumId}",
-            produces = {MediaType.IMAGE_PNG_VALUE,MediaType.IMAGE_JPEG_VALUE}
-    )
-    public ResponseEntity<?> viewThumbnail(@PathVariable("albumId") Long albumId) {
-        return ResponseEntity.ok()
-                .body(albumService.getAlbumThumbnail(albumId));
-    }
 
     @GetMapping("/{albumId}/add/{songId}")
     @Operation(description = "add song to liked Song by userId")
@@ -107,6 +91,26 @@ public class AlbumController {
         return ResponseEntity.ok().body(albumService.updateAlbum(albumId, request));
     }
 
+
+    //////////////////////////////////////////////// S3 SERVICE ////////////////////////////////////////////////////////
+
+//    @GetMapping(
+//            value = "/view/image/{albumId}",
+//            produces = {MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE}
+//    )
+//    public ResponseEntity<?> viewImage(@PathVariable("albumId") Long albumId) {
+//        return ResponseEntity.ok()
+//                .body(albumService.getAlbumImage(albumId));
+//    }
+//
+//    @GetMapping(
+//            value = "/view/thumbnail/{albumId}",
+//            produces = {MediaType.IMAGE_PNG_VALUE,MediaType.IMAGE_JPEG_VALUE}
+//    )
+//    public ResponseEntity<?> viewThumbnail(@PathVariable("albumId") Long albumId) {
+//        return ResponseEntity.ok()
+//                .body(albumService.getAlbumThumbnail(albumId));
+//    }
 
 
 

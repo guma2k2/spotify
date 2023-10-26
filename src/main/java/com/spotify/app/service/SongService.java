@@ -64,62 +64,44 @@ public class SongService {
 
     public void saveSongAudio(MultipartFile audio, Long songId) {
         Song song = get(songId);
+        if (!audio.isEmpty()) {
+            String fileName = StringUtils.cleanPath(audio.getOriginalFilename());
+            song.setAudio(fileName);
+            String uploadDir = "song-audios/" + songId;
 
-        if(audio != null) {
-            song.setAudio(audio.getOriginalFilename());
+            FileUploadUtil.cleanDir(uploadDir);
             try {
-                if(!song.getAudio().isEmpty()) {
-                    s3Service.removeObject(String.format("song/audio/%d/%s",song.getId(),audio.getOriginalFilename()));
-                }
-                s3Service.putObject(String.format("song/audio/%d/%s",song.getId(),audio.getOriginalFilename()),audio.getBytes());
-                songRepository.save(song);
+                FileUploadUtil.saveFile(uploadDir, fileName, audio);
             } catch (IOException e) {
                 throw new RuntimeException(e.getMessage());
             }
+        } else {
+            if (song.getAudio().isEmpty()){
+                song.setAudio(null);
+            }
         }
-
+        songRepository.save(song);
     }
     public void saveSongImage(MultipartFile image, Long songId) {
         Song song = get(songId);
-        if(image != null) {
-            song.setImage(image.getOriginalFilename());
+        if (!image.isEmpty()) {
+            String fileName = StringUtils.cleanPath(image.getOriginalFilename());
+            song.setImage(fileName);
+            String uploadDir = "song-images/" + songId;
+            FileUploadUtil.cleanDir(uploadDir);
             try {
-                if(!song.getImage().isEmpty()) {
-                    s3Service.removeObject(String.format("song/image/%d/%s",song.getId(),image.getOriginalFilename()));
-                }
-                s3Service.putObject(String.format("song/image/%d/%s",song.getId(),image.getOriginalFilename()),image.getBytes());
-                songRepository.save(song);
+                FileUploadUtil.saveFile(uploadDir, fileName, image);
             } catch (IOException e) {
                 throw new RuntimeException(e.getMessage());
             }
+        } else {
+            if (song.getImage().isEmpty()){
+                song.setImage(null);
+            }
         }
-
-    }
-    public byte[] getSongImage(Long songId) {
-        Song underGet = get(songId);
-        if (underGet.getImage().isEmpty()) {
-            throw new ResourceNotFoundException(
-                    "song with id image :[%d] not found".formatted(songId));
-        }
-
-        byte[] songImage = s3Service.getObject(
-                "song/image/%d/%s".formatted(songId, underGet.getImage())
-        );
-        return songImage;
+        songRepository.save(song);
     }
 
-    public byte[] getSongAudio(Long songId) {
-        Song underGet = get(songId);
-        if (underGet.getImage().isEmpty()) {
-            throw new ResourceNotFoundException(
-                    "song with id audio :[%d] not found".formatted(songId));
-        }
-
-        byte[] songAudio = s3Service.getObject(
-                "song/audio/%d/%s".formatted(songId, underGet.getAudio())
-        );
-        return songAudio;
-    }
 
     public SongResponse findBySong(Song song, PlaylistSong playlistSong) {
 
@@ -134,8 +116,6 @@ public class SongService {
         return songResponseMapper.songToSongResponse(song, albumResponses, createdOn);
     }
 
-
-
     public List<SongDTO> findByPlaylistId(Long playlistId) {
         List<PlaylistSong> playlistSongs =  playlistSongRepository.findByPlaylistId(playlistId);
         List<Song> songs = playlistSongs.stream().map(PlaylistSong::getSong).toList();
@@ -145,10 +125,6 @@ public class SongService {
     public List<SongDTO> findAll() {
         return songMapper.songsToSongsDTO(songRepository.findAll());
     }
-
-
-
-
     private boolean checkSongExitByName(String name) {
         return songRepository.findByName(name).isPresent();
     }
@@ -172,8 +148,6 @@ public class SongService {
         DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern(pattern);
         return playlistSong.getCreatedOn().format(dateFormat);
     }
-
-
     public Album triggerCreateSingleAlbumWhenSaveSong(Song song) {
         Album album = Album.builder()
                 .name(song.getName())
@@ -182,7 +156,6 @@ public class SongService {
                 .build();
         return albumRepository.save(album);
     }
-
     public SongDTO saveSong(SongRequest request) {
         if(checkSongExitByName(request.name().trim())) {
             throw new ResourceNotFoundException(String.format("song with name: [%s] not found",request.name()));
@@ -213,7 +186,6 @@ public class SongService {
         userRepository.saveAllAndFlush(users);
         return songMapper.songToSongDTO(savedSong);
     }
-
     public SongDTO updateSong(SongRequest request, Long songId) {
         Song underUpdate = get(songId);
         if(checkSongExitByName(request.name().trim()) && !underUpdate.getName().equals(request.name())) {
@@ -225,14 +197,11 @@ public class SongService {
         underUpdate.setDuration(request.duration());
         return songMapper.songToSongDTO(songRepository.save(underUpdate));
     }
-
-
     @Transactional
     public void updateStatus(Long songId){
         Song underUpdate = get(songId);
         songRepository.updateStatus(songId,!underUpdate.isStatus());
     }
-
 
     public List<SongResponse> findBySentiment(String sentiment) {
         log.info(sentiment);
@@ -240,7 +209,6 @@ public class SongService {
         log.warn(String.valueOf(songs.size()));
         return songs.stream().map(song -> getById(song.getId())).toList();
     }
-
     public String getLabelBySentiment(String sentiment) {
         String url = "http://127.0.0.1:8000/sentiment";
         UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(url)
@@ -253,4 +221,65 @@ public class SongService {
         log.info(underGet.getBody());
         return Objects.requireNonNull(underGet.getBody()).substring(1, underGet.getBody().length()-1);
     }
+
+    /////////////////////////////////////// S3 SERVICE ///////////////////////
+
+//    public byte[] getSongImage(Long songId) {
+//        Song underGet = get(songId);
+//        if (underGet.getImage().isEmpty()) {
+//            throw new ResourceNotFoundException(
+//                    "song with id image :[%d] not found".formatted(songId));
+//        }
+//
+//        byte[] songImage = s3Service.getObject(
+//                "song/image/%d/%s".formatted(songId, underGet.getImage())
+//        );
+//        return songImage;
+//    }
+//
+//    public byte[] getSongAudio(Long songId) {
+//        Song underGet = get(songId);
+//        if (underGet.getImage().isEmpty()) {
+//            throw new ResourceNotFoundException(
+//                    "song with id audio :[%d] not found".formatted(songId));
+//        }
+//
+//        byte[] songAudio = s3Service.getObject(
+//                "song/audio/%d/%s".formatted(songId, underGet.getAudio())
+//        );
+//        return songAudio;
+//    }
+//public void saveSongAudio(MultipartFile audio, Long songId) {
+//    Song song = get(songId);
+//
+//    if(audio != null) {
+//        song.setAudio(audio.getOriginalFilename());
+//        try {
+//            if(!song.getAudio().isEmpty()) {
+//                s3Service.removeObject(String.format("song/audio/%d/%s",song.getId(),audio.getOriginalFilename()));
+//            }
+//            s3Service.putObject(String.format("song/audio/%d/%s",song.getId(),audio.getOriginalFilename()),audio.getBytes());
+//            songRepository.save(song);
+//        } catch (IOException e) {
+//            throw new RuntimeException(e.getMessage());
+//        }
+//    }
+//
+//}
+//    public void saveSongImage(MultipartFile image, Long songId) {
+//        Song song = get(songId);
+//        if(image != null) {
+//            song.setImage(image.getOriginalFilename());
+//            try {
+//                if(!song.getImage().isEmpty()) {
+//                    s3Service.removeObject(String.format("song/image/%d/%s",song.getId(),image.getOriginalFilename()));
+//                }
+//                s3Service.putObject(String.format("song/image/%d/%s",song.getId(),image.getOriginalFilename()),image.getBytes());
+//                songRepository.save(song);
+//            } catch (IOException e) {
+//                throw new RuntimeException(e.getMessage());
+//            }
+//        }
+//
+//    }
 }

@@ -9,6 +9,7 @@ import com.spotify.app.exception.ResourceNotFoundException;
 import com.spotify.app.mapper.*;
 import com.spotify.app.model.*;
 import com.spotify.app.repository.*;
+import com.spotify.app.utility.FileUploadUtil;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -240,19 +242,45 @@ public class UserService {
                 .toList();
     }
 
+
+
     public void uploadPhoto(MultipartFile photo, Long userId) {
         User user = get(userId);
         if (!photo.isEmpty()) {
-            user.setPhoto(photo.getOriginalFilename());
+            String fileName = StringUtils.cleanPath(photo.getOriginalFilename());
+
+            user.setPhoto(fileName);
+
+            String uploadDir = "user-photos/" + userId;
+
+            FileUploadUtil.cleanDir(uploadDir);
             try {
-                s3Service.putObject(
-                        String.format("user/photo/%d/%s",userId,photo.getOriginalFilename()),photo.getBytes());
+                FileUploadUtil.saveFile(uploadDir, fileName, photo);
             } catch (IOException e) {
                 throw new RuntimeException(e.getMessage());
             }
-            userRepository.save(user);
+
+        } else {
+            if (user.getPhoto().isEmpty()){
+                user.setPhoto(null);
+            }
         }
+        userRepository.save(user);
     }
+
+//    public void uploadPhoto(MultipartFile photo, Long userId) {
+//        User user = get(userId);
+//        if (!photo.isEmpty()) {
+//            user.setPhoto(photo.getOriginalFilename());
+//            try {
+//                s3Service.putObject(
+//                        String.format("user/photo/%d/%s",userId,photo.getOriginalFilename()),photo.getBytes());
+//            } catch (IOException e) {
+//                throw new RuntimeException(e.getMessage());
+//            }
+//            userRepository.save(user);
+//        }
+//    }
 
     public byte[] getPhotoImage(Long userId) {
         User underGet = get(userId);

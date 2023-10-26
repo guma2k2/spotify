@@ -13,8 +13,7 @@ import java.nio.file.StandardCopyOption;
 @Slf4j
 public class FileUploadUtil {
 
-	public final static String baseUrl = "http://localhost:8080/api/v1" ;
-	public final static String baseUrlAudio = "http://localhost:8080" ;
+	public final static String baseUrl = "http://localhost:8080" ;
 	public final static String baseUrlFail = "https://cdn.tgdd.vn/hoi-dap/580732/loi-404-not-found-la-gi-9-cach-khac-phuc-loi-404-not-5-800x450.jpg";
 	public final static String baseUrlImagePlaylistLikedSongs = "https://i.scdn.co/image/ab67706c0000da8470d229cb865e8d81cdce0889";
 	public final static String baseUrlThumbnailPlaylistLikedSongs = "https://www.colorhexa.com/5534d6.png";
@@ -45,12 +44,12 @@ public class FileUploadUtil {
 					try {
 						Files.delete(file);
 					} catch (IOException ex) {
-						log.error("Could not delete file: " + file);
+//						log.error("Could not delete file: " + file);
 					}
 				}
 			});
 		} catch (IOException ex) {
-			log.error("Could not list directory: " + dirPath);
+//			log.error("Could not list directory: " + dirPath);
 		}
 	}
 	
@@ -59,7 +58,7 @@ public class FileUploadUtil {
 		try {
 			Files.delete(Paths.get(dir));
 		} catch (IOException e) {
-			log.error("Could not remove directory: " + dir);
+//			log.error("Could not remove directory: " + dir);
 		}
 		
 	}

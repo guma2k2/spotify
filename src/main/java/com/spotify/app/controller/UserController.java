@@ -42,14 +42,7 @@ public class UserController {
     }
 
 
-    @GetMapping(
-            value = "/view/photo/{userId}",
-            produces = {MediaType.IMAGE_PNG_VALUE,MediaType.IMAGE_JPEG_VALUE}
-    )
-    public ResponseEntity<?> viewPhotoImage(@PathVariable("userId") Long userId) {
-        return ResponseEntity.ok()
-                .body(userService.getPhotoImage(userId));
-    }
+
 
     @GetMapping
     public List<UserResponse> listAl() {
@@ -143,6 +136,17 @@ public class UserController {
         boolean check = userService.checkCurrentUserIsLikedTargetSong(userId, songId);
         return ResponseEntity.ok().body(check) ;
     }
+
+    //////////////////////////////////////// S3 SERVICE/////////////////////////////////////
+
+//    @GetMapping(
+//            value = "/view/photo/{userId}",
+//            produces = {MediaType.IMAGE_PNG_VALUE,MediaType.IMAGE_JPEG_VALUE}
+//    )
+//    public ResponseEntity<?> viewPhotoImage(@PathVariable("userId") Long userId) {
+//        return ResponseEntity.ok()
+//                .body(userService.getPhotoImage(userId));
+//    }
 
 
 }

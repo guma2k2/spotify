@@ -12,9 +12,11 @@ import com.spotify.app.repository.AlbumRepository;
 import com.spotify.app.repository.AlbumSongRepository;
 import com.spotify.app.repository.SongRepository;
 import com.spotify.app.repository.UserRepository;
+import com.spotify.app.utility.FileUploadUtil;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -62,69 +64,47 @@ public class AlbumService {
     @Transactional
     public void uploadFiles(MultipartFile image, MultipartFile thumbnail, Long albumId) {
         saveAlbumImage(image,albumId);
-
         saveAlbumThumbnail(thumbnail, albumId);
     }
 
     public void saveAlbumImage( MultipartFile image, Long albumId) {
         Album underSave = get(albumId);
-        if(image != null) {
-            underSave.setImage(image.getOriginalFilename());
+        if (!image.isEmpty()) {
+            String fileName = StringUtils.cleanPath(image.getOriginalFilename());
+            underSave.setImage(fileName);
+            String uploadDir = "album-images/" + albumId;
+            FileUploadUtil.cleanDir(uploadDir);
             try {
-                if(!underSave.getImage().isEmpty()) {
-                    s3Service.removeObject(String.format("album/image/%d/%s",underSave.getId(),image.getOriginalFilename()));
-                }
-                s3Service.putObject(
-                        String.format("album/image/%d/%s",underSave.getId(),image.getOriginalFilename()),image.getBytes());
-                albumRepository.save(underSave);
+                FileUploadUtil.saveFile(uploadDir, fileName, image);
             } catch (IOException e) {
                 throw new RuntimeException(e.getMessage());
             }
+        } else {
+            if (underSave.getImage().isEmpty()){
+                underSave.setImage(null);
+            }
         }
+        albumRepository.save(underSave);
     }
 
     public void saveAlbumThumbnail( MultipartFile thumbnail, Long albumId) {
         Album underSave = get(albumId);
-        if(thumbnail != null) {
-            underSave.setThumbnail(thumbnail.getOriginalFilename());
+        if (!thumbnail.isEmpty()) {
+            String fileName = StringUtils.cleanPath(thumbnail.getOriginalFilename());
+            underSave.setImage(fileName);
+            String uploadDir = "album-thumbnails/" + albumId;
+            FileUploadUtil.cleanDir(uploadDir);
             try {
-                if(!underSave.getThumbnail().isEmpty()) {
-                    s3Service.removeObject(String.format("album/thumbnail/%d/%s",underSave.getId(),thumbnail.getOriginalFilename()));
-                }
-                s3Service.putObject(
-                        String.format("album/thumbnail/%d/%s",underSave.getId(),thumbnail.getOriginalFilename()),thumbnail.getBytes());
-                albumRepository.save(underSave);
+                FileUploadUtil.saveFile(uploadDir, fileName, thumbnail);
             } catch (IOException e) {
                 throw new RuntimeException(e.getMessage());
             }
+        } else {
+            if (underSave.getThumbnail().isEmpty()){
+                underSave.setThumbnail(null);
+            }
         }
-
-    }
-
-    public byte[] getAlbumImage(Long albumId) {
-        Album underGet = get(albumId);
-        if (underGet.getImage().isEmpty()) {
-            throw new ResourceNotFoundException(
-                    "album id :[%d] not found thumbnail".formatted(albumId));
-        }
-
-        byte[] albumImage = s3Service.getObject(
-                "album/image/%d/%s".formatted(albumId, underGet.getImage())
-        );
-        return albumImage;
-    }
-
-    public byte[] getAlbumThumbnail(Long albumId) {
-        Album underGet = get(albumId);
-        if (underGet.getThumbnail().isEmpty()) {
-            throw new ResourceNotFoundException(
-                    "album id :[%d] not found thumbnail".formatted(albumId));
-        }
-
-        byte[] albumThumbnail = s3Service.getObject(
-                "album/thumbnail/%d/%s".formatted(albumId, underGet.getThumbnail())
-        );
-        return albumThumbnail;
+        albumRepository.save(underSave);
     }
 
     public Album get(Long albumId) {
@@ -211,5 +191,66 @@ public class AlbumService {
 
 
 
+
+//    public void saveAlbumImage( MultipartFile image, Long albumId) {
+//        Album underSave = get(albumId);
+//        if(image != null) {
+//            underSave.setImage(image.getOriginalFilename());
+//            try {
+//                if(!underSave.getImage().isEmpty()) {
+//                    s3Service.removeObject(String.format("album/image/%d/%s",underSave.getId(),image.getOriginalFilename()));
+//                }
+//                s3Service.putObject(
+//                        String.format("album/image/%d/%s",underSave.getId(),image.getOriginalFilename()),image.getBytes());
+//                albumRepository.save(underSave);
+//            } catch (IOException e) {
+//                throw new RuntimeException(e.getMessage());
+//            }
+//        }
+//    }
+//
+//    public void saveAlbumThumbnail( MultipartFile thumbnail, Long albumId) {
+//        Album underSave = get(albumId);
+//        if(thumbnail != null) {
+//            underSave.setThumbnail(thumbnail.getOriginalFilename());
+//            try {
+//                if(!underSave.getThumbnail().isEmpty()) {
+//                    s3Service.removeObject(String.format("album/thumbnail/%d/%s",underSave.getId(),thumbnail.getOriginalFilename()));
+//                }
+//                s3Service.putObject(
+//                        String.format("album/thumbnail/%d/%s",underSave.getId(),thumbnail.getOriginalFilename()),thumbnail.getBytes());
+//                albumRepository.save(underSave);
+//            } catch (IOException e) {
+//                throw new RuntimeException(e.getMessage());
+//            }
+//        }
+//
+//    }
+
+//    public byte[] getAlbumImage(Long albumId) {
+//        Album underGet = get(albumId);
+//        if (underGet.getImage().isEmpty()) {
+//            throw new ResourceNotFoundException(
+//                    "album id :[%d] not found thumbnail".formatted(albumId));
+//        }
+//
+//        byte[] albumImage = s3Service.getObject(
+//                "album/image/%d/%s".formatted(albumId, underGet.getImage())
+//        );
+//        return albumImage;
+//    }
+//
+//    public byte[] getAlbumThumbnail(Long albumId) {
+//        Album underGet = get(albumId);
+//        if (underGet.getThumbnail().isEmpty()) {
+//            throw new ResourceNotFoundException(
+//                    "album id :[%d] not found thumbnail".formatted(albumId));
+//        }
+//
+//        byte[] albumThumbnail = s3Service.getObject(
+//                "album/thumbnail/%d/%s".formatted(albumId, underGet.getThumbnail())
+//        );
+//        return albumThumbnail;
+//    }
 
 }

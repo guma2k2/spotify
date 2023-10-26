@@ -11,10 +11,12 @@ import com.spotify.app.model.*;
 import com.spotify.app.repository.PlaylistRepository;
 import com.spotify.app.repository.PlaylistSongRepository;
 import com.spotify.app.repository.PlaylistUserRepository;
+import com.spotify.app.utility.FileUploadUtil;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -192,62 +194,43 @@ public class PlaylistService {
 
     public void savePlaylistImage(MultipartFile image, Long playlistId) {
         Playlist underSave = get(playlistId);
-        if (image != null) {
-            underSave.setImage(image.getOriginalFilename());
+        if (!image.isEmpty()) {
+            String fileName = StringUtils.cleanPath(image.getOriginalFilename());
+            underSave.setImage(fileName);
+            String uploadDir = "playlist-images/" + playlistId;
+            FileUploadUtil.cleanDir(uploadDir);
             try {
-                s3Service.putObject(
-                        String.format("playlist/image/%d/%s",playlistId,image.getOriginalFilename()),image.getBytes());
+                FileUploadUtil.saveFile(uploadDir, fileName, image);
             } catch (IOException e) {
                 throw new RuntimeException(e.getMessage());
             }
-            playlistRepository.save(underSave);
+        } else {
+            if (underSave.getImage().isEmpty()){
+                underSave.setImage(null);
+            }
         }
-
+        playlistRepository.save(underSave);
     }
 
     public void savePlaylistThumbnail(MultipartFile thumbnail, Long playlistId) {
         Playlist underSave = get(playlistId);
-        if (thumbnail != null) {
-            underSave.setThumbnail(thumbnail.getOriginalFilename());
+        if (!thumbnail.isEmpty()) {
+            String fileName = StringUtils.cleanPath(thumbnail.getOriginalFilename());
+            underSave.setThumbnail(fileName);
+            String uploadDir = "playlist-thumbnails/" + playlistId;
+            FileUploadUtil.cleanDir(uploadDir);
             try {
-                s3Service.putObject(
-                        String.format("playlist/thumbnail/%d/%s",playlistId,thumbnail.getOriginalFilename()),thumbnail.getBytes());
+                FileUploadUtil.saveFile(uploadDir, fileName, thumbnail);
             } catch (IOException e) {
                 throw new RuntimeException(e.getMessage());
             }
-            playlistRepository.save(underSave);
+        } else {
+            if (underSave.getThumbnail().isEmpty()){
+                underSave.setThumbnail(null);
+            }
         }
+        playlistRepository.save(underSave);
     }
-
-    public byte[] getPlaylistImage(Long playlistId) {
-        Playlist underGet = get(playlistId);
-        if (underGet.getImage().isEmpty()) {
-            throw new ResourceNotFoundException(
-                    "playlist id :[%d] not found image".formatted(playlistId));
-        }
-
-        byte[] playlistImage = s3Service.getObject(
-                "playlist/image/%d/%s".formatted(playlistId, underGet.getImage())
-        );
-        return playlistImage;
-    }
-
-    public byte[] getPlaylistThumbnail(Long playlistId) {
-        Playlist underGet = get(playlistId);
-        if (underGet.getThumbnail().isEmpty()) {
-            throw new ResourceNotFoundException(
-                    "playlist id :[%d] not found thumbnail".formatted(playlistId));
-        }
-
-        byte[] categoryThumbnail = s3Service.getObject(
-                "playlist/thumbnail/%d/%s".formatted(playlistId, underGet.getThumbnail())
-        );
-        return categoryThumbnail;
-    }
-
-
-
-
 
     private String convertTotalTime(List<PlaylistSong> playlistSongs) {
 
@@ -264,4 +247,32 @@ public class PlaylistService {
         }
         return minutes + " phút " + seconds + " giây";
     }
+
+    /////////////////////////////////////////////////////////// S3 SERVICE ////////////////////////////////////////////////////////
+
+//    public byte[] getPlaylistImage(Long playlistId) {
+//        Playlist underGet = get(playlistId);
+//        if (underGet.getImage().isEmpty()) {
+//            throw new ResourceNotFoundException(
+//                    "playlist id :[%d] not found image".formatted(playlistId));
+//        }
+//
+//        byte[] playlistImage = s3Service.getObject(
+//                "playlist/image/%d/%s".formatted(playlistId, underGet.getImage())
+//        );
+//        return playlistImage;
+//    }
+//
+//    public byte[] getPlaylistThumbnail(Long playlistId) {
+//        Playlist underGet = get(playlistId);
+//        if (underGet.getThumbnail().isEmpty()) {
+//            throw new ResourceNotFoundException(
+//                    "playlist id :[%d] not found thumbnail".formatted(playlistId));
+//        }
+//
+//        byte[] categoryThumbnail = s3Service.getObject(
+//                "playlist/thumbnail/%d/%s".formatted(playlistId, underGet.getThumbnail())
+//        );
+//        return categoryThumbnail;
+//    }
 }

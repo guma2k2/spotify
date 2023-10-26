@@ -46,7 +46,7 @@ public class Album {
     public String getImagePath() {
         String baseUrl = FileUploadUtil.baseUrl;
         if(image!=null) {
-            return baseUrl+"/album/view/image/" + this.id ;
+            return baseUrl+"/album-images/" + this.id + "/" + image ;
         }
         return FileUploadUtil.baseUrlFail;
     }
@@ -55,7 +55,7 @@ public class Album {
     public String getThumbnailPath() {
         String baseUrl = FileUploadUtil.baseUrl;
         if(thumbnail!=null) {
-            return baseUrl+"/album/view/thumbnail/" + this.id ;
+            return baseUrl+"/album-thumbnails/" + this.id + "/" + thumbnail ;
         }
         return FileUploadUtil.baseUrlFail;
     }

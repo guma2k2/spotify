@@ -95,22 +95,7 @@ public class PlaylistController {
         return ResponseEntity.ok().body("Save thumbnail of playlist success");
     }
 
-    @GetMapping(
-            value = "/view/image/{playlistId}",
-            produces = {MediaType.IMAGE_PNG_VALUE,MediaType.IMAGE_JPEG_VALUE}
-    )
-    public ResponseEntity<?> viewImage(@PathVariable("playlistId") Long playlistId) {
-        return ResponseEntity.ok()
-                .body(playlistService.getPlaylistImage(playlistId));
-    }
-    @GetMapping(
-            value = "/view/thumbnail/{playlistId}",
-            produces = {MediaType.IMAGE_PNG_VALUE,MediaType.IMAGE_JPEG_VALUE}
-    )
-    public ResponseEntity<?> viewThumbnail(@PathVariable("playlistId") Long playlistId) {
-        return ResponseEntity.ok()
-                .body(playlistService.getPlaylistThumbnail(playlistId));
-    }
+
 
     @GetMapping
     public List<PlaylistResponse> listAll() {
@@ -156,4 +141,21 @@ public class PlaylistController {
         playlistService.createPlaylistByUserId(userId);
         return ResponseEntity.ok().body("playlist is created");
     }
+    ///////////////////////////////////////////// S3 SERVICE /////////////////////////////////////////////
+//    @GetMapping(
+//            value = "/view/image/{playlistId}",
+//            produces = {MediaType.IMAGE_PNG_VALUE,MediaType.IMAGE_JPEG_VALUE}
+//    )
+//    public ResponseEntity<?> viewImage(@PathVariable("playlistId") Long playlistId) {
+//        return ResponseEntity.ok()
+//                .body(playlistService.getPlaylistImage(playlistId));
+//    }
+//    @GetMapping(
+//            value = "/view/thumbnail/{playlistId}",
+//            produces = {MediaType.IMAGE_PNG_VALUE,MediaType.IMAGE_JPEG_VALUE}
+//    )
+//    public ResponseEntity<?> viewThumbnail(@PathVariable("playlistId") Long playlistId) {
+//        return ResponseEntity.ok()
+//                .body(playlistService.getPlaylistThumbnail(playlistId));
+//    }
 }

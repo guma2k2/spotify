@@ -9,11 +9,14 @@ import com.spotify.app.mapper.CategoryResponseMapper;
 import com.spotify.app.model.Album;
 import com.spotify.app.model.Category;
 import com.spotify.app.model.Playlist;
+import com.spotify.app.model.Song;
 import com.spotify.app.repository.CategoryRepository;
 import com.spotify.app.repository.PlaylistRepository;
+import com.spotify.app.utility.FileUploadUtil;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -166,63 +169,105 @@ public class CategoryService {
 
     public void saveCategoryImage(MultipartFile image, Integer categoryId) {
         Category underSave = get(categoryId);
-        if (image != null) {
-            underSave.setImage(image.getOriginalFilename());
+        if (!image.isEmpty()) {
+            String fileName = StringUtils.cleanPath(image.getOriginalFilename());
+            underSave.setImage(fileName);
+            String uploadDir = "category-images/" + categoryId;
+            FileUploadUtil.cleanDir(uploadDir);
             try {
-                if(!underSave.getImage().isEmpty()) {
-                    s3Service.removeObject(String.format("category/image/%d/%s",underSave.getId(),image.getOriginalFilename()));
-                }
-                s3Service.putObject(
-                        String.format("category/image/%d/%s",categoryId,image.getOriginalFilename()),image.getBytes());
+                FileUploadUtil.saveFile(uploadDir, fileName, image);
             } catch (IOException e) {
                 throw new RuntimeException(e.getMessage());
             }
-            categoryRepository.save(underSave);
+        } else {
+            if (underSave.getImage().isEmpty()){
+                underSave.setImage(null);
+            }
         }
+        categoryRepository.save(underSave);
     }
 
     public void saveCategoryThumbnail(MultipartFile thumbnail, Integer categoryId) {
         Category underSave = get(categoryId);
-        if (thumbnail != null) {
-            underSave.setThumbnail(thumbnail.getOriginalFilename());
+        if (!thumbnail.isEmpty()) {
+            String fileName = StringUtils.cleanPath(thumbnail.getOriginalFilename());
+            underSave.setThumbnail(fileName);
+            String uploadDir = "category-thumbnails/" + categoryId;
+            FileUploadUtil.cleanDir(uploadDir);
             try {
-                if(!underSave.getImage().isEmpty()) {
-                    s3Service.removeObject(String.format("category/thumbnail/%d/%s",underSave.getId(),thumbnail.getOriginalFilename()));
-                }
-                s3Service.putObject(
-                        String.format("category/thumbnail/%d/%s",categoryId,thumbnail.getOriginalFilename()),thumbnail.getBytes());
-                categoryRepository.save(underSave);
+                FileUploadUtil.saveFile(uploadDir, fileName, thumbnail);
             } catch (IOException e) {
                 throw new RuntimeException(e.getMessage());
             }
-
+        } else {
+            if (underSave.getThumbnail().isEmpty()){
+                underSave.setThumbnail(null);
+            }
         }
+        categoryRepository.save(underSave);
     }
 
-    public byte[] getCategoryImage(Integer categoryId) {
-        Category underGet = get(categoryId);
-        if (underGet.getImage().isEmpty()) {
-            throw new ResourceNotFoundException(
-                    "category id :[%d] not found image".formatted(categoryId));
-        }
+    ///////////////////////////////////////////// S3 SERVICE //////////////////////////////////////////////////////
 
-        byte[] albumImage = s3Service.getObject(
-                "category/image/%d/%s".formatted(categoryId, underGet.getImage())
-        );
-        return albumImage;
-    }
+//    public byte[] getCategoryImage(Integer categoryId) {
+//        Category underGet = get(categoryId);
+//        if (underGet.getImage().isEmpty()) {
+//            throw new ResourceNotFoundException(
+//                    "category id :[%d] not found image".formatted(categoryId));
+//        }
+//
+//        byte[] albumImage = s3Service.getObject(
+//                "category/image/%d/%s".formatted(categoryId, underGet.getImage())
+//        );
+//        return albumImage;
+//    }
+//
+//    public byte[] getCategoryThumbnail(Integer categoryId) {
+//        Category underGet = get(categoryId);
+//        if (underGet.getThumbnail().isEmpty()) {
+//            throw new ResourceNotFoundException(
+//                    "category id :[%d] not found thumbnail".formatted(categoryId));
+//        }
+//
+//        byte[] categoryThumbnail = s3Service.getObject(
+//                "category/thumbnail/%d/%s".formatted(categoryId, underGet.getThumbnail())
+//        );
+//        return categoryThumbnail;
+//    }
 
-    public byte[] getCategoryThumbnail(Integer categoryId) {
-        Category underGet = get(categoryId);
-        if (underGet.getThumbnail().isEmpty()) {
-            throw new ResourceNotFoundException(
-                    "category id :[%d] not found thumbnail".formatted(categoryId));
-        }
-
-        byte[] categoryThumbnail = s3Service.getObject(
-                "category/thumbnail/%d/%s".formatted(categoryId, underGet.getThumbnail())
-        );
-        return categoryThumbnail;
-    }
+//    public void saveCategoryImage(MultipartFile image, Integer categoryId) {
+//        Category underSave = get(categoryId);
+//        if (image != null) {
+//            underSave.setImage(image.getOriginalFilename());
+//            try {
+//                if(!underSave.getImage().isEmpty()) {
+//                    s3Service.removeObject(String.format("category/image/%d/%s",underSave.getId(),image.getOriginalFilename()));
+//                }
+//                s3Service.putObject(
+//                        String.format("category/image/%d/%s",categoryId,image.getOriginalFilename()),image.getBytes());
+//            } catch (IOException e) {
+//                throw new RuntimeException(e.getMessage());
+//            }
+//            categoryRepository.save(underSave);
+//        }
+//    }
+//
+//    public void saveCategoryThumbnail(MultipartFile thumbnail, Integer categoryId) {
+//        Category underSave = get(categoryId);
+//        if (thumbnail != null) {
+//            underSave.setThumbnail(thumbnail.getOriginalFilename());
+//            try {
+//                if(!underSave.getImage().isEmpty()) {
+//                    s3Service.removeObject(String.format("category/thumbnail/%d/%s",underSave.getId(),thumbnail.getOriginalFilename()));
+//                }
+//                s3Service.putObject(
+//                        String.format("category/thumbnail/%d/%s",categoryId,thumbnail.getOriginalFilename()),thumbnail.getBytes());
+//                categoryRepository.save(underSave);
+//            } catch (IOException e) {
+//                throw new RuntimeException(e.getMessage());
+//            }
+//
+//        }
+//    }
 
 }

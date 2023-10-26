@@ -53,24 +53,7 @@ public class SongController {
     }
 
 
-    @GetMapping(value = "/audio/{songId}",produces = "audio/mpeg")
-    public ResponseEntity<?> streamAudio(
-            @PathVariable("songId") Long songId
-    ) {
 
-        return ResponseEntity.ok()
-                .body(songService.getSongAudio(songId));
-    }
-
-    @GetMapping(
-            value = "/view/image/{songId}",
-            produces = {MediaType.IMAGE_PNG_VALUE,MediaType.IMAGE_JPEG_VALUE}
-    )
-    public ResponseEntity<?> viewImage(@PathVariable("songId") Long songId) {
-
-        return ResponseEntity.ok()
-                .body(songService.getSongImage(songId));
-    }
 
     @GetMapping("/findBy/playlist/{playlistId}")
     public List<SongDTO> findByPlaylistId(@PathVariable("playlistId") Long playlistId) {
@@ -139,6 +122,27 @@ public class SongController {
     public List<SongResponse> findBySentiment(@PathVariable("sentiment")String sentiment) {
         return songService.findBySentiment(sentiment);
     }
+
+
+    //////////////////////////////////// S3 SERVICE ////////////////////////////////////////
+//    @GetMapping(value = "/audio/{songId}",produces = "audio/mpeg")
+//    public ResponseEntity<?> streamAudio(
+//            @PathVariable("songId") Long songId
+//    ) {
+//
+//        return ResponseEntity.ok()
+//                .body(songService.getSongAudio(songId));
+//    }
+//
+//    @GetMapping(
+//            value = "/view/image/{songId}",
+//            produces = {MediaType.IMAGE_PNG_VALUE,MediaType.IMAGE_JPEG_VALUE}
+//    )
+//    public ResponseEntity<?> viewImage(@PathVariable("songId") Long songId) {
+//
+//        return ResponseEntity.ok()
+//                .body(songService.getSongImage(songId));
+//    }
 
 
 }

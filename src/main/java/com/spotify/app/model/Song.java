@@ -63,31 +63,20 @@ public class Song {
     @Builder.Default
     private List<AlbumSong> albumSongList = new ArrayList<>();
 
-
-//    @Lob
-//    private byte[] audioTest ;
-
-
     @Transient
     public String getAudioPath() {
         String baseUrl = FileUploadUtil.baseUrl;
         if(audio!=null) {
-            return baseUrl+ "/song/audio/" + this.id ;
+            return baseUrl+ "/song-audio/" + this.id + "/" + audio ;
         }
         return FileUploadUtil.baseUrlFail;
     }
-
-//    @Transient
-//    public String getAudioPath() {
-//        if (id == null || audio == null) return FileUploadUtil.baseUrlFail;
-//        return FileUploadUtil.baseUrlAudio +  "/song-audios/" + this.id + "/" + this.audio;
-//    }
 
     @Transient
     public String getImagePath() {
         String baseUrl = FileUploadUtil.baseUrl;
         if(image!=null) {
-            return baseUrl+ "/song/view/image/" + this.id ;
+            return baseUrl+ "/song-images/" + this.id + "/" + image ;
         }
         return FileUploadUtil.baseUrlFail;
     }

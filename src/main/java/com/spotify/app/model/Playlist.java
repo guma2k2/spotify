@@ -43,17 +43,7 @@ public class Playlist {
     @Builder.Default
     private Set<Category> categories = new HashSet<>() ;
 
-    @Transient
-    public String getImagePath() {
-        String baseUrl = FileUploadUtil.baseUrl;
-        if(image!=null) {
-            return baseUrl+"/playlist/view/image/" + this.id ;
-        }
-        if(this.name.equals("Liked Songs")){
-            return FileUploadUtil.baseUrlImagePlaylistLikedSongs;
-        }
-        return FileUploadUtil.baseUrlPlaylistImage;
-    }
+
 
 
     public void addUser(User user) {
@@ -65,12 +55,23 @@ public class Playlist {
     public String getThumbnailPath() {
         String baseUrl = FileUploadUtil.baseUrl;
         if(thumbnail!=null) {
-            return baseUrl+"/playlist/view/thumbnail/" + this.id ;
+            return baseUrl+"/playlist-thumbnails/" + this.id + "/" + thumbnail ;
         }
         if (this.name.equals("Liked Songs")) {
             return FileUploadUtil.baseUrlThumbnailPlaylistLikedSongs;
         }
         return FileUploadUtil.baseUrlPlaylistThumbnail;
+    }
+    @Transient
+    public String getImagePath() {
+        String baseUrl = FileUploadUtil.baseUrl;
+        if(image!=null) {
+            return baseUrl+"/playlist-images/" + this.id + "/" + image ;
+        }
+        if(this.name.equals("Liked Songs")){
+            return FileUploadUtil.baseUrlImagePlaylistLikedSongs;
+        }
+        return FileUploadUtil.baseUrlPlaylistImage;
     }
 
     public void addSong(Song song) {

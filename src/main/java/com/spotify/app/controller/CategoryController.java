@@ -89,23 +89,7 @@ public class CategoryController {
         return categoryService.getByIdForAdmin(categoryId);
     }
 
-    @GetMapping(
-            value = "/view/image/{categoryId}",
-            produces = {MediaType.IMAGE_PNG_VALUE,MediaType.IMAGE_JPEG_VALUE}
-    )
-    public ResponseEntity<?> viewImage(@PathVariable("categoryId") Integer categoryId) {
-        return ResponseEntity.ok()
-                .body(categoryService.getCategoryImage(categoryId));
-    }
-
-
-    @GetMapping(value = "/view/thumbnail/{categoryId}",
-            produces = {MediaType.IMAGE_PNG_VALUE,MediaType.IMAGE_JPEG_VALUE}
-    )
-    public ResponseEntity<?> viewThumbnail(@PathVariable("categoryId") Integer categoryId) {
-        return ResponseEntity.ok()
-                .body(categoryService.getCategoryThumbnail(categoryId));
-    }
+//
 
     @GetMapping("/{cateId}")
     public CategoryDTO getById(@PathVariable("cateId") Integer categoryId) {
@@ -139,4 +123,25 @@ public class CategoryController {
                 body(String.
                         format("category with id: %d remove playlist with id: %d success", categoryId, playlistId));
     }
+
+
+    //////////////////////////////////////////////// S3 SERVICE /////////////////////////////////////////////
+
+//    @GetMapping(
+//            value = "/view/image/{categoryId}",
+//            produces = {MediaType.IMAGE_PNG_VALUE,MediaType.IMAGE_JPEG_VALUE}
+//    )
+//    public ResponseEntity<?> viewImage(@PathVariable("categoryId") Integer categoryId) {
+//        return ResponseEntity.ok()
+//                .body(categoryService.getCategoryImage(categoryId));
+//    }
+//
+//
+//    @GetMapping(value = "/view/thumbnail/{categoryId}",
+//            produces = {MediaType.IMAGE_PNG_VALUE,MediaType.IMAGE_JPEG_VALUE}
+//    )
+//    public ResponseEntity<?> viewThumbnail(@PathVariable("categoryId") Integer categoryId) {
+//        return ResponseEntity.ok()
+//                .body(categoryService.getCategoryThumbnail(categoryId));
+//    }
 }

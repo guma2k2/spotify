@@ -50,7 +50,7 @@ public class Category {
     public String getImagePath() {
         String baseUrl = FileUploadUtil.baseUrl;
         if(image!=null) {
-            return baseUrl+"/category/view/image/" + this.id ;
+            return baseUrl+"/category-images/" + this.id +"/"+image ;
         }
         return FileUploadUtil.baseUrlFail;
     }
@@ -58,7 +58,7 @@ public class Category {
     public String getThumbnailPath() {
         String baseUrl = FileUploadUtil.baseUrl;
         if(thumbnail!=null) {
-            return baseUrl+"/category/view/thumbnail/" + this.id ;
+            return baseUrl+"/category-thumbnails/" + this.id + "/" +thumbnail ;
         }
         return FileUploadUtil.baseUrlFail;
     }

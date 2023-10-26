@@ -5,9 +5,9 @@ import com.spotify.app.dto.request.SongRequest;
 import com.spotify.app.dto.response.SongResponse;
 import com.spotify.app.model.Song;
 import com.spotify.app.service.SongService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -52,15 +52,10 @@ public class SongController {
         return ResponseEntity.ok().body("Save image of song success");
     }
 
-
-
-
     @GetMapping("/findBy/playlist/{playlistId}")
     public List<SongDTO> findByPlaylistId(@PathVariable("playlistId") Long playlistId) {
         return songService.findByPlaylistId(playlistId);
     }
-
-
 
     @GetMapping
     public List<SongDTO> findAll() {
@@ -73,15 +68,6 @@ public class SongController {
     ) {
         return songService.get(songId);
     }
-
-
-
-    @PostMapping("/test/admin/save")
-    public ResponseEntity<?> savePlaylist(@Valid SongRequest request)  {
-        songService.saveSong(request);
-        return ResponseEntity.ok().body("Save playlist success");
-    }
-
 
 
     @PostMapping
@@ -107,9 +93,6 @@ public class SongController {
         return ResponseEntity.ok().body("update status of song success");
     }
 
-
-
-
     @GetMapping("/search/{name}")
     List<SongResponse> findByNameFullText(
             @PathVariable("name") String name
@@ -121,6 +104,15 @@ public class SongController {
     @GetMapping("/find/by/sentiment/{sentiment}")
     public List<SongResponse> findBySentiment(@PathVariable("sentiment")String sentiment) {
         return songService.findBySentiment(sentiment);
+    }
+
+    @GetMapping("/increase/view/{songId}")
+    @Operation(description = "Increase viewCount's song.")
+    public ResponseEntity<?> increaseViewCountSong(
+            @PathVariable("songId") Long songId
+    ) {
+        songService.increaseView(songId);
+        return ResponseEntity.ok().body(String.format("increased view of song %d",songId));
     }
 
 

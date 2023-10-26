@@ -40,6 +40,7 @@ public interface SongRepository extends JpaRepository<Song, Long> {
             SELECT s
             FROM Song s
             LEFT JOIN FETCH s.users
+            LEFT JOIN FETCH s.albumSongList
             WHERE s.name LIKE %:name%
             """)
     List<Song> findByNameFullText(@Param("name") String name);
@@ -53,6 +54,15 @@ public interface SongRepository extends JpaRepository<Song, Long> {
             """)
     @Modifying
     void updateStatus(@Param("songId") Long songId, @Param("status") boolean status);
+
+
+    @Query("""
+            UPDATE Song s
+            SET s.viewCount = s.viewCount + 1
+            WHERE s.id = :songId
+            """)
+    @Modifying
+    void updateViewCount(@Param("songId") Long songId);
 
     Optional<Song> findByName(String name);
 

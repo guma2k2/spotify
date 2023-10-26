@@ -47,7 +47,8 @@ public class SongService {
 
     private final RestTemplate restTemplate;
     public Song get(Long songId) {
-        return songRepository.findById(songId).orElseThrow(() -> new ResourceNotFoundException("Song not found")) ;
+        return songRepository.findById(songId).orElseThrow(() ->
+                new ResourceNotFoundException(String.format("song with id:%d not found",songId)));
     }
 
     public SongResponse getById(Long songId) {
@@ -68,7 +69,6 @@ public class SongService {
             String fileName = StringUtils.cleanPath(audio.getOriginalFilename());
             song.setAudio(fileName);
             String uploadDir = "song-audios/" + songId;
-
             FileUploadUtil.cleanDir(uploadDir);
             try {
                 FileUploadUtil.saveFile(uploadDir, fileName, audio);
@@ -130,12 +130,22 @@ public class SongService {
     }
     public List<SongResponse> findByNameFullText(String name) {
         List<Song> songs = songRepository.findByNameFullText(name);
-        List<SongResponse> songResponses = songs
+        return songs
                 .stream()
-                .map(song ->
-                        songResponseMapper.songToSongResponse(song,null,null))
+                .map(this::songToSongResponse)
                 .toList();
-        return songResponses;
+    }
+
+    private SongResponse songToSongResponse(Song song) {
+        if(song.getAlbumSongList().isEmpty()) {
+            return songResponseMapper.songToSongResponse(song,null,null);
+        }
+        List<Album> albums = albumSongRepository.
+                findBySongId(song.getId()).stream().map(AlbumSong::getAlbum).toList();
+
+        List<AlbumResponse> albumResponses = albumResponseMapper.albumsToAlbumsResponse(albums);
+
+        return  songResponseMapper.songToSongResponse(song,albumResponses,null);
     }
     public User getUserByUserId(Long userId) {
         return userRepository.
@@ -204,25 +214,30 @@ public class SongService {
     }
 
     public List<SongResponse> findBySentiment(String sentiment) {
-        log.info(sentiment);
-        List<Song> songs = songRepository.findByLabelReturnUsersAlbums(getLabelBySentiment(sentiment));
-        log.warn(String.valueOf(songs.size()));
-        return songs.stream().map(song -> getById(song.getId())).toList();
+        List<Song> songs = songRepository.
+                findByLabelReturnUsersAlbums(getLabelBySentiment(sentiment));
+
+        return songs.stream().map(this::songToSongResponse).toList();
     }
     public String getLabelBySentiment(String sentiment) {
         String url = "http://127.0.0.1:8000/sentiment";
         UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(url)
                 .queryParam("text", sentiment);
-        // when
+
         ResponseEntity<String> underGet = restTemplate.getForEntity(builder.toUriString(),String.class);
         if(underGet.getStatusCode().is4xxClientError()) {
             throw new ResourceNotFoundException("an error occurred");
         }
-        log.info(underGet.getBody());
+//        log.info(underGet.getBody());
         return Objects.requireNonNull(underGet.getBody()).substring(1, underGet.getBody().length()-1);
     }
 
-    /////////////////////////////////////// S3 SERVICE ///////////////////////
+    @Transactional
+    public void increaseView(Long songId) {
+        songRepository.updateViewCount(songId);
+    }
+
+    /////////////////////////////////////// S3 SERVICE ////////////////////////////////////////////////////////////////
 
 //    public byte[] getSongImage(Long songId) {
 //        Song underGet = get(songId);

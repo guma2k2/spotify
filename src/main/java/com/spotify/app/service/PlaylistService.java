@@ -79,10 +79,10 @@ public class PlaylistService {
         // get playlistUserList by playlist
         List<PlaylistUser> playlistUserList = playlist.getPlaylistUserList();
 
-        long likedCount = playlistUserList.size();
 
         // get list playlistSong by playlist id
         List<PlaylistSong> playlistSongs = playlistSongRepository.findByPlaylistId(playlistId);
+        long likedCount = playlistUserList.size();
 
         int sumSongCount =  findSumSongCountByPlaylistSongs(playlistSongs);
 
@@ -163,7 +163,7 @@ public class PlaylistService {
 
 
 
-    public void addSongToLikedPlaylist(Long userId,Long songId) {
+    public PlaylistDTO addSongToLikedPlaylist(Long userId,Long songId) {
         PlaylistUser playlistUser = playlistUserRepository.
                 findByUserIdAndName(userId,playlistNameHasAllLikedSongOfUser).
                 orElseThrow();
@@ -172,8 +172,9 @@ public class PlaylistService {
 
         playlist.addSong(song);
 
-        playlistRepository.save(playlist);
+        playlistRepository.saveAndFlush(playlist);
 
+        return findByIdReturnSongs(playlist.getId());
     }
 
     public void removeSongFromLikedPlaylist(Long userId,Long songId) {

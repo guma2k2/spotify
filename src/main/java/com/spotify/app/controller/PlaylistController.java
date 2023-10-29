@@ -33,11 +33,11 @@ public class PlaylistController {
 
     @GetMapping("/user/{userId}/add/{songId}")
     @Operation(description = "add song to liked Song by userId")
-    public void addLikedSongToPlaylistByUserId(
+    public ResponseEntity<?> addLikedSongToPlaylistByUserId(
             @PathVariable("userId") Long userId,
             @PathVariable("songId") Long songId
     ) {
-        playlistService.addSongToLikedPlaylist(userId, songId);
+       return ResponseEntity.ok().body(playlistService.addSongToLikedPlaylist(userId, songId));
     }
 
 

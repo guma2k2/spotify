@@ -67,7 +67,7 @@ public class Song {
     public String getAudioPath() {
         String baseUrl = FileUploadUtil.baseUrl;
         if(audio!=null) {
-            return baseUrl+ "/song-audio/" + this.id + "/" + audio ;
+            return baseUrl+ "/song-audios/" + this.id + "/" + audio ;
         }
         return FileUploadUtil.baseUrlFail;
     }

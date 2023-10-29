@@ -1,3 +1,5 @@
+CREATE DATABASE  IF NOT EXISTS `spotify-aws` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
+USE `spotify-aws`;
 -- MySQL dump 10.13  Distrib 8.0.31, for macos12 (x86_64)
 --
 -- Host: localhost    Database: spotify-aws
@@ -16,6 +18,26 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
+-- Table structure for table `album`
+--
+
+DROP TABLE IF EXISTS `album`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `album` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `image` varchar(255) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `release_date` datetime(6) DEFAULT NULL,
+  `thumbnail` longblob,
+  `user_id` bigint DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKcu3j9xc5tkron8507kg5n87yo` (`user_id`),
+  CONSTRAINT `FKcu3j9xc5tkron8507kg5n87yo` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `album`
 --
 
@@ -24,6 +46,24 @@ LOCK TABLES `album` WRITE;
 INSERT INTO `album` VALUES (7,'lalung.jpeg','Lạ Lùng','2023-09-30 21:12:08.874646',NULL,18),(9,'vianhdaucobiet.jpeg','Vì anh đâu có biết ','2023-09-30 21:18:37.096549',NULL,18),(11,'buocquamuacodon.jpeg','Bước Qua Mùa Cô Đơn','2023-09-30 22:17:02.525401',NULL,18),(13,'buocquanhau.jpeg','Bước Qua Nhau','2023-09-30 22:25:13.257391',NULL,18),(14,'phutbandau.jpeg','Phút Ban Đầu','2023-09-30 22:27:30.524735',NULL,18),(15,'dongkiemem.jpeg','Đông Kiếm Em','2023-09-30 22:29:22.038163',NULL,18),(16,'buctranhtunuocmat.jpeg','Bức Tranh Từ Nước Mắt','2023-10-01 07:10:00.873818',NULL,28),(17,'chicomotngdeyeu.jpeg','Chỉ Có Một Người Để Yêu Trên Thế Gian','2023-10-01 07:12:47.670723',NULL,28),(18,'daydutnoidau.jpeg','Day Dứt Nỗi Đau','2023-10-01 07:15:19.431256',NULL,28),(19,'motbuocyeuvandamdau.jpeg','Một bước yêu, vạn dặm đau','2023-10-01 07:17:09.321696',NULL,28),(20,'duoinhungconmua.jpeg','Dưới những cơn mưa','2023-10-01 07:18:47.868464',NULL,28),(21,'chamdaynoidau.jpeg','Chạm Đáy Nỗi Đau','2023-10-01 07:42:47.898548',NULL,16),(22,'emkosaichungtasai.jpeg','Em Không Sai, Chúng Ta Sai','2023-10-01 07:44:56.713921',NULL,16),(23,'yeuthuonglabaoto.jpeg','Yêu Thương Là Bão Tố','2023-10-01 07:51:14.957700',NULL,29),(24,'motvannam.jpeg','Một Vạn Năm','2023-10-01 07:57:49.180285',NULL,18),(25,'nhuonglaiem.jpeg','Nhường Lại Em (feat. Phúc Du)','2023-10-01 08:04:02.317484',NULL,18),(26,'cota.jpeg','Cô Ta','2023-10-01 08:06:55.093686',NULL,18),(27,'vutrusongsong.jpeg','Vũ Trụ Song Song','2023-10-01 08:10:56.954951',NULL,18),(28,'conlaigi.jpeg','Còn Lại Gì?','2023-10-01 08:13:41.607394',NULL,18),(29,'cothelataisao.jpeg','Có Thể Là Tại Sao?','2023-10-01 08:19:05.600429',NULL,18),(30,'doai.jpeg','Do Ai?','2023-10-01 08:19:05.600429',NULL,18),(31,'muonroimasaocon.jpeg','Muộn Rồi Mà Sao Còn','2023-10-01 08:21:34.266089',NULL,6);
 /*!40000 ALTER TABLE `album` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `album_song`
+--
+
+DROP TABLE IF EXISTS `album_song`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `album_song` (
+  `album_id` bigint NOT NULL,
+  `song_id` bigint NOT NULL,
+  `created_on` datetime(6) DEFAULT NULL,
+  PRIMARY KEY (`album_id`,`song_id`),
+  KEY `FK1631o3hvb3y9ktuxuusnx72v7` (`song_id`),
+  CONSTRAINT `FK1631o3hvb3y9ktuxuusnx72v7` FOREIGN KEY (`song_id`) REFERENCES `song` (`id`),
+  CONSTRAINT `FK1m0sexh6p6kk409ptssu2kkgy` FOREIGN KEY (`album_id`) REFERENCES `album` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `album_song`
@@ -36,6 +76,25 @@ INSERT INTO `album_song` VALUES (7,2,'2023-09-30 21:39:30.902197'),(9,1,'2023-09
 UNLOCK TABLES;
 
 --
+-- Table structure for table `category`
+--
+
+DROP TABLE IF EXISTS `category`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `category` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `image` varchar(255) DEFAULT NULL,
+  `thumbnail` varchar(255) DEFAULT NULL,
+  `title` varchar(200) DEFAULT NULL,
+  `paren_id` int DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKeudwhy69xeyhrp00kvcfjxwjj` (`paren_id`),
+  CONSTRAINT `FKeudwhy69xeyhrp00kvcfjxwjj` FOREIGN KEY (`paren_id`) REFERENCES `category` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=33 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `category`
 --
 
@@ -44,6 +103,23 @@ LOCK TABLES `category` WRITE;
 INSERT INTO `category` VALUES (1,'ea364e99656e46a096ea1df50f581efe.png','Bred.jpg','Dành cho bạn',NULL),(2,'topsongs.jpeg','Bviolet.jpeg','Bảng xếp hạng',NULL),(3,'newRelease.jpeg','Bpink.jpeg','Mới phát hành',NULL),(4,'discover.jpeg','Bviolet.jpeg','Khám phá',NULL),(5,'viet.jpeg','Bgreen.jpeg','Nhạc Việt ',NULL),(6,'kpop.jpeg','Byellow.jpeg','K-Pop',NULL),(7,'pop.jpeg','Bgreen.jpeg','Pop',NULL),(8,'tamtrang.jpeg','Bhealth.png','Tâm trạng',NULL),(9,'romantic.jpeg','BBlue.jpeg','Không gian lãng mạn',NULL),(10,'health.jpeg','BblackEase.png','Sức khỏe',NULL),(11,'hiphop.jpeg','Bromantic.png','Hip hop',NULL),(12,'relax.jpeg','Bgreen.jpeg','Thư giãn',NULL),(13,'focus.jpeg','BblackEase.png','Tập trung ',NULL),(14,'sleep.jpeg','Bleep.png','Ngủ ngon',NULL),(15,NULL,NULL,'Danh sách phát trên Spotify',1),(16,'focus.jpeg','BblackEase.png','Tập trung',1),(17,'topsongs.jpeg','Bviolet.jpeg','Bảng xếp hạng Nổi bật',2),(18,NULL,NULL,'Bản Mới Phát Hành Hay nhất',3),(19,NULL,NULL,'Nhạc Việt thịnh hành',5),(20,NULL,NULL,'Diva nhạc Việt',5),(21,NULL,NULL,'Những đóa hồng nhạc Việt',5),(22,NULL,NULL,'Kpop không thể thiếu ',6),(23,NULL,NULL,'Phim Hàn Quốc và nhiều nội dung khác',6),(24,NULL,NULL,'Tâm trạng của bạn hôm nay thế nào?',8),(25,NULL,NULL,'Những giai điệu u sầu nhất thế giới',8),(26,'sad.jpeg','Bviolet.jpeg','Buồn ',NULL),(27,NULL,NULL,'Nhạc Buồn ',26),(28,NULL,NULL,'Không kìm được nước mắt ?',26),(29,NULL,NULL,'Nhạc buồn không lời',26),(30,NULL,NULL,'Dành cho những trái tim tan vỡ ?',26),(31,'happy.jpeg','Bpop.png','Vui vẻ',NULL),(32,NULL,NULL,'Nhạc vui',31);
 /*!40000 ALTER TABLE `category` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `category_playlist`
+--
+
+DROP TABLE IF EXISTS `category_playlist`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `category_playlist` (
+  `category_id` int NOT NULL,
+  `playlist_id` bigint NOT NULL,
+  PRIMARY KEY (`category_id`,`playlist_id`),
+  KEY `FKtpylpxfpdarni925bi05drts8` (`playlist_id`),
+  CONSTRAINT `FK5x1cxmpwlvemhqn9cf5tkn5r1` FOREIGN KEY (`category_id`) REFERENCES `category` (`id`),
+  CONSTRAINT `FKtpylpxfpdarni925bi05drts8` FOREIGN KEY (`playlist_id`) REFERENCES `playlist` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `category_playlist`
@@ -56,6 +132,22 @@ INSERT INTO `category_playlist` VALUES (15,1),(15,2),(15,3),(15,4),(15,5),(16,6)
 UNLOCK TABLES;
 
 --
+-- Table structure for table `django_migrations`
+--
+
+DROP TABLE IF EXISTS `django_migrations`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `django_migrations` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `app` varchar(255) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `applied` datetime(6) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `django_migrations`
 --
 
@@ -64,6 +156,29 @@ LOCK TABLES `django_migrations` WRITE;
 INSERT INTO `django_migrations` VALUES (1,'SentimentApp','0001_initial','2023-10-22 01:53:37.292280'),(2,'SentimentApp','0002_rename_sentiment_sentiment_sentiment','2023-10-22 01:53:37.347137'),(3,'contenttypes','0001_initial','2023-10-22 01:54:33.107165'),(4,'auth','0001_initial','2023-10-22 01:54:33.472438'),(5,'admin','0001_initial','2023-10-22 01:54:33.568421'),(6,'admin','0002_logentry_remove_auto_add','2023-10-22 01:54:33.579927'),(7,'admin','0003_logentry_add_action_flag_choices','2023-10-22 01:54:33.589659'),(8,'contenttypes','0002_remove_content_type_name','2023-10-22 01:54:33.656156'),(9,'auth','0002_alter_permission_name_max_length','2023-10-22 01:54:33.700560'),(10,'auth','0003_alter_user_email_max_length','2023-10-22 01:54:33.725264'),(11,'auth','0004_alter_user_username_opts','2023-10-22 01:54:33.734716'),(12,'auth','0005_alter_user_last_login_null','2023-10-22 01:54:33.786613'),(13,'auth','0006_require_contenttypes_0002','2023-10-22 01:54:33.790236'),(14,'auth','0007_alter_validators_add_error_messages','2023-10-22 01:54:33.799000'),(15,'auth','0008_alter_user_username_max_length','2023-10-22 01:54:33.860479'),(16,'auth','0009_alter_user_last_name_max_length','2023-10-22 01:54:33.908894'),(17,'auth','0010_alter_group_name_max_length','2023-10-22 01:54:33.934511'),(18,'auth','0011_update_proxy_permissions','2023-10-22 01:54:33.951044'),(19,'auth','0012_alter_user_first_name_max_length','2023-10-22 01:54:33.994656'),(20,'sessions','0001_initial','2023-10-22 01:54:34.019005');
 /*!40000 ALTER TABLE `django_migrations` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `flyway_schema_history`
+--
+
+DROP TABLE IF EXISTS `flyway_schema_history`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `flyway_schema_history` (
+  `installed_rank` int NOT NULL,
+  `version` varchar(50) DEFAULT NULL,
+  `description` varchar(200) NOT NULL,
+  `type` varchar(20) NOT NULL,
+  `script` varchar(1000) NOT NULL,
+  `checksum` int DEFAULT NULL,
+  `installed_by` varchar(100) NOT NULL,
+  `installed_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `execution_time` int NOT NULL,
+  `success` tinyint(1) NOT NULL,
+  PRIMARY KEY (`installed_rank`),
+  KEY `flyway_schema_history_s_idx` (`success`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `flyway_schema_history`
@@ -76,6 +191,25 @@ INSERT INTO `flyway_schema_history` VALUES (1,'1','<< Flyway Baseline >>','BASEL
 UNLOCK TABLES;
 
 --
+-- Table structure for table `follower`
+--
+
+DROP TABLE IF EXISTS `follower`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `follower` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `followed_uer_id` bigint DEFAULT NULL,
+  `following_uer_id` bigint DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKd7l25pq8rea9pmpdqkfqfomvr` (`followed_uer_id`),
+  KEY `FK2r3fhhcxrndln7lxxv6fqkyy9` (`following_uer_id`),
+  CONSTRAINT `FK2r3fhhcxrndln7lxxv6fqkyy9` FOREIGN KEY (`following_uer_id`) REFERENCES `user` (`id`),
+  CONSTRAINT `FKd7l25pq8rea9pmpdqkfqfomvr` FOREIGN KEY (`followed_uer_id`) REFERENCES `user` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `follower`
 --
 
@@ -84,6 +218,23 @@ LOCK TABLES `follower` WRITE;
 INSERT INTO `follower` VALUES (1,2,1),(2,3,1),(8,5,1),(9,1,6);
 /*!40000 ALTER TABLE `follower` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `playlist`
+--
+
+DROP TABLE IF EXISTS `playlist`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `playlist` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `description` varchar(300) DEFAULT NULL,
+  `image` varchar(255) DEFAULT NULL,
+  `name` varchar(100) DEFAULT NULL,
+  `thumbnail` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `playlist`
@@ -96,6 +247,24 @@ INSERT INTO `playlist` VALUES (1,'Zach Bryan & Kacey Musgraves are on top of the
 UNLOCK TABLES;
 
 --
+-- Table structure for table `playlist_song`
+--
+
+DROP TABLE IF EXISTS `playlist_song`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `playlist_song` (
+  `playlist_id` bigint NOT NULL,
+  `song_id` bigint NOT NULL,
+  `created_on` datetime(6) DEFAULT NULL,
+  PRIMARY KEY (`playlist_id`,`song_id`),
+  KEY `FK8l4jevlmxwsdm3ppymxm56gh2` (`song_id`),
+  CONSTRAINT `FK8l4jevlmxwsdm3ppymxm56gh2` FOREIGN KEY (`song_id`) REFERENCES `song` (`id`),
+  CONSTRAINT `FKji5gt6i2hcwyt9x1fcfndclva` FOREIGN KEY (`playlist_id`) REFERENCES `playlist` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `playlist_song`
 --
 
@@ -104,6 +273,26 @@ LOCK TABLES `playlist_song` WRITE;
 INSERT INTO `playlist_song` VALUES (1,1,'2023-09-27 11:16:00.479276'),(1,2,'2023-10-01 07:52:43.347561'),(1,4,'2023-10-01 07:52:45.836344'),(1,6,'2023-10-01 07:52:47.440202'),(1,7,'2023-10-01 07:52:49.576948'),(1,11,'2023-10-01 07:52:52.642690'),(27,4,'2023-10-01 07:53:06.940617'),(27,10,'2023-10-01 07:53:10.389940'),(27,14,'2023-10-01 07:53:17.191087'),(27,15,'2023-10-01 07:53:14.099487'),(37,2,'2023-10-06 21:54:46.995791');
 /*!40000 ALTER TABLE `playlist_song` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `playlist_user`
+--
+
+DROP TABLE IF EXISTS `playlist_user`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `playlist_user` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `created_on` datetime(6) DEFAULT NULL,
+  `playlist_id` bigint DEFAULT NULL,
+  `user_id` bigint DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKt2uh0hf0hqh8ta2tyqsxfia11` (`playlist_id`),
+  KEY `FKntk9vrue8e161mif4ivlc03vh` (`user_id`),
+  CONSTRAINT `FKntk9vrue8e161mif4ivlc03vh` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`),
+  CONSTRAINT `FKt2uh0hf0hqh8ta2tyqsxfia11` FOREIGN KEY (`playlist_id`) REFERENCES `playlist` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `playlist_user`
@@ -116,6 +305,21 @@ INSERT INTO `playlist_user` VALUES (2,'2023-09-28 12:02:45.809677',1,1),(3,'2023
 UNLOCK TABLES;
 
 --
+-- Table structure for table `role`
+--
+
+DROP TABLE IF EXISTS `role`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `role` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(20) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `UK_8sewwnpamngi6b1dwaa88askk` (`name`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `role`
 --
 
@@ -126,14 +330,53 @@ INSERT INTO `role` VALUES (1,'ROLE_ADMIN'),(2,'ROLE_CUSTOMER');
 UNLOCK TABLES;
 
 --
+-- Table structure for table `SentimentApp_sentiment`
+--
+
+DROP TABLE IF EXISTS `SentimentApp_sentiment`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `SentimentApp_sentiment` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `text` varchar(100) NOT NULL,
+  `sentiment` varchar(50) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=45 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `SentimentApp_sentiment`
 --
 
 LOCK TABLES `SentimentApp_sentiment` WRITE;
 /*!40000 ALTER TABLE `SentimentApp_sentiment` DISABLE KEYS */;
-INSERT INTO `SentimentApp_sentiment` VALUES (1,'bài hát buồn','sad'),(2,'bài hát da diết','happy'),(3,'bài hát vui','happy'),(4,'bài hát hơi buồn','sad'),(5,'bài hát tâm trạng','mood'),(6,'bài này sôi động','happy'),(7,'bài hát mà nó chữa lành','happy'),(8,'bài hát làm mình hết buồn','happy'),(9,'bài hát không vui không buồn','cant predicted'),(10,'bài hát k vui k buồn','cant predicted'),(11,'nhạc suy','sad'),(12,'giai điệu nhiệt ','happy'),(13,'bài hát vui bình thường','cant predicted'),(14,'bài hát buồn bình thường','sad'),(15,'nhạc buồn','sad'),(16,'nhạc vui','happy'),(17,'bản nhạc cảm động','sad'),(18,'nhạc sầu','sad'),(19,'bài hát buồn về tinh yêu','sad'),(20,'nhạc u buồn','sad'),(21,'nhạc thư giãn','relax'),(22,'nhạc nhẹ nhàng ','relax'),(23,'nhạc dễ nghe','relax'),(24,'nhạc thư thái','relax'),(25,'nhạc thư thái','relax'),(26,'nhạc đáng yêu','happy'),(27,'nhac nhiệt huyết','happy'),(28,'nhạc sôi động','happy'),(29,'nhạc','cant predicted'),(30,'bài hát','cant predicted'),(31,'nhạc buồn da diết','sad'),(32,'bài hát ko vui ko buồn','cant predicted'),(33,'bài hát ko vui','cant predicted'),(34,'bài hát ko buồn','cant predicted'),(35,'suy','sad'),(36,'vui','happy'),(37,'nhạc vui vẻ ','happy');
+INSERT INTO `SentimentApp_sentiment` VALUES (1,'buồn','sad'),(2,'cảm xúc vui','happy'),(3,'vui','happy'),(4,'cảm xúc buồn','sad'),(5,'Âm nhạc bùng nổ','energetic'),(6,'vui nhộn','happy'),(7,'sống động','happy'),(8,'hạnh phúc','happy'),(11,' đau buồn','sad'),(12,'đầy niềm vu','happy'),(14,'u sầu','sad'),(15,'xúc động','sad'),(16,'phấn khích','happy'),(17,' lặng lẽ','sad'),(18,'buồn đêm mưa','sad'),(19,'đầy nỗi buồn','sad'),(20,'nhạc u buồn','sad'),(21,'nhạc thư giãn','relax'),(22,'dễ chịu','relax'),(23,'hư thái','relax'),(25,'Nhạc nền thư giã','relax'),(26,'tươi sáng','happy'),(27,'đáng yêu','happy'),(28,'nhạc sôi động','happy'),(31,'nhạc buồn da diết','sad'),(35,'nhạc suy ','sad'),(38,'Ca khúc yên bình','relax'),(39,'Bản nhạc dễ ngủ','relax'),(40,'Nhạc nhẹ nhàng','relax'),(41,'Nhạc dễ thư giãn tâm trí','relax'),(42,'Ca khúc du dương','relax'),(43,'Bài hát dễ ngồi yên và thư giãn','relax'),(44,'Nhạc đầy năng lượng','energetic');
 /*!40000 ALTER TABLE `SentimentApp_sentiment` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `song`
+--
+
+DROP TABLE IF EXISTS `song`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `song` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `audio` varchar(255) DEFAULT NULL,
+  `duration` int DEFAULT NULL,
+  `genre` enum('CLASSICAL','Hip_Hop','POP','Rock') DEFAULT NULL,
+  `image` varchar(255) DEFAULT NULL,
+  `lyric` varchar(5000) DEFAULT NULL,
+  `name` varchar(50) DEFAULT NULL,
+  `release_date` datetime(6) DEFAULT NULL,
+  `view_count` bigint DEFAULT NULL,
+  `label` varchar(30) DEFAULT NULL,
+  `status` bit(1) DEFAULT b'0',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `UK_gsbhuqas8496b2f9ui482pc01` (`name`)
+) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `song`
@@ -146,6 +389,31 @@ INSERT INTO `song` VALUES (1,'ViAnhDauCoBiet-ThaoChi_3h8te.mp3',241,'CLASSICAL',
 UNLOCK TABLES;
 
 --
+-- Table structure for table `user`
+--
+
+DROP TABLE IF EXISTS `user`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `user` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `email` varchar(255) DEFAULT NULL,
+  `first_name` varchar(20) NOT NULL,
+  `gender` enum('FEMALE','MALE') DEFAULT NULL,
+  `last_name` varchar(20) NOT NULL,
+  `password` varchar(255) DEFAULT NULL,
+  `role_id` int DEFAULT NULL,
+  `created_on` datetime(6) DEFAULT NULL,
+  `date_of_brith` datetime(6) DEFAULT NULL,
+  `photo` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `UK_ob8kqyqqgmefl0aco34akdtpe` (`email`),
+  KEY `FKcg8vm2yga4tm8kvsid9aqkt55` (`role_id`),
+  CONSTRAINT `FKcg8vm2yga4tm8kvsid9aqkt55` FOREIGN KEY (`role_id`) REFERENCES `role` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `user`
 --
 
@@ -154,6 +422,23 @@ LOCK TABLES `user` WRITE;
 INSERT INTO `user` VALUES (1,'hyung@gmail.com','taehyung','MALE','','$2a$10$.2hz73BXj6kg1DOGRBDHouUHHRtRXHA5Drcm.Q3msFGfBAa7PWC2e',1,NULL,NULL,'V.jpeg'),(2,'dojoOfficial@gmail.com','Doja ','FEMALE','Cat','$2a$10$lqVM9StqRYo3CPx0VjGLAu.TZSWrYiggoaLBmdeyqXq4eHLJqjQNa',1,NULL,NULL,'dojo.webp'),(3,'taylor@gmail.com','Taylor','FEMALE','Swift','$2a$10$q15lBnPU62FBBC3Q87YeCuKEF/9DsIIZvHSkGS9ZMq3U94VrTBvfa',1,NULL,NULL,'taylor.webp'),(4,'olivia@gmail.com','Olivia','FEMALE','Rodrigo','$2a$10$ml/KSJLxfyVzwBd29u6NaOslaV4mWCmXUn9YgVv22DAYXGN6ZGyUy',1,NULL,NULL,'Olivia.webp'),(5,'den@gmail.com','Đen','MALE','','$2a$10$CrHkPKw65XN0kIZgjB4jcuRTSJA8EFLGK591.HGCFCgp4sWaJDUNC',1,NULL,NULL,'den.jpeg'),(6,'st@gmail.com','Sơn Tùng ','MALE','M-TP','$2a$10$7/i1Mg57XMYVDF2y60dlzOJkuLZuSCvKgr/XCT/BbOD1EJdt9X4nm',1,NULL,NULL,'st.jpeg'),(7,'gunna@gmail.com','Gunna','MALE','','$2a$10$AYq4/yNLslKTbW8ub9f9/O9U9rrcV.8qCuAqjWXTdN61qdFEq7VAC',1,NULL,NULL,'gunna.jpeg'),(8,'travis@gmail.com','Travis ','MALE','Scott','$2a$10$qbOzozWFDQ3vFdmHXZ8Deu/z30umN.uX9NGCAxbLqNjRrjJ5C6czq',1,NULL,NULL,'travis.jpeg'),(9,'drake@gmail.com','Drake','MALE','','$2a$10$Cn3CXEhoHcvNAw1BxLUB8.rZi/E2lQXgAOrsxUTlp6hjEuinY1eV2',1,NULL,NULL,'drake.jpeg'),(10,'bruno@gmail.com','Bruno ','MALE','Mars','$2a$10$5ohHSVxyDgCDzbuqaKstfe4VeUQS9InD8cP53.CiI080acp37WFjS',1,NULL,NULL,'brunom.webp'),(11,'bill@gmail.com','billie','FEMALE','eilish','$2a$10$jBnw6RnpGTF90v3gcV3/JuT0yWBHf5NqAwBhlIqqXQYkNy1A6.gna',1,NULL,NULL,'bill.jpeg'),(12,'tee@gmail.com','JustaTee','MALE','','$2a$10$XxKCv5dYFRQo62WEDV7eZeOH.XFe1d6rNQFoZ/iZ3sGJeHind4FyC',1,NULL,NULL,'justaTee.jpeg'),(13,'mkc@gmail.com','MCK','MALE','','$2a$10$6ZbML/SxhsoVfGRZxJhJWOjhtQFHEo3TxQ./j8kAYr2Jalf31hXY2',1,NULL,NULL,'nger.jpeg'),(14,'tlinh@gmail.com','Tlinh','FEMALE','','$2a$10$QwU4hooLb.Z.0mNp9a9VZuDcx9bo8fgOPWzsFQuY2x0MhoNjhwPQC',1,NULL,NULL,'tlinh.jpeg'),(15,'min@gmail.com','Min','FEMALE','','$2a$10$PC/de0zbi6dfnnaban5W1eLGfDR5M1ooknBjd5iriojiPD2QcOT96',1,NULL,NULL,'min.png'),(16,'erik@gmail.com','Erik','MALE','','$2a$10$VdWQlMRFFKxh6flWZ5kqw.hjqNHgD.95gwdqOnuwZvpA/IFZdOo0u',1,NULL,NULL,'erik.jpeg'),(17,'andree@gmail.com','Andree','MALE','Right Hand','$2a$10$zrGEiO6G63AwKtq4oItowu4p8EC4AHLEVXo/qAUMJOlksh.RUM6Lq',1,NULL,NULL,'andree.jpeg'),(18,'vu@gmail.com','Vũ.','MALE','','$2a$10$CexYb9SmH6VhwsjcG73Xhe8wuSAhHFXemXr1QSQEui54CqKb3Xm56',1,NULL,NULL,'vu.jpeg'),(19,'jungcut@gmail.com','Jung','MALE','Kook','$2a$10$gt810aSnW9Tc1pCKX9TXT./KcEiYRKyqClKKEJsp1UhBYAme6DcKu',1,NULL,NULL,'jungcook.jpeg'),(20,'hieu2@gmail.com','HIEUTHUHAI','MALE','','$2a$10$Hm6EUBNhnj3t4jEeNCACBuLogFha.zQSOchbhYZ3BmF7G28R9NGFy',1,NULL,NULL,'hieu2.jpeg'),(21,'grey@gmail.com','Grey','MALE','D','$2a$10$4iaYpZ0rHAk2zRmZno6Nb.QTvF3lYp6VXwyxjAS7S1oT57IrqYes.',1,NULL,NULL,'grey.jpeg'),(22,'onion@gmail.com','Onion','MALE','','$2a$10$PozkAxO6xcolOmaGieT5Y.BBzWu1Vg9fs0QRtPiJFJSj1.7A.kogO',1,NULL,NULL,'onionn.jpeg'),(23,'vmh@gmail.com','Văn Mai','FEMALE','Hương','$2a$10$ovdWNVGJFQt3eaT9SaDPYuHpbKljAwJCx8PqHXvnq2zaAhpND6beO',1,NULL,NULL,'vmh.jpeg'),(24,'trungq@gmail.com','Trung','MALE','Quân','$2a$10$aePo34k3UnGtug0N56X.desWDVZ9LK09I7Rhb5MwENVIQuZvr0oqW',1,NULL,NULL,'trungq.jpeg'),(25,'boom@gmail.com','Pháo','FEMALE','','$2a$10$i6a2gs9qvtD.T7KUsqch6u1AtpY3U82m8Wqx6bFN7qeJNV0blK8se',1,NULL,NULL,'pháo.jpeg'),(26,'pl@gmail.com','Phương','FEMALE','Ly','$2a$10$G.Op2BpIAxmtBUNMV/e1wedwLfzAU1Jr2UTPAxITzVqRNNCxhirGy',1,NULL,NULL,'pl.jpeg'),(27,'madihu@gmail.com','Madihu','MALE','','$2a$10$8Rwdxf6KtrJrnmVPrELr2uxTg/Pc2CvRDWMsp7yButNCHPGGeRqE2',1,NULL,NULL,'madihu.jpeg'),(28,'siro@gmail.com','Mr.Siro','MALE','','$2a$10$Hii0RWoItYcQaun1VH5v6eve4o8fO0Ln9yIWivMKPqJVLpNP5/hWi',1,NULL,NULL,'siro.jpeg'),(29,'hquan@gmail.com','Hùng ','MALE','Quân','$2a$10$XQ.oEgRZM4rs9AxuM0VE6O5Uj78whpL4WAkyK0Gj3vEQmuqWlTcsO',1,NULL,NULL,'hungquan.jpeg'),(30,'phucku@gmail.com','phuc','MALE','du','$2a$10$gt.gz9hK8k1AqRs51P9ff.zFXiuZvQg.h7JiCJ4lKT2BxKVDMXNb.',1,NULL,NULL,'phucdu.jpeg');
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `user_song`
+--
+
+DROP TABLE IF EXISTS `user_song`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `user_song` (
+  `user_id` bigint NOT NULL,
+  `song_id` bigint NOT NULL,
+  PRIMARY KEY (`user_id`,`song_id`),
+  KEY `FK7n6l7aiyapjhlsihmcgias0i9` (`song_id`),
+  CONSTRAINT `FK7n6l7aiyapjhlsihmcgias0i9` FOREIGN KEY (`song_id`) REFERENCES `song` (`id`),
+  CONSTRAINT `FKkka153146crhbp0bie5cduo37` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `user_song`
@@ -174,4 +459,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-10-27 10:38:49
+-- Dump completed on 2023-10-29 14:55:22

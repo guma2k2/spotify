@@ -26,20 +26,18 @@ public class FollowerController {
             @PathVariable("currentUserId") Long currentUserId,
             @PathVariable("targetUserId") Long targetUserId
     ) {
-        followerService.addFollowing(currentUserId,targetUserId);
-        return ResponseEntity.ok().body("Added your artist");
+        return ResponseEntity.ok().body(followerService.addFollowing(currentUserId,targetUserId));
     }
 
     @DeleteMapping("/{currentUserId}/cancel/{targetUserId}")
     @Operation(description =
             "currentUser unfollow targetUser"
     )
-    public ResponseEntity<?> cancelFollowing(
+    public ResponseEntity<?> unFollowing(
             @PathVariable("currentUserId") Long currentUserId,
             @PathVariable("targetUserId") Long targetUserId
     ) {
-        followerService.cancelFollowing(currentUserId,targetUserId);
-        return ResponseEntity.ok().body("Removed from your artist");
+        return ResponseEntity.ok().body(followerService.cancelFollowing(currentUserId,targetUserId));
     }
     @GetMapping("/{userId}/followings")
     @Operation(description =

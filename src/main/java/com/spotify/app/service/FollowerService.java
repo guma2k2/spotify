@@ -26,7 +26,7 @@ public class FollowerService {
     private final UserNoAssMapper userNoAssMapper;
 
     @Transactional
-    public void addFollowing(Long I_id, Long U_id ) {
+    public List<UserNoAssociationResponse> addFollowing(Long I_id, Long U_id ) {
         User I = getUserByUserId(I_id);
         User U = getUserByUserId(U_id);
         Follower follower = Follower
@@ -35,13 +35,15 @@ public class FollowerService {
                 .followedUser(U)
                 .build();
         followerRepository.save(follower);
+        return findAllFollowingsByUserId(I_id);
     }
 
     @Transactional
-    public void cancelFollowing(Long I_id, Long U_id ) {
+    public List<UserNoAssociationResponse> cancelFollowing(Long I_id, Long U_id ) {
         User I = getUserByUserId(I_id);
         User U = getUserByUserId(U_id);
         followerRepository.unfollowing(I,U);
+        return findAllFollowingsByUserId(I_id);
     }
 
     public List<UserNoAssociationResponse> findAllFollowingsByUserId(Long userId) {

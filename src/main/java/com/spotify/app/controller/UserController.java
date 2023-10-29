@@ -108,8 +108,7 @@ public class UserController {
             @PathVariable("playlistId") Long playlistId,
             @PathVariable("userId") Long userId
     ) {
-        String message = userService.addPlaylist(userId, playlistId);
-        return ResponseEntity.ok().body(message);
+        return ResponseEntity.ok().body(userService.addPlaylist(userId, playlistId));
     }
 
     @GetMapping("/{userId}/remove/{playlistId}")
@@ -118,8 +117,7 @@ public class UserController {
             @PathVariable("playlistId") Long playlistId,
             @PathVariable("userId") Long userId
     ) {
-        String message = userService.removePlaylist(userId, playlistId);
-        return ResponseEntity.ok().body(message);
+        return ResponseEntity.ok().body(userService.removePlaylist(userId, playlistId));
     }
 
 

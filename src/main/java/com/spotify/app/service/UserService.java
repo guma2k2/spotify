@@ -194,7 +194,7 @@ public class UserService {
     }
 
     @Transactional
-    public String addPlaylist(Long userId, Long playlistId) {
+    public List<PlaylistResponse> addPlaylist(Long userId, Long playlistId) {
 
         User user = get(userId);
 
@@ -202,23 +202,23 @@ public class UserService {
 
         // Todo: check: Is user added playlist
         if(playlistUserService.checkUserIsAddedPlaylist(userId, playlistId)) {
-            return String.format("user %d added playlist %d", userId, playlistId);
+            return playlistService.findByUserId(userId);
         }
 
         user.addPlaylist(playlist);
         userRepository.save(user);
-        return String.format("Add playlist %d by user %d successful",playlistId, userId);
+        return playlistService.findByUserId(userId);
     }
 
 
     @Transactional
-    public String removePlaylist(Long userId, Long playlistId) {
-        if(playlistUserService.checkUserIsAddedPlaylist(userId, playlistId)) {
-            return String.format("user %d already deleted playlist %d", userId, playlistId);
+    public List<PlaylistResponse> removePlaylist(Long userId, Long playlistId) {
+        if(!playlistUserService.checkUserIsAddedPlaylist(userId, playlistId)) {
+            return playlistService.findByUserId(userId);
         }
         playlistUserService.deleteByUserAndPlaylist(userId, playlistId);
 
-        return String.format("Remove playlist %d from user %d successful",playlistId,userId);
+        return playlistService.findByUserId(userId);
     }
 
 

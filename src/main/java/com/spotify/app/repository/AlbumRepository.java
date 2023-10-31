@@ -1,6 +1,9 @@
 package com.spotify.app.repository;
 
 import com.spotify.app.model.Album;
+import com.spotify.app.model.Playlist;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -31,5 +34,13 @@ public interface AlbumRepository  extends JpaRepository<Album, Long> {
             WHERE u.id = :userId
             """)
     List<Album> findByUserId(@Param("userId") Long userId);
+
+    @Query("""
+            SELECT a
+            FROM Album a
+            LEFT JOIN FETCH a.user u
+            WHERE a.name LIKE CONCAT('%', upper(:name), '%')
+            """)
+    Page<Album> findAllByName(@Param("name")String name, Pageable pageable) ;
 
 }

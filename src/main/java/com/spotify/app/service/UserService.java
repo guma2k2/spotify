@@ -113,6 +113,13 @@ public class UserService {
         return new PageResponse(totalPage,numPage,sortDir,sortField, users);
     }
 
+    public List<UserResponse> findAllArtistByUserName(String userName) {
+        Sort sort = Sort.by("id").ascending();
+        Pageable pageable = PageRequest.of(0,5,sort);
+        Page<User> usersPage = userRepository.findAllArtistByUserName(pageable, userName);
+        return userResponseMapper.usersToUsersResponse(usersPage.getContent());
+    }
+
     public UserResponse addUser(String firstName,
                                 String lastName,
                                 String email,
@@ -282,18 +289,18 @@ public class UserService {
 //        }
 //    }
 
-    public byte[] getPhotoImage(Long userId) {
-        User underGet = get(userId);
-        if (underGet.getPhoto().isEmpty()) {
-            throw new ResourceNotFoundException(
-                    "user id :[%d] not found photo".formatted(userId));
-        }
 
-        byte[] playlistImage = s3Service.getObject(
-                "user/photo/%d/%s".formatted(userId, underGet.getPhoto())
-        );
-        return playlistImage;
-    }
-
+//    public byte[] getPhotoImage(Long userId) {
+//        User underGet = get(userId);
+//        if (underGet.getPhoto().isEmpty()) {
+//            throw new ResourceNotFoundException(
+//                    "user id :[%d] not found photo".formatted(userId));
+//        }
+//
+//        byte[] playlistImage = s3Service.getObject(
+//                "user/photo/%d/%s".formatted(userId, underGet.getPhoto())
+//        );
+//        return playlistImage;
+//    }
 }
 

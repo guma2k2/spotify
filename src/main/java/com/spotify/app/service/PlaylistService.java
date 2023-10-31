@@ -15,6 +15,10 @@ import com.spotify.app.utility.FileUploadUtil;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -250,6 +254,17 @@ public class PlaylistService {
             return hours + " giờ " + minutes + " phút";
         }
         return minutes + " phút " + seconds + " giây";
+    }
+
+    public List<PlaylistResponse> findAllByName(String name) {
+        Sort sort = Sort.by("id").ascending();
+        Pageable pageable = PageRequest.of(0,5,sort);
+        Page<Playlist> playlistPage = playlistRepository.findAllByName(name, pageable);
+        return playlistPage.
+                stream().
+                map(playlist ->
+                        playlistResponseMapper.playlistToPlaylistResponseCustom(playlist,0,null,0)).
+                toList();
     }
 
     /////////////////////////////////////////////////////////// S3 SERVICE ////////////////////////////////////////////////////////

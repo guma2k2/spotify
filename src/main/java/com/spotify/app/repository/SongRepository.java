@@ -1,6 +1,8 @@
 package com.spotify.app.repository;
 
 import com.spotify.app.model.Song;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -42,7 +44,7 @@ public interface SongRepository extends JpaRepository<Song, Long> {
             LEFT JOIN FETCH s.albumSongList
             WHERE s.name LIKE %:name%
             """)
-    List<Song> findByNameFullText(@Param("name") String name);
+    Page<Song> findByNameFullText(@Param("name") String name, Pageable pageable);
 
 
 

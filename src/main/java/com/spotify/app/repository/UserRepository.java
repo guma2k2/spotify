@@ -26,13 +26,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
             """)
     Optional<User> findByEmail(@Param("email") String email) ;
 
-    @Query("""
-            SELECT u
-            FROM User u
-            JOIN FETCH u.role r
-            WHERE u.id = :id
-            """)
-    Optional<User> findById(@Param("id") Long id) ;
 
 
     @Query("""
@@ -45,15 +38,17 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("""
             SELECT u
             FROM User u
-            JOIN FETCH u.role
+            JOIN FETCH u.role r
+            WHERE r.name = 'ROLE_ARTIST' AND
+             CONCAT(upper(u.firstName), ' ', upper(u.lastName)) LIKE CONCAT('%', upper(:userName), '%')
             """)
-    Page<User> findAll(Pageable pageable);
+    Page<User> findAllArtistByUserName(Pageable pageable, @Param("userName") String userName);
 
 
     @Query("""
-        SELECT u 
-        FROM User u 
-        JOIN FETCH u.role 
+        SELECT u
+        FROM User u
+        JOIN FETCH u.role
         WHERE CONCAT(upper(u.firstName), upper(u.lastName), upper(u.email)) LIKE CONCAT('%', upper(:keyword), '%')
         """)
     Page<User> findAllWithKeyword(@Param("keyword") String keyword, Pageable pageable);

@@ -134,6 +134,12 @@ public class UserController {
         boolean check = userService.checkCurrentUserIsLikedTargetSong(userId, songId);
         return ResponseEntity.ok().body(check) ;
     }
+    @GetMapping("/find/artist/by/{userName}")
+    public List<UserResponse> findAllArtistByUserName(
+            @PathVariable("userName") String userName
+    ) {
+        return userService.findAllArtistByUserName(userName);
+    }
 
     //////////////////////////////////////// S3 SERVICE/////////////////////////////////////
 

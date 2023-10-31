@@ -3,8 +3,10 @@ package com.spotify.app.controller;
 
 import com.spotify.app.dto.CategoryDTO;
 import com.spotify.app.dto.response.CategoryResponse;
+import com.spotify.app.dto.response.SearchResponse;
 import com.spotify.app.model.Category;
 import com.spotify.app.service.CategoryService;
+import com.spotify.app.service.SearchService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.AllArgsConstructor;
 import org.springframework.http.MediaType;
@@ -21,6 +23,8 @@ import java.util.Set;
 public class CategoryController {
 
     private final CategoryService categoryService ;
+
+    private final SearchService searchService;
 
     @GetMapping("/getAllParent")
     @Operation(description = "Api list all category when clicked `search page`")
@@ -122,6 +126,11 @@ public class CategoryController {
                 ok().
                 body(String.
                         format("category with id: %d remove playlist with id: %d success", categoryId, playlistId));
+    }
+
+    @GetMapping("/search/{keyword}")
+    public SearchResponse findByName(@PathVariable("keyword")String keyword) {
+        return searchService.findByName(keyword);
     }
 
 

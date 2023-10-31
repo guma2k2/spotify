@@ -3,6 +3,7 @@ package com.spotify.app.controller;
 import com.spotify.app.dto.SongDTO;
 import com.spotify.app.dto.request.SongRequest;
 import com.spotify.app.dto.response.SongResponse;
+import com.spotify.app.dto.response.SongSearchResponse;
 import com.spotify.app.model.Song;
 import com.spotify.app.service.SongService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -94,7 +95,7 @@ public class SongController {
     }
 
     @GetMapping("/search/{name}")
-    List<SongResponse> findByNameFullText(
+    List<SongSearchResponse> findByNameFullText(
             @PathVariable("name") String name
     ) {
         return songService.findByNameFullText(name);

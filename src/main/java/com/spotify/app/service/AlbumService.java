@@ -4,6 +4,7 @@ package com.spotify.app.service;
 import com.spotify.app.dto.AlbumDTO;
 import com.spotify.app.dto.request.AlbumRequest;
 import com.spotify.app.dto.response.AlbumResponse;
+import com.spotify.app.dto.response.PlaylistResponse;
 import com.spotify.app.dto.response.SongResponse;
 import com.spotify.app.exception.ResourceNotFoundException;
 import com.spotify.app.mapper.*;
@@ -15,6 +16,10 @@ import com.spotify.app.repository.UserRepository;
 import com.spotify.app.utility.FileUploadUtil;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -187,6 +192,13 @@ public class AlbumService {
             return hours + " giờ " + minutes + " phút";
         }
         return minutes + " phút " + seconds + " giây";
+    }
+
+    public List<AlbumResponse> findAllByName(String name) {
+        Sort sort = Sort.by("id").ascending();
+        Pageable pageable = PageRequest.of(0,5,sort);
+        Page<Album> albums = albumRepository.findAllByName(name, pageable);
+        return albumResponseMapper.albumsToAlbumsResponse(albums.getContent());
     }
 
 

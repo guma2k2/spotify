@@ -12,7 +12,7 @@ public record SongRequest (@NotBlank
                            @NotBlank
                            String genre,
 
-                           @Min(value = 1,message = "duration of song must greater than 0")
+                           @Min(value = 1,message = "duration of song must greater than 0 second")
                            int duration,
 
                            @NotBlank

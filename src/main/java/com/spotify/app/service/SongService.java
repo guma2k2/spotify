@@ -2,13 +2,19 @@ package com.spotify.app.service;
 import com.spotify.app.dto.SongDTO;
 import com.spotify.app.dto.request.SongRequest;
 import com.spotify.app.dto.response.SongResponse;
+import com.spotify.app.dto.response.SongSearchResponse;
 import com.spotify.app.enums.Genre;
 import com.spotify.app.exception.DuplicateResourceException;
 import com.spotify.app.mapper.SongMapper;
+import com.spotify.app.mapper.SongSearchResponseMapper;
 import com.spotify.app.model.*;
 import com.spotify.app.repository.*;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
@@ -44,6 +50,7 @@ public class SongService {
     private final UserRepository userRepository ;
     private final AlbumRepository albumRepository;
     private final S3Service s3Service;
+    private final SongSearchResponseMapper songSearchResponseMapper;
 
     private final RestTemplate restTemplate;
     public Song get(Long songId) {
@@ -128,12 +135,12 @@ public class SongService {
     private boolean checkSongExitByName(String name) {
         return songRepository.findByName(name).isPresent();
     }
-    public List<SongResponse> findByNameFullText(String name) {
-        List<Song> songs = songRepository.findByNameFullText(name);
-        return songs
-                .stream()
-                .map(this::songToSongResponse)
-                .toList();
+    public List<SongSearchResponse> findByNameFullText(String name) {
+        Sort sort = Sort.by("id").ascending();
+        Pageable pageable = PageRequest.of(0,5,sort);
+        Page<Song> songPage = songRepository.findByNameFullText(name,pageable);
+        List<Song> songs = songPage.getContent();
+        return songSearchResponseMapper.songsToSongsDTO(songs);
     }
 
     private SongResponse songToSongResponse(Song song) {

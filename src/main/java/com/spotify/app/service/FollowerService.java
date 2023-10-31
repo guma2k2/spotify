@@ -27,6 +27,12 @@ public class FollowerService {
 
     @Transactional
     public List<UserNoAssociationResponse> addFollowing(Long I_id, Long U_id ) {
+        if(I_id == U_id) {
+            return findAllFollowingsByUserId(I_id);
+        }
+        if(checkCurrentUserFollowedTargetUser(I_id,U_id)) {
+            return findAllFollowingsByUserId(I_id);
+        }
         User I = getUserByUserId(I_id);
         User U = getUserByUserId(U_id);
         Follower follower = Follower
@@ -40,6 +46,12 @@ public class FollowerService {
 
     @Transactional
     public List<UserNoAssociationResponse> cancelFollowing(Long I_id, Long U_id ) {
+        if(I_id == U_id) {
+            return findAllFollowingsByUserId(I_id);
+        }
+        if(!checkCurrentUserFollowedTargetUser(I_id,U_id)) {
+            return findAllFollowingsByUserId(I_id);
+        }
         User I = getUserByUserId(I_id);
         User U = getUserByUserId(U_id);
         followerRepository.unfollowing(I,U);

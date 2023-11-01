@@ -21,12 +21,10 @@ public interface SongResponseMapper {
     @Mapping(target = "createdAt", source = "createdOn")
     @Mapping(target = "duration" , expression = "java(getDuration(song))")
     @Mapping(target = "releaseDate", expression = "java(getReleaseDate(song))")
-    SongResponse songToSongResponse(Song song,
-                                       List<AlbumResponse> albumResponses,
-                                       String createdOn);
+    SongResponse songToSongResponse(Song song, List<AlbumResponse> albumResponses, String createdOn);
 
     default String getReleaseDate(Song song) {
-        String pattern = " mm/dd/yyyy hh:mm:ss";
+        String pattern = " MM/dd/yyyy hh:mm:ss";
         DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern(pattern);
         return song.getReleaseDate().format(dateFormat) ;
     }

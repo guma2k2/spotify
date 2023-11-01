@@ -15,20 +15,20 @@ public class AuthenticationController {
     private final AuthenticationService service;
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(
+    public ResponseEntity<AuthenticationResponse> register(
             @RequestBody RegisterRequest request
     ) {
         return ResponseEntity.ok(service.register(request));
     }
     @PostMapping("/authenticate")
-    public ResponseEntity<?> authenticate(
+    public ResponseEntity<AuthenticationResponse> authenticate(
            @Valid @RequestBody AuthenticationRequest request
     ) {
         return ResponseEntity.ok().body(service.authenticate(request));
     }
 
     @PostMapping("/refresh-token")
-    public ResponseEntity<?> refreshToken(
+    public ResponseEntity<AuthenticationResponse> refreshToken(
             HttpServletRequest request
     )  {
             return ResponseEntity.ok().body(service.refreshToken(request));

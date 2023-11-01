@@ -7,7 +7,8 @@ import java.util.Set;
 public record SongSearchResponse(
         Long id,
         String name,
-        String audioPath,
+        String imagePath,
+        String duration,
         Set<UserNoAssociationResponse> users
 ) {
 }

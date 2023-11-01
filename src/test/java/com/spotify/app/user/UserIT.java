@@ -15,7 +15,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Slf4j
-public class UserIT {
+public class UserIT extends AbstractTestcontainers {
 
     @Autowired
     private TestRestTemplate restTemplate;

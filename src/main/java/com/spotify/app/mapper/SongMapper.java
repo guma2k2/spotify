@@ -19,7 +19,7 @@ public interface SongMapper {
     SongMapper INSTANCE = Mappers.getMapper(SongMapper.class);
 
     @Mapping(target = "duration" , expression = "java(getDuration(song))")
-    @Mapping(target = "releaseDate", expression = "java(getReleaseDate(song))" , dateFormat = " mm/dd/yyyy hh:mm:ss")
+    @Mapping(target = "releaseDate", expression = "java(getReleaseDate(song))" , dateFormat = " MM/dd/yyyy hh:mm:ss")
     SongDTO songToSongDTO(Song song);
 
     List<SongDTO> songsToSongsDTO(List<Song> songs) ;
@@ -31,7 +31,7 @@ public interface SongMapper {
         return minute + ":" +secondString ;
     }
     default String getReleaseDate(Song song) {
-        String pattern = "dd/MM/yyyy hh:mm:ss";
+        String pattern = "MM/dd/yyyy hh:mm:ss";
         DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern(pattern);
         return song.getReleaseDate().format(dateFormat) ;
     }

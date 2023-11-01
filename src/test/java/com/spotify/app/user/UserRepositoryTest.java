@@ -4,6 +4,7 @@ import com.spotify.app.AbstractTestcontainers;
 import com.spotify.app.TestConfig;
 import com.spotify.app.enums.Gender;
 import com.spotify.app.enums.Genre;
+import com.spotify.app.mapper.UserMapper;
 import com.spotify.app.model.Role;
 import com.spotify.app.model.Song;
 import com.spotify.app.model.User;
@@ -34,6 +35,9 @@ public class UserRepositoryTest extends AbstractTestcontainers {
     private UserRepository underTest ;
     @Autowired
     private RoleRepository roleRepository;
+
+    @Autowired
+    private UserMapper userMapper;
 
     @BeforeEach
     public void setUp() {

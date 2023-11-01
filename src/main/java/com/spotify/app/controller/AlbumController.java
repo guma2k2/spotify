@@ -28,19 +28,19 @@ public class AlbumController {
     }
 
 
-    @PostMapping("/upload/image/{songId}")
+    @PostMapping("/upload/image/{albumId}")
     public ResponseEntity<?> uploadImage(
             @RequestParam("image") MultipartFile image,
-            @PathVariable("songId") Long songId
+            @PathVariable("albumId") Long songId
     )  {
         albumService.saveAlbumImage(image, songId);
         return ResponseEntity.ok().body("Save image of song success");
     }
 
-    @PostMapping("/upload/thumbnail/{songId}")
+    @PostMapping("/upload/thumbnail/{albumId}")
     public ResponseEntity<?> uploadThumbnail(
-            @RequestParam("image") MultipartFile thumbnail,
-            @PathVariable("songId") Long songId
+            @RequestParam("thumbnail") MultipartFile thumbnail,
+            @PathVariable("albumId") Long songId
     )  {
 
         albumService.saveAlbumThumbnail(thumbnail, songId);
@@ -50,21 +50,19 @@ public class AlbumController {
 
 
     @GetMapping("/{albumId}/add/{songId}")
-    @Operation(description = "add song to liked Song by userId")
-    public void addLikedSongToPlaylistByUserId(
+    public ResponseEntity<?> addSongToAlbum(
             @PathVariable("albumId") Long albumId,
             @PathVariable("songId") Long songId
     ) {
-        albumService.addSong(albumId, songId);
+        return ResponseEntity.ok().body(albumService.addSong(albumId, songId));
     }
 
     @GetMapping("/{albumId}/remove/{songId}")
-    @Operation(description = "remove song from liked Song by userId")
-    public void removeFromLikedSongByUserId(
+    public ResponseEntity<?> removeSongFromAlbum(
             @PathVariable("albumId") Long albumId,
             @PathVariable("songId") Long songId
     ) {
-        albumService.removeSong(albumId,songId);
+        return ResponseEntity.ok().body(albumService.removeSong(albumId,songId));
     }
 
     @GetMapping

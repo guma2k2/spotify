@@ -121,19 +121,21 @@ public class AlbumService {
 
 
     @Transactional
-    public void addSong(Long albumId, Long songId) {
+    public AlbumDTO addSong(Long albumId, Long songId) {
         Album album = get(albumId);
         Song song = getSongBySongId(songId);
         album.addSong(song);
         albumRepository.save(album);
+        return findById(albumId);
     }
 
     @Transactional
-    public void removeSong(Long albumId, Long songId) {
+    public AlbumDTO removeSong(Long albumId, Long songId) {
         Album album = get(albumId);
         Song song = getSongBySongId(songId);
         album.removeSong(song);
         albumRepository.save(album);
+        return findById(albumId);
     }
 
     public List<AlbumResponse> findAll() {

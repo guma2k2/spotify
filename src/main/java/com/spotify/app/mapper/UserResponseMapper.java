@@ -12,6 +12,8 @@ public interface UserResponseMapper {
 
     UserResponseMapper INSTANCE = Mappers.getMapper( UserResponseMapper.class );
 
+    User dto2Entity(UserResponse userResponse);
+
     UserResponse userToUserResponse(User user) ;
 
     List<UserResponse> usersToUsersResponse(List<User> users);

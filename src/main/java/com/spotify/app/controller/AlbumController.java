@@ -68,9 +68,9 @@ public class AlbumController {
     }
 
 
-    @PostMapping("/{userID}/add")
+    @PostMapping("/{userId}/add")
     public ResponseEntity<?> addAlbumByUserId(
-            @PathVariable("userID") Long userID,
+            @PathVariable("userId") Long userID,
             @Valid @RequestBody AlbumRequest request
     ) {
         return ResponseEntity.ok().body(albumService.addAlbum(userID,request));

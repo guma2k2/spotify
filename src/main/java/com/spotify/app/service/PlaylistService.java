@@ -147,21 +147,23 @@ public class PlaylistService {
     }
 
 
-    public void addSong(Long playlistId, Long songId) {
+    public PlaylistDTO addSong(Long playlistId, Long songId) {
         Song song = songService.get(songId);
         Playlist playlist = get(playlistId);
 
         playlist.addSong(song);
         playlistRepository.save(playlist);
+        return findByIdReturnSongs(playlistId);
     }
 
-    public void removeSong(Long playlistId, Long songId) {
+    public PlaylistDTO removeSong(Long playlistId, Long songId) {
         Song song = songService.get(songId);
 
         Playlist playlist = get(playlistId);
 
         playlist.removeSong(song);
         playlistRepository.save(playlist);
+        return findByIdReturnSongs(playlistId);
     }
 
 

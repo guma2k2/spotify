@@ -71,7 +71,7 @@ public class SongService {
     }
 
 
-    public void saveSongAudio(MultipartFile audio, Long songId) {
+    public SongResponse saveSongAudio(MultipartFile audio, Long songId) {
         Song song = get(songId);
         if (!audio.isEmpty()) {
             String fileName = StringUtils.cleanPath(audio.getOriginalFilename());
@@ -89,8 +89,9 @@ public class SongService {
             }
         }
         songRepository.save(song);
+        return getById(songId);
     }
-    public void saveSongImage(MultipartFile image, Long songId) {
+    public SongResponse saveSongImage(MultipartFile image, Long songId) {
         Song song = get(songId);
         if (!image.isEmpty()) {
             String fileName = StringUtils.cleanPath(image.getOriginalFilename());
@@ -108,6 +109,7 @@ public class SongService {
             }
         }
         songRepository.save(song);
+        return getById(songId);
     }
 
 

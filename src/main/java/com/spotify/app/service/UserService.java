@@ -71,8 +71,6 @@ public class UserService {
         return userMapper.userToUserDTO(user) ;
     }
 
-
-
     public User get(Long userId) {
         return userRepository.
                 findById(userId).

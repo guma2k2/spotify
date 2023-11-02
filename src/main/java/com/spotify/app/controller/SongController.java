@@ -4,12 +4,12 @@ import com.spotify.app.dto.SongDTO;
 import com.spotify.app.dto.request.SongRequest;
 import com.spotify.app.dto.response.SongResponse;
 import com.spotify.app.dto.response.SongSearchResponse;
-import com.spotify.app.model.Song;
 import com.spotify.app.service.SongService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -36,11 +36,7 @@ public class SongController {
             @RequestParam("audio") MultipartFile audio,
             @PathVariable("songId") Long songId
     ) throws IOException {
-
-        // Todo: save audio
-        songService.saveSongAudio(audio, songId);
-
-        return ResponseEntity.ok().body("OK");
+        return ResponseEntity.ok().body(songService.saveSongAudio(audio, songId));
     }
 
     @PostMapping("/upload/image/{songId}")
@@ -48,9 +44,7 @@ public class SongController {
             @RequestParam("image") MultipartFile image,
             @PathVariable("songId") Long songId
     )  {
-
-        songService.saveSongImage(image, songId);
-        return ResponseEntity.ok().body("Save image of song success");
+        return ResponseEntity.ok().body(songService.saveSongImage(image, songId));
     }
 
     @GetMapping("/findBy/playlist/{playlistId}")
@@ -63,15 +57,8 @@ public class SongController {
         return songService.findAll();
     }
 
-    @GetMapping("/admin/{songId}")
-    public Song getByIdForAdmin(
-            @PathVariable("songId") Long songId
-    ) {
-        return songService.get(songId);
-    }
 
-
-    @PostMapping
+    @PostMapping("/save")
     @Operation(description = "Save song, format of genre: {POP, CLASSICAL, Rock, Hip_Hop}")
     public ResponseEntity<?> saveSong(
             @Valid SongRequest request
@@ -79,7 +66,7 @@ public class SongController {
         return ResponseEntity.ok().body(songService.saveSong(request));
     }
 
-    @PutMapping("/{songId}")
+    @PutMapping("/update/{songId}")
     @Operation(description = "Update song by id, format of genre: {POP, CLASSICAL, Rock, Hip_Hop}")
     public ResponseEntity<?> updateSong(
             @Valid SongRequest request,
@@ -89,6 +76,7 @@ public class SongController {
     }
 
     @PutMapping("/status/{songId}")
+//    @PreAuthorize("hasAnyRole('ARTIST', 'ADMIN')")
     public ResponseEntity<?> updateStatus(
             @PathVariable("songId") Long songId
     )  {
@@ -97,6 +85,7 @@ public class SongController {
     }
 
     @GetMapping("/{songId}/add/{userId}")
+//    @PreAuthorize("hasRole('ARTIST')")
     public ResponseEntity<?> addUser(
             @PathVariable("songId")Long songId,
             @PathVariable("userId")Long userId
@@ -105,6 +94,7 @@ public class SongController {
     }
 
     @GetMapping("/{songId}/remove/{userId}")
+//    @PreAuthorize("hasRole('ARTIST')")
     public ResponseEntity<?> removeUser(
             @PathVariable("songId")Long songId,
             @PathVariable("userId")Long userId

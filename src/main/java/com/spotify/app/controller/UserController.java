@@ -41,11 +41,8 @@ public class UserController {
         return ResponseEntity.ok().body("Save photo of user success");
     }
 
-
-
-
     @GetMapping
-    public List<UserResponse> listAl() {
+    public List<UserResponse> listAll() {
         return userService.listAll();
     }
     @GetMapping("/firstPage")
@@ -62,7 +59,6 @@ public class UserController {
     ) {
         return userService.getPageResponse(numPage, sortDir, sortField, keyword);
     }
-
 
     @GetMapping("/admin/{userId}")
     public UserResponse findByUserIdForAdmin(

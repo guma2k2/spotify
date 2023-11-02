@@ -108,29 +108,25 @@ public class PlaylistController {
     }
 
 
-    @GetMapping("/admin/{playlistId}/add/{songId}")
+    @GetMapping("/{playlistId}/add/song/{songId}")
     @Operation(description = "add song to target playlist")
-    public ResponseEntity<String> addPlaylist(
+    public ResponseEntity<?> addSongByPlaylist(
             @PathVariable("playlistId") Long playlistId,
             @PathVariable("songId") Long songId
     ) {
-        playlistService.addSong(playlistId,songId);
-        return ResponseEntity.
-                ok().
-                body(String.format("playlist with id: %d add song with id: %d success", playlistId, songId));
+        ;
+        return ResponseEntity.ok().body(playlistService.addSong(playlistId,songId));
     }
 
-    @GetMapping("/admin/{playlistId}/remove/{songId}")
+    @GetMapping("/{playlistId}/remove/song/{songId}")
     @Operation(description = "call this api to remove playlist " +
             "when undo like playlist or remove playlist")
-    public ResponseEntity<String> removePlaylist(
+    public ResponseEntity<?> removeSongFromPlaylist(
             @PathVariable("playlistId") Long playlistId,
             @PathVariable("songId") Long songId
     ) {
         playlistService.removeSong(playlistId,songId);
-        return ResponseEntity.
-                ok().
-                body(String.format("playlist with id: %d remove song with id: %d success", playlistId, songId));
+        return ResponseEntity.ok().body(playlistService.removeSong(playlistId,songId));
     }
 
 

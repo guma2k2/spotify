@@ -35,6 +35,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 @Service
 @AllArgsConstructor
@@ -173,47 +174,71 @@ public class SongService {
                 .build();
         return albumRepository.save(album);
     }
-    public SongDTO saveSong(SongRequest request) {
+    public SongResponse saveSong(SongRequest request) {
         if(checkSongExitByName(request.name().trim())) {
-            throw new ResourceNotFoundException(String.format("song with name: [%s] not found",request.name()));
+            throw new DuplicateResourceException(String.format("song with name: [%s] existed",request.name()));
         }
 
-        List<User> users = new ArrayList<>();
-        for(Long userId : request.usersId()){
-            User user = getUserByUserId(userId);
-            users.add(user);
-        }
+        User user = getUserByUserId(request.usersId());
 
         Song underSave = new Song();
         underSave.setName(request.name());
         underSave.setLyric(request.lyric());
+        underSave.setLabel(request.label());
         underSave.setGenre(Genre.valueOf(request.genre()));
         underSave.setName(request.name());
         underSave.setDuration(request.duration());
-        underSave.setReleaseDate(LocalDateTime.now());
-
+        underSave.setReleaseDate(LocalDateTime.of(request.year(),request.month(),request.day(),0,0));
         Song savedSong = songRepository.save(underSave);
 
         Album album = triggerCreateSingleAlbumWhenSaveSong(savedSong);
 
-        users.get(0).addAlbum(album);
+        user.addAlbum(album);
 
-        users.forEach(user -> user.addSong(underSave));
+        user.addSong(underSave);
         album.addSong(underSave);
-        userRepository.saveAllAndFlush(users);
-        return songMapper.songToSongDTO(savedSong);
+        userRepository.saveAndFlush(user);
+        return getById(savedSong.getId());
     }
-    public SongDTO updateSong(SongRequest request, Long songId) {
+    public SongResponse updateSong(SongRequest request, Long songId) {
         Song underUpdate = get(songId);
         if(checkSongExitByName(request.name().trim()) && !underUpdate.getName().equals(request.name())) {
             throw new DuplicateResourceException(String.format("song with name: [%s] exited",request.name()));
         }
         underUpdate.setName(request.name());
+        underUpdate.setLabel(request.label());
+        underUpdate.setName(request.name());
         underUpdate.setLyric(request.lyric());
         underUpdate.setGenre(Genre.valueOf(request.genre()));
         underUpdate.setDuration(request.duration());
-        return songMapper.songToSongDTO(songRepository.save(underUpdate));
+        underUpdate.setReleaseDate(LocalDateTime.of(request.year(),request.month(),request.day(),0,0));
+        return getById(songRepository.save(underUpdate).getId());
     }
+    public SongResponse addUser(Long songId, Long userId) {
+        Song song = songRepository.findByIdReturnUsersAlbums(songId).orElseThrow();
+        Set<User> userSet = song.getUsers();
+        User user = getUserByUserId(userId);
+        if(!userSet.contains(user)){
+            user.addSong(song);
+            userRepository.saveAndFlush(user);
+        }
+        return getById(songId);
+    }
+
+    public SongResponse removeUser(Long songId, Long userId) {
+        Song song = songRepository.findByIdReturnUsersAlbums(songId).orElseThrow();
+        Set<User> userSet = song.getUsers();
+        User user = userRepository.
+                findByIdReturnRoleAndSongs(userId).
+                orElseThrow(() ->
+                        new ResourceNotFoundException(String.format("user with id: %d not found",userId))) ;
+        if(userSet.contains(user)){
+            user.removeSong(song);
+            userRepository.saveAndFlush(user);
+        }
+        return getById(songId);
+    }
+
     @Transactional
     public void updateStatus(Long songId){
         Song underUpdate = get(songId);

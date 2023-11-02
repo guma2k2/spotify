@@ -72,7 +72,7 @@ public class AlbumService {
         saveAlbumThumbnail(thumbnail, albumId);
     }
 
-    public void saveAlbumImage( MultipartFile image, Long albumId) {
+    public AlbumDTO saveAlbumImage( MultipartFile image, Long albumId) {
         Album underSave = get(albumId);
         if (!image.isEmpty()) {
             String fileName = StringUtils.cleanPath(image.getOriginalFilename());
@@ -90,9 +90,10 @@ public class AlbumService {
             }
         }
         albumRepository.save(underSave);
+        return findById(albumId);
     }
 
-    public void saveAlbumThumbnail( MultipartFile thumbnail, Long albumId) {
+    public AlbumDTO saveAlbumThumbnail( MultipartFile thumbnail, Long albumId) {
         Album underSave = get(albumId);
         if (!thumbnail.isEmpty()) {
             String fileName = StringUtils.cleanPath(thumbnail.getOriginalFilename());
@@ -110,6 +111,7 @@ public class AlbumService {
             }
         }
         albumRepository.save(underSave);
+        return findById(albumId);
     }
 
     public Album get(Long albumId) {
@@ -144,22 +146,22 @@ public class AlbumService {
 
 
     @Transactional
-    public Long addAlbum(Long userId, AlbumRequest request) {
+    public AlbumDTO addAlbum(Long userId, AlbumRequest request) {
         User user = getUserByUserId(userId);
         Album album = albumRequestMapper.dtoToEntity(request);
         album.setReleaseDate(LocalDateTime.now());
         album.setUser(user);
         Album savedAlbum = albumRepository.save(album);
-        return savedAlbum.getId();
+        return findById(savedAlbum.getId());
     }
 
-    public Long updateAlbum(Long albumId, AlbumRequest request) {
+    public AlbumDTO updateAlbum(Long albumId, AlbumRequest request) {
         Album album = get(albumId);
         if(!request.name().equals(album.getName())){
             album.setName(request.name());
         }
-        Album updatedAlbum = albumRepository.save(album);
-        return updatedAlbum.getId();
+        albumRepository.save(album);
+        return findById(albumId);
     }
 
     public List<AlbumResponse> findAlbumByUserId(Long userId) {

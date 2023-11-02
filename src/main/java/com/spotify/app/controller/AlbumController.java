@@ -33,8 +33,7 @@ public class AlbumController {
             @RequestParam("image") MultipartFile image,
             @PathVariable("albumId") Long songId
     )  {
-        albumService.saveAlbumImage(image, songId);
-        return ResponseEntity.ok().body("Save image of song success");
+        return ResponseEntity.ok().body(albumService.saveAlbumImage(image, songId));
     }
 
     @PostMapping("/upload/thumbnail/{albumId}")
@@ -42,9 +41,7 @@ public class AlbumController {
             @RequestParam("thumbnail") MultipartFile thumbnail,
             @PathVariable("albumId") Long songId
     )  {
-
-        albumService.saveAlbumThumbnail(thumbnail, songId);
-        return ResponseEntity.ok().body("Save image of song success");
+        return ResponseEntity.ok().body(albumService.saveAlbumThumbnail(thumbnail, songId));
     }
 
 
@@ -76,8 +73,7 @@ public class AlbumController {
             @PathVariable("userID") Long userID,
             @Valid @RequestBody AlbumRequest request
     ) {
-        Long albumId = albumService.addAlbum(userID,request);
-        return ResponseEntity.ok().body(albumId);
+        return ResponseEntity.ok().body(albumService.addAlbum(userID,request));
     }
 
 

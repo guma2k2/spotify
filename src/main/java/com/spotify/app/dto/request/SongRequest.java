@@ -1,9 +1,6 @@
 package com.spotify.app.dto.request;
 
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 
 public record SongRequest (@NotBlank
                            @Size(max = 50, message = "name of song must not be greater than 50 char")
@@ -18,8 +15,14 @@ public record SongRequest (@NotBlank
                            @NotBlank
                            String lyric,
 
+                           int day,
+                           int month,
+                           int year,
+                           @NotBlank
+                           String label,
+
                            @NotEmpty
-                           Long[] usersId
+                           Long usersId
 
 ) {
 }

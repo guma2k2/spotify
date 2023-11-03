@@ -2,25 +2,19 @@ package com.spotify.app.user;
 
 import com.spotify.app.AbstractTestcontainers;
 import com.spotify.app.TestConfig;
-import com.spotify.app.enums.Gender;
 import com.spotify.app.enums.Genre;
-import com.spotify.app.mapper.UserMapper;
 import com.spotify.app.model.Role;
 import com.spotify.app.model.Song;
 import com.spotify.app.model.User;
 import com.spotify.app.repository.RoleRepository;
 import com.spotify.app.repository.UserRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.data.domain.Pageable;
-
 import java.time.LocalDateTime;
-
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
@@ -35,15 +29,6 @@ public class UserRepositoryTest extends AbstractTestcontainers {
     private UserRepository underTest ;
     @Autowired
     private RoleRepository roleRepository;
-
-    @Autowired
-    private UserMapper userMapper;
-
-    @BeforeEach
-    public void setUp() {
-        underTest.deleteAll();
-    }
-
 
     @Test
     @DisplayName("Test create user")
@@ -138,7 +123,7 @@ public class UserRepositoryTest extends AbstractTestcontainers {
                 .role(role)
                 .build();
         user.addSong(song);
-        
+
         underTest.save(user);
 
         // when
@@ -159,13 +144,8 @@ public class UserRepositoryTest extends AbstractTestcontainers {
 
         //when
         var actual = underTest.findById(userid);
-
+        actual.get().isAccountNonExpired();
         // then
         assertThat(actual).isNotPresent();
     }
-
-
-
-
-
 }

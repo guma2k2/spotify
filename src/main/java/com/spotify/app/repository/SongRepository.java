@@ -23,7 +23,7 @@ public interface SongRepository extends JpaRepository<Song, Long> {
             LEFT JOIN FETCH s.albumSongList
             WHERE s.id = :songId
             """)
-    Optional<Song> findByIdReturnUsersAlbums( @Param("songId") Long songId ) ;
+    Optional<Song> findByIdReturnUsersAlbumsReviews( @Param("songId") Long songId ) ;
 
 
 
@@ -46,15 +46,6 @@ public interface SongRepository extends JpaRepository<Song, Long> {
             """)
     Page<Song> findByNameFullText(@Param("name") String name, Pageable pageable);
 
-
-
-    @Query("""
-            UPDATE Song s
-            SET s.status = :status
-            WHERE s.id = :songId
-            """)
-    @Modifying
-    void updateStatus(@Param("songId") Long songId, @Param("status") boolean status);
 
 
     @Query("""

@@ -80,7 +80,7 @@ public class AlbumController {
     @PutMapping("/update/{albumId}")
     public ResponseEntity<?> updateAlbum(
         @PathVariable("albumId") Long albumId,
-        @RequestBody AlbumRequest request
+        @Valid @RequestBody AlbumRequest request
     ) {
         return ResponseEntity.ok().body(albumService.updateAlbum(albumId, request));
     }

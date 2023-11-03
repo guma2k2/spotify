@@ -61,7 +61,7 @@ public class SongController {
     @PostMapping("/save")
     @Operation(description = "Save song, format of genre: {POP, CLASSICAL, Rock, Hip_Hop}")
     public ResponseEntity<?> saveSong(
-            @Valid SongRequest request
+            @Valid @RequestBody SongRequest request
     )  {
         return ResponseEntity.ok().body(songService.saveSong(request));
     }
@@ -69,7 +69,7 @@ public class SongController {
     @PutMapping("/update/{songId}")
     @Operation(description = "Update song by id, format of genre: {POP, CLASSICAL, Rock, Hip_Hop}")
     public ResponseEntity<?> updateSong(
-            @Valid SongRequest request,
+            @Valid @RequestBody SongRequest request,
             @PathVariable("songId") Long songId
     )  {
         return ResponseEntity.ok().body(songService.updateSong(request, songId));
@@ -80,8 +80,7 @@ public class SongController {
     public ResponseEntity<?> updateStatus(
             @PathVariable("songId") Long songId
     )  {
-        songService.updateStatus(songId);
-        return ResponseEntity.ok().body("update status of song success");
+        return ResponseEntity.ok().body(songService.updateStatus(songId));
     }
 
     @GetMapping("/{songId}/add/{userId}")

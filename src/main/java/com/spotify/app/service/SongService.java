@@ -1,12 +1,12 @@
 package com.spotify.app.service;
 import com.spotify.app.dto.SongDTO;
 import com.spotify.app.dto.request.SongRequest;
+import com.spotify.app.dto.response.ReviewResponse;
 import com.spotify.app.dto.response.SongResponse;
 import com.spotify.app.dto.response.SongSearchResponse;
 import com.spotify.app.enums.Genre;
 import com.spotify.app.exception.DuplicateResourceException;
-import com.spotify.app.mapper.SongMapper;
-import com.spotify.app.mapper.SongSearchResponseMapper;
+import com.spotify.app.mapper.*;
 import com.spotify.app.model.*;
 import com.spotify.app.repository.*;
 import jakarta.transaction.Transactional;
@@ -22,8 +22,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import com.spotify.app.dto.response.AlbumResponse;
 import com.spotify.app.exception.ResourceNotFoundException;
-import com.spotify.app.mapper.AlbumResponseMapper;
-import com.spotify.app.mapper.SongResponseMapper;
 import com.spotify.app.utility.FileUploadUtil;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -53,6 +51,10 @@ public class SongService {
     private final S3Service s3Service;
     private final SongSearchResponseMapper songSearchResponseMapper;
 
+    private final ReviewService reviewService ;
+
+    private final ReviewResponseMapper reviewResponseMapper;
+
     private final RestTemplate restTemplate;
     public Song get(Long songId) {
         return songRepository.findById(songId).orElseThrow(() ->
@@ -60,14 +62,15 @@ public class SongService {
     }
 
     public SongResponse getById(Long songId) {
-        Song song = songRepository.findByIdReturnUsersAlbums(songId).orElseThrow() ;
+        Song song = songRepository.findByIdReturnUsersAlbumsReviews(songId).orElseThrow() ;
 
         if(song.getAlbumSongList().isEmpty()) {
-            return songResponseMapper.songToSongResponse(song,null,null);
+            return songResponseMapper.songToSongResponse(song,null,null,null);
         }
         List<Album> albums = albumSongRepository.findBySongId(songId).stream().map(AlbumSong::getAlbum).toList();
         List<AlbumResponse> albumResponses = albumResponseMapper.albumsToAlbumsResponse(albums);
-        return songResponseMapper.songToSongResponse(song, albumResponses,null);
+        List<ReviewResponse> reviewResponses = reviewService.findBySongId(songId);
+        return songResponseMapper.songToSongResponse(song, albumResponses,reviewResponses,null);
     }
 
 
@@ -123,7 +126,7 @@ public class SongService {
 
         String createdOn = formattedCreatedOnWithCorrectPattern(playlistSong);
 
-        return songResponseMapper.songToSongResponse(song, albumResponses, createdOn);
+        return songResponseMapper.songToSongResponse(song, albumResponses, null, createdOn);
     }
 
     public List<SongDTO> findByPlaylistId(Long playlistId) {
@@ -148,14 +151,14 @@ public class SongService {
 
     private SongResponse songToSongResponse(Song song) {
         if(song.getAlbumSongList().isEmpty()) {
-            return songResponseMapper.songToSongResponse(song,null,null);
+            return songResponseMapper.songToSongResponse(song,null,null,null);
         }
         List<Album> albums = albumSongRepository.
                 findBySongId(song.getId()).stream().map(AlbumSong::getAlbum).toList();
 
         List<AlbumResponse> albumResponses = albumResponseMapper.albumsToAlbumsResponse(albums);
 
-        return  songResponseMapper.songToSongResponse(song,albumResponses,null);
+        return  songResponseMapper.songToSongResponse(song,albumResponses,null,null);
     }
     public User getUserByUserId(Long userId) {
         return userRepository.
@@ -180,6 +183,7 @@ public class SongService {
         if(checkSongExitByName(request.name().trim())) {
             throw new DuplicateResourceException(String.format("song with name: [%s] existed",request.name()));
         }
+        log.info(String.valueOf(request));
 
         User user = getUserByUserId(request.usersId());
 
@@ -203,6 +207,7 @@ public class SongService {
         return getById(savedSong.getId());
     }
     public SongResponse updateSong(SongRequest request, Long songId) {
+        log.info(String.valueOf(request));
         Song underUpdate = get(songId);
         if(checkSongExitByName(request.name().trim()) && !underUpdate.getName().equals(request.name())) {
             throw new DuplicateResourceException(String.format("song with name: [%s] exited",request.name()));
@@ -217,7 +222,7 @@ public class SongService {
         return getById(songRepository.save(underUpdate).getId());
     }
     public SongResponse addUser(Long songId, Long userId) {
-        Song song = songRepository.findByIdReturnUsersAlbums(songId).orElseThrow();
+        Song song = songRepository.findByIdReturnUsersAlbumsReviews(songId).orElseThrow();
         Set<User> userSet = song.getUsers();
         User user = getUserByUserId(userId);
         if(!userSet.contains(user)){
@@ -228,7 +233,7 @@ public class SongService {
     }
 
     public SongResponse removeUser(Long songId, Long userId) {
-        Song song = songRepository.findByIdReturnUsersAlbums(songId).orElseThrow();
+        Song song = songRepository.findByIdReturnUsersAlbumsReviews(songId).orElseThrow();
         Set<User> userSet = song.getUsers();
         User user = userRepository.
                 findByIdReturnRoleAndSongs(userId).
@@ -242,9 +247,11 @@ public class SongService {
     }
 
     @Transactional
-    public void updateStatus(Long songId){
+    public SongResponse updateStatus(Long songId){
         Song underUpdate = get(songId);
-        songRepository.updateStatus(songId,!underUpdate.isStatus());
+        underUpdate.setStatus(!underUpdate.isStatus());
+        songRepository.saveAndFlush(underUpdate);
+        return getById(songId);
     }
 
     public List<SongResponse> findBySentiment(String sentiment) {

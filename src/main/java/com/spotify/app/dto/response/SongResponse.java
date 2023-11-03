@@ -18,5 +18,7 @@ public record SongResponse(Long id,
                            boolean status,
                            String label,
                            Set<UserNoAssociationResponse> users,
-                           List<AlbumResponse> albums) {
+                           List<AlbumResponse> albums,
+                           List<ReviewResponse> reviews
+) {
 }

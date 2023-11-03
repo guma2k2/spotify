@@ -63,6 +63,10 @@ public class Song {
     @Builder.Default
     private List<AlbumSong> albumSongList = new ArrayList<>();
 
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "song")
+    @Builder.Default
+    private List<Review> reviews = new ArrayList<>();
+
     @Transient
     public String getAudioPath() {
         String baseUrl = FileUploadUtil.baseUrl;

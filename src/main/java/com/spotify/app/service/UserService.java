@@ -44,22 +44,8 @@ public class UserService {
     private final AlbumService albumService;
     private final PlaylistService playlistService;
     private final RoleService roleService;
-    private final S3Service s3Service;
-    private final PlaylistSongService playlistSongService;
     private final int userPerPage = 10 ;
-
-
-
-
-    public boolean checkCurrentUserIsLikedTargetSong(Long userId, Long songId){
-        // find playlist by name and userId
-        Playlist playlist = playlistService.findByNameAndUserId(userId);
-
-        // find song by playlist and song
-        Song song =  playlistSongService.findByPlaylistIdAndSongId(playlist.getId(),songId);
-
-        return song != null;
-    }
+    //    private final S3Service s3Service;
 
 
     public UserDTO findByIdReturnRoleAndSongs(Long userId) {
@@ -200,8 +186,7 @@ public class UserService {
 
     @Transactional
     public List<PlaylistResponse> addPlaylist(Long userId, Long playlistId) {
-
-        User user = get(userId);
+        User user = userRepository.findById(userId).orElseThrow();
 
         Playlist playlist = playlistService.get(playlistId);
 
@@ -243,7 +228,7 @@ public class UserService {
     private List<SongResponse> convertSongsToSongResponses(Set<Song> songs) {
         return songs.stream()
                 .map(song ->
-                        songResponseMapper.songToSongResponse(song,null,null))
+                        songResponseMapper.songToSongResponse(song,null,null,null))
                 .toList();
     }
 

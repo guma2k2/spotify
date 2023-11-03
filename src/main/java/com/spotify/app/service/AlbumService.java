@@ -58,7 +58,7 @@ public class AlbumService {
         List<Song> songs = albumSongs.stream().map(AlbumSong::getSong).collect(Collectors.toList());
 
         // Map Song to Song DTO
-        List<SongResponse> songResponses = songs.stream().map(song -> SongResponseMapper.INSTANCE.songToSongResponse(song,null,null)).toList();
+        List<SongResponse> songResponses = songs.stream().map(song -> SongResponseMapper.INSTANCE.songToSongResponse(song,null,null,null)).toList();
 
         return albumMapper.albumToAlbumDTO(album, songResponses, songCount, totalTime);
     }

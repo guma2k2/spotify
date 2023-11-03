@@ -124,12 +124,6 @@ public class UserController {
         return userService.findByIdReturnSongsAlbums(userId);
     }
 
-    @GetMapping("/{userId}/is/liked/{songId}")
-    public ResponseEntity<Boolean> checkCurrentUserIsLikedTargetSong(@PathVariable("userId") Long userId,
-                                                                     @PathVariable("songId") Long songId) {
-        boolean check = userService.checkCurrentUserIsLikedTargetSong(userId, songId);
-        return ResponseEntity.ok().body(check) ;
-    }
     @GetMapping("/find/artist/by/{userName}")
     public List<UserResponse> findAllArtistByUserName(
             @PathVariable("userName") String userName

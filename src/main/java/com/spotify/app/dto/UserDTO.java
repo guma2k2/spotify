@@ -10,6 +10,7 @@ public record UserDTO (Long id,
                        String fullName,
                        String email,
                        Gender gender,
+                       boolean status,
                        RoleDTO role,
                        String photoImagePath,
                        Set<SongDTO> songs

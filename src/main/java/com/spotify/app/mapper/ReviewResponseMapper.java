@@ -17,7 +17,8 @@ public interface ReviewResponseMapper {
     ReviewResponseMapper INSTANCE = Mappers.getMapper(ReviewResponseMapper.class);
 
     @Mapping(target = "createdAt", expression = "java(getCreatedAt(review))" , dateFormat = " MM/dd/yyyy hh:mm:ss")
-    ReviewResponse reviewToReviewResponse(Review review);
+    @Mapping(target = "label", source = "label")
+    ReviewResponse reviewToReviewResponse(Review review,String label);
 
     List<ReviewResponse> reviewsToReviewResponses(List<Review> reviews);
 

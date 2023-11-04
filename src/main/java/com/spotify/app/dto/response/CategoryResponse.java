@@ -1,4 +1,4 @@
 package com.spotify.app.dto.response;
 
-public record CategoryResponse(Integer id, String title, String imagePath, String thumbnailPath, String categoryParentTitle) {
+public record CategoryResponse(Integer id, String title, String imagePath, String thumbnailPath, String categoryParentTitle,boolean status) {
 }

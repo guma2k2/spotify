@@ -131,6 +131,13 @@ public class UserController {
         return userService.findAllArtistByUserName(userName);
     }
 
+    @PutMapping("/admin/update/status/{userId}")
+    public ResponseEntity<?> updateStatus(
+            @PathVariable("userId") Long userId
+    ) {
+        return ResponseEntity.ok().body(userService.updateStatus(userId));
+    }
+
     //////////////////////////////////////// S3 SERVICE/////////////////////////////////////
 
 //    @GetMapping(

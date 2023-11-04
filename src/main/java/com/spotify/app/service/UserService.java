@@ -258,6 +258,14 @@ public class UserService {
         userRepository.save(user);
     }
 
+    public String updateStatus(Long userId) {
+        User user = get(userId);
+        user.setStatus(!user.isStatus());
+        userRepository.saveAndFlush(user);
+        String status = !user.isStatus() ? "enabled" : "disabled";
+        return String.format("user with id: %d is ".concat(status),userId);
+    }
+
 //    public void uploadPhoto(MultipartFile photo, Long userId) {
 //        User user = get(userId);
 //        if (!photo.isEmpty()) {

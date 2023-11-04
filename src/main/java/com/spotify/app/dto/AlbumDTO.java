@@ -14,5 +14,6 @@ public record AlbumDTO(Long id,
                        String thumbnailPath,
                        int songCount,
                        String totalTime,
+                       boolean status,
                        List<SongResponse> songs) {
 }

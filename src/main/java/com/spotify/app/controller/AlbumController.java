@@ -85,6 +85,18 @@ public class AlbumController {
         return ResponseEntity.ok().body(albumService.updateAlbum(albumId, request));
     }
 
+    @PutMapping("/update/status/{albumId}")
+    public ResponseEntity<?> updateStatusAlbum(
+            @PathVariable("albumId") Long albumId
+    ) {
+        return ResponseEntity.ok().body(albumService.updateStatusAlbum(albumId));
+    }
+
+    @GetMapping("/admin/{id}")
+    public AlbumResponse findByIdByAdmin(@PathVariable("id") Long id) {
+        return albumService.findByIdByAdmin(id);
+    }
+
 
     //////////////////////////////////////////////// S3 SERVICE ////////////////////////////////////////////////////////
 

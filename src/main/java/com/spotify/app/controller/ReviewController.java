@@ -24,5 +24,19 @@ public class ReviewController {
         return ResponseEntity.ok().body(reviewService.createReview(userId,songId,request));
     }
 
+    @PutMapping("/admin/update/status/{reviewId}")
+    public ResponseEntity<?> updateStatus(
+            @PathVariable("reviewId") Long reviewId
+    ) {
+        return ResponseEntity.ok().body(reviewService.updateStatus(reviewId));
+    }
+
+    @GetMapping
+    public ResponseEntity<?> findAll() {
+        return ResponseEntity.ok().body(reviewService.findAll());
+    }
+
+
+
 
 }

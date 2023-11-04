@@ -32,6 +32,8 @@ public class Album {
     @Column(columnDefinition = "LONGBLOB")
     private String thumbnail;
 
+    private boolean status;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     @JsonBackReference
@@ -48,7 +50,7 @@ public class Album {
         if(image!=null) {
             return baseUrl+"/album-images/" + this.id + "/" + image ;
         }
-        return FileUploadUtil.baseUrlFail;
+        return FileUploadUtil.baseUrlPlaylistImage;
     }
 
     @Transient
@@ -57,7 +59,7 @@ public class Album {
         if(thumbnail!=null) {
             return baseUrl+"/album-thumbnails/" + this.id + "/" + thumbnail ;
         }
-        return FileUploadUtil.baseUrlFail;
+        return FileUploadUtil.baseUrlPlaylistImage;
     }
 
     public void addSong(Song song) {

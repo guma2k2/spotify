@@ -207,6 +207,14 @@ public class CategoryService {
         categoryRepository.save(underSave);
     }
 
+    public String updateStatusCategory(Integer categoryId) {
+        Category category = get(categoryId);
+        category.setStatus(!category.isStatus());
+        categoryRepository.saveAndFlush(category);
+        String status = !category.isStatus() ? "enabled" : "disabled";
+        return String.format("category with id: %d is ".concat(status),categoryId);
+    }
+
     ///////////////////////////////////////////// S3 SERVICE //////////////////////////////////////////////////////
 
 //    public byte[] getCategoryImage(Integer categoryId) {

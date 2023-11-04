@@ -26,6 +26,8 @@ public class Category {
 
     private String thumbnail;
 
+    private boolean status;
+
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "paren_id")

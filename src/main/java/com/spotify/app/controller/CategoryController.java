@@ -57,6 +57,13 @@ public class CategoryController {
         return ResponseEntity.ok().body(String.format("update category %d success", categoryId));
     }
 
+    @PutMapping("/admin/update/status/{categoryId}")
+    public ResponseEntity<?> updateStatusCategory(
+            @PathVariable("categoryId") Integer categoryId
+    ) {
+        return ResponseEntity.ok().body(categoryService.updateStatusCategory(categoryId));
+    }
+
     @PostMapping("/admin/save")
     @Operation(description = "Save file image end with `png` only")
     public ResponseEntity<?> addCategory(

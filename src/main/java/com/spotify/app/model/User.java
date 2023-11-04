@@ -40,6 +40,8 @@ public class User implements UserDetails {
     private LocalDateTime dateOfBrith;
 
     private String photo;
+    @Builder.Default
+    private boolean status = true;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "role_id")
@@ -71,7 +73,6 @@ public class User implements UserDetails {
     private List<PlaylistUser> playlistUserList = new ArrayList<>();
 
 
-
     @OneToMany(cascade = CascadeType.ALL,orphanRemoval = true, mappedBy = "followedUser")
     @Builder.Default
     private Set<Follower> followingList = new HashSet<>();
@@ -97,7 +98,7 @@ public class User implements UserDetails {
         if(photo!=null) {
             return baseUrl+"/user-photos/" + this.id +"/" + photo ;
         }
-        return FileUploadUtil.baseUrlFail;
+        return FileUploadUtil.baseUrlUserDefault;
     }
 
 
@@ -158,7 +159,7 @@ public class User implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return status;
     }
 
     public User(Long id) {

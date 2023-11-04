@@ -11,8 +11,6 @@ import java.util.List;
 @Repository
 public interface ReviewRepository extends JpaRepository<Review,Long> {
 
-
-
     @Query("""
             SELECT r
             FROM Review r
@@ -21,5 +19,14 @@ public interface ReviewRepository extends JpaRepository<Review,Long> {
             WHERE s.id = :songId
             """)
     List<Review> findBySongId(@Param("songId") Long songId);
+
+
+    @Query("""
+            SELECT r
+            FROM Review r
+            LEFT JOIN FETCH r.user u
+            LEFT JOIN FETCH r.song s
+            """)
+    List<Review> findAllReturnUser();
 
 }

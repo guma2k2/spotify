@@ -27,6 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -205,7 +206,19 @@ public class AlbumService {
         return albumResponseMapper.albumsToAlbumsResponse(albums.getContent());
     }
 
+    public AlbumResponse findByIdByAdmin(Long albumId) {
+        Album album = albumRepository.findByIdReturnUser(albumId).orElseThrow(() ->
+                new ResourceNotFoundException(String.format("album with id [%d] not found",albumId)));
+        return albumResponseMapper.albumToAlbumResponse(album);
+    }
 
+    public String updateStatusAlbum(Long albumId) {
+        Album album = get(albumId);
+        album.setStatus(!album.isStatus());
+        albumRepository.saveAndFlush(album);
+        String status = !album.isStatus() ? "enabled" : "disabled";
+        return String.format("album with id: %d is ".concat(status),albumId);
+    }
 
 
 //    public void saveAlbumImage( MultipartFile image, Long albumId) {

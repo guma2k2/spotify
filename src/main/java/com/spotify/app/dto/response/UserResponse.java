@@ -10,6 +10,7 @@ public record UserResponse(Long id,
                            String email,
                            Gender gender,
                            String photoImagePath,
+                           boolean status,
                            RoleDTO role
 ){
 }

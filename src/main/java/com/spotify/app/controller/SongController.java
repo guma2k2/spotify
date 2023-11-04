@@ -12,8 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -35,7 +33,7 @@ public class SongController {
     public ResponseEntity<?> uploadAudio(
             @RequestParam("audio") MultipartFile audio,
             @PathVariable("songId") Long songId
-    ) throws IOException {
+    ) {
         return ResponseEntity.ok().body(songService.saveSongAudio(audio, songId));
     }
 
@@ -75,8 +73,8 @@ public class SongController {
         return ResponseEntity.ok().body(songService.updateSong(request, songId));
     }
 
-    @PutMapping("/status/{songId}")
-//    @PreAuthorize("hasAnyRole('ARTIST', 'ADMIN')")
+    @PutMapping("/update/status/{songId}")
+    @PreAuthorize("hasAnyRole('ARTIST', 'ADMIN')")
     public ResponseEntity<?> updateStatus(
             @PathVariable("songId") Long songId
     )  {
@@ -84,7 +82,7 @@ public class SongController {
     }
 
     @GetMapping("/{songId}/add/{userId}")
-//    @PreAuthorize("hasRole('ARTIST')")
+    @PreAuthorize("hasRole('ARTIST')")
     public ResponseEntity<?> addUser(
             @PathVariable("songId")Long songId,
             @PathVariable("userId")Long userId
@@ -93,7 +91,7 @@ public class SongController {
     }
 
     @GetMapping("/{songId}/remove/{userId}")
-//    @PreAuthorize("hasRole('ARTIST')")
+    @PreAuthorize("hasRole('ARTIST')")
     public ResponseEntity<?> removeUser(
             @PathVariable("songId")Long songId,
             @PathVariable("userId")Long userId

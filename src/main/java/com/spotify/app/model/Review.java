@@ -34,4 +34,7 @@ public class Review {
     @Column(length = 300)
     private String content ;
 
+    @Builder.Default
+    private boolean status = true;
+
 }

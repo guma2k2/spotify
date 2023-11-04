@@ -8,6 +8,7 @@ public record SongSearchResponse(
         Long id,
         String name,
         String imagePath,
+        String audioPath,
         String duration,
         Set<UserNoAssociationResponse> users
 ) {

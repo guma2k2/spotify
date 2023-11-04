@@ -5,7 +5,9 @@ import java.util.Set;
 
 public record CategoryDTO(Integer id,
                           String title,
-                          String imagePath, String thumbnailPath,
+                          boolean status,
+                          String imagePath,
+                          String thumbnailPath,
                           Set<PlaylistResponse> playlists
 ) {
 }

@@ -6,6 +6,8 @@ public record ReviewResponse(
         Long id,
         UserNoAssociationResponse user,
         String createdAt,
-        String content
+        String content,
+        boolean status,
+        String label
 ) {
 }

@@ -53,7 +53,6 @@ public class SongService {
 
     private final ReviewService reviewService ;
 
-    private final ReviewResponseMapper reviewResponseMapper;
 
     private final RestTemplate restTemplate;
     public Song get(Long songId) {
@@ -183,8 +182,6 @@ public class SongService {
         if(checkSongExitByName(request.name().trim())) {
             throw new DuplicateResourceException(String.format("song with name: [%s] existed",request.name()));
         }
-        log.info(String.valueOf(request));
-
         User user = getUserByUserId(request.usersId());
 
         Song underSave = new Song();
@@ -207,7 +204,6 @@ public class SongService {
         return getById(savedSong.getId());
     }
     public SongResponse updateSong(SongRequest request, Long songId) {
-        log.info(String.valueOf(request));
         Song underUpdate = get(songId);
         if(checkSongExitByName(request.name().trim()) && !underUpdate.getName().equals(request.name())) {
             throw new DuplicateResourceException(String.format("song with name: [%s] exited",request.name()));

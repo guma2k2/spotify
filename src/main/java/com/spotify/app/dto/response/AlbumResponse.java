@@ -6,6 +6,7 @@ public record AlbumResponse(Long id,
                             String totalTime,
                             String imagePath,
                             String thumbnailPath,
+                            boolean status,
                             UserNoAssociationResponse user
 ) {
 }

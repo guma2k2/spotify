@@ -13,6 +13,7 @@ import java.nio.file.StandardCopyOption;
 @Slf4j
 public class FileUploadUtil {
 
+	public final static String baseUrlUserDefault = "https://thumbs.dreamstime.com/b/default-avatar-profile-icon-vector-social-media-user-image-182145777.jpg";
 	public final static String baseUrl = "http://localhost:8080" ;
 	public final static String baseUrlFail = "https://cdn.tgdd.vn/hoi-dap/580732/loi-404-not-found-la-gi-9-cach-khac-phuc-loi-404-not-5-800x450.jpg";
 	public final static String baseUrlImagePlaylistLikedSongs = "https://i.scdn.co/image/ab67706c0000da8470d229cb865e8d81cdce0889";

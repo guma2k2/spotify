@@ -112,7 +112,6 @@ public class PlaylistController {
             @PathVariable("playlistId") Long playlistId,
             @PathVariable("songId") Long songId
     ) {
-        ;
         return ResponseEntity.ok().body(playlistService.addSong(playlistId,songId));
     }
 

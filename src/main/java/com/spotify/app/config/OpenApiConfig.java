@@ -13,19 +13,19 @@ import org.springframework.context.annotation.Configuration;
 
 
 @Configuration
-@SecurityScheme(
-        name = "bearerAuth",
-        description = "JWT auth description",
-        scheme = "bearer",
-        type = SecuritySchemeType.HTTP,
-        bearerFormat = "JWT",
-        in = SecuritySchemeIn.HEADER
-)
-@OpenAPIDefinition(security = {
-        @SecurityRequirement(
-                name = "bearerAuth"
-        )
-})
+//@SecurityScheme(
+//        name = "bearerAuth",
+//        description = "JWT auth description",
+//        scheme = "bearer",
+//        type = SecuritySchemeType.HTTP,
+//        bearerFormat = "JWT",
+//        in = SecuritySchemeIn.HEADER
+//)
+//@OpenAPIDefinition(security = {
+//        @SecurityRequirement(
+//                name = "bearerAuth"
+//        )
+//})
 public class OpenApiConfig {
     @Bean
     public OpenAPI customOpenAPI() {

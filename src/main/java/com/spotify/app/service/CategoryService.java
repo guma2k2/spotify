@@ -46,7 +46,7 @@ public class CategoryService {
 
     public Set<CategoryDTO> listByParentId(Integer parentId) {
         Set<Category> categories = categoryRepository.listAllChildByParenId(parentId);
-        return CategoryMapper.INSTANCE.categoriesToCategoriesDTO(categories);
+        return categoryMapper.categoriesToCategoriesDTO(categories);
     }
 
     public Category get(Integer cateId) {
@@ -211,7 +211,7 @@ public class CategoryService {
         Category category = get(categoryId);
         category.setStatus(!category.isStatus());
         categoryRepository.saveAndFlush(category);
-        String status = !category.isStatus() ? "enabled" : "disabled";
+        String status = !category.isStatus() ? "disabled" : "enabled";
         return String.format("category with id: %d is ".concat(status),categoryId);
     }
 

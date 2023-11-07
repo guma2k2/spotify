@@ -11,6 +11,7 @@ public record UserResponse(Long id,
                            Gender gender,
                            String photoImagePath,
                            boolean status,
+                           String dateOfBrith,
                            RoleDTO role
 ){
 }

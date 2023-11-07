@@ -1,6 +1,7 @@
 package com.spotify.app.service;
 
 import com.spotify.app.dto.UserDTO;
+import com.spotify.app.dto.request.UserRequest;
 import com.spotify.app.dto.response.UserFollowingsPlaylists;
 import com.spotify.app.dto.response.*;
 import com.spotify.app.enums.Gender;
@@ -23,6 +24,8 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -104,28 +107,25 @@ public class UserService {
         return userResponseMapper.usersToUsersResponse(usersPage.getContent());
     }
 
-    public UserResponse addUser(String firstName,
-                                String lastName,
-                                String email,
-                                String password,
-                                String roleName,
-                                String gender) {
-
-        if(checkUserExitByEmail(email)) {
-            throw new DuplicateResourceException(String.format("email : [%s] is registered", email));
+    public UserResponse addUser(UserRequest request) {
+        log.info(String.valueOf(request));
+        if(checkUserExitByEmail(request.email())) {
+            throw new DuplicateResourceException(String.format("email : [%s] is registered", request.email()));
         }
         // get role by roleName
-        Role role = roleService.findByName(roleName);
+        Role role = roleService.findByName(request.roleName());
 
         User underSave = User.builder()
-                .firstName(firstName)
-                .lastName(lastName)
-                .email(email)
-                .password(passwordEncoder.encode(password))
+                .firstName(request.firstName())
+                .lastName(request.lastName())
+                .email(request.email())
+                .dateOfBrith(LocalDateTime.of(request.year(),request.month(),request.day(),0,0))
+                .password(passwordEncoder.encode(request.password()))
+                .createdOn(LocalDateTime.now())
                 .role(role)
                 .build();
         User savedUser = userRepository.save(underSave);
-        underSave.setGender(Gender.valueOf(gender));
+        underSave.setGender(Gender.valueOf(request.gender()));
 
         // convert user to userResponseDTO
         UserResponse userResponseDTO=  userResponseMapper.userToUserResponse(savedUser) ;
@@ -137,32 +137,25 @@ public class UserService {
         return userResponseDTO;
     }
 
-    public UserResponse updateUser(String firstName,
-                                   String lastName,
-                                   String email,
-                                   String password,
-                                   String roleName,
-                                   Long userId,
-                                   String gender
-    ) {
+    public UserResponse updateUser(UserRequest request, Long userId) {
         User underUpdate = get(userId);
 
-        if(checkUserExitByEmail(email) && !underUpdate.getEmail().equals(email)) {
-            throw new DuplicateResourceException(String.format("email : [%s] is existed", email));
+        if(checkUserExitByEmail(request.email()) && !underUpdate.getEmail().equals(request.email())) {
+            throw new DuplicateResourceException(String.format("email : [%s] is existed", request.email()));
         }
 
-        if(password != null) {
-            underUpdate.setPassword(passwordEncoder.encode(password));
+        if(request.password() != null) {
+            underUpdate.setPassword(passwordEncoder.encode(request.password()));
         }
 
-        underUpdate.setFirstName(firstName);
-        underUpdate.setLastName(lastName);
-        underUpdate.setEmail(email);
-
-        Role role = roleService.findByName(roleName);
+        underUpdate.setFirstName(request.firstName());
+        underUpdate.setLastName(request.lastName());
+        underUpdate.setEmail(request.email());
+        underUpdate.setDateOfBrith(LocalDateTime.of(request.year(),request.month(),request.day(),0,0));
+        Role role = roleService.findByName(request.roleName());
 
         underUpdate.setRole(role);
-        underUpdate.setGender(Gender.valueOf(gender));
+        underUpdate.setGender(Gender.valueOf(request.gender()));
 
         return userResponseMapper.userToUserResponse(userRepository.save(underUpdate)) ;
     }
@@ -262,8 +255,13 @@ public class UserService {
         User user = get(userId);
         user.setStatus(!user.isStatus());
         userRepository.saveAndFlush(user);
-        String status = !user.isStatus() ? "enabled" : "disabled";
+        String status = !user.isStatus() ? "disabled" : "enabled";
         return String.format("user with id: %d is ".concat(status),userId);
+    }
+
+    public LocalDateTime stringToLocalDateTime(String date) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy hh:mm:ss");
+        return LocalDateTime.parse(date, formatter);
     }
 
 //    public void uploadPhoto(MultipartFile photo, Long userId) {

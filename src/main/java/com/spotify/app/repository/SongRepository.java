@@ -33,7 +33,7 @@ public interface SongRepository extends JpaRepository<Song, Long> {
             FROM Song s
             LEFT JOIN FETCH s.users u
             LEFT JOIN FETCH s.albumSongList
-            WHERE s.label = :label
+            WHERE s.label = :label AND s.status = true
             """)
     List<Song> findByLabelReturnUsersAlbums( @Param("label") String label) ;
 
@@ -42,7 +42,7 @@ public interface SongRepository extends JpaRepository<Song, Long> {
             FROM Song s
             LEFT JOIN FETCH s.users
             LEFT JOIN FETCH s.albumSongList
-            WHERE s.name LIKE %:name%
+            WHERE s.name LIKE %:name% AND s.status = true
             """)
     Page<Song> findByNameFullText(@Param("name") String name, Pageable pageable);
 

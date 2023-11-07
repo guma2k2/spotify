@@ -1,6 +1,7 @@
 package com.spotify.app.controller;
 
 import com.spotify.app.dto.UserDTO;
+import com.spotify.app.dto.request.UserRequest;
 import com.spotify.app.dto.response.UserFollowingsPlaylists;
 import com.spotify.app.dto.response.PageResponse;
 import com.spotify.app.dto.response.UserAlbumsSongs;
@@ -8,6 +9,7 @@ import com.spotify.app.dto.response.UserResponse;
 import com.spotify.app.model.User;
 import com.spotify.app.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -68,27 +70,20 @@ public class UserController {
     }
 
     @PostMapping("/admin/save")
-    public UserResponse addUser(@RequestParam("firstName") String firstName,
-                                @RequestParam("lastName") String lastName,
-                                @RequestParam("email") String email,
-                                @RequestParam("password") String password,
-                                @RequestParam("roleName") String roleName,
-                                @RequestParam("gender") String gender
+    public UserResponse addUser(
+            @Valid @RequestBody UserRequest request
     ) {
-        return userService.addUser(firstName, lastName, email, password, roleName,gender);
+
+        return userService.addUser(request);
     }
 
 
     @PutMapping("/admin/update/{userId}")
-    public UserResponse updateUser(@RequestParam("firstName") String firstName,
-                                   @RequestParam("lastName") String lastName,
-                                   @RequestParam("email") String email,
-                                   @RequestParam("password") String password,
-                                   @RequestParam("roleName") String roleName,
-                                   @PathVariable("userId") Long userId,
-                                   @RequestParam("gender") String gender
+    public UserResponse updateUser(
+            @RequestBody UserRequest request,
+            @PathVariable Long userId
     ) {
-        return userService.updateUser(firstName, lastName, email, password, roleName,userId,gender);
+        return userService.updateUser(request,userId);
     }
 
 

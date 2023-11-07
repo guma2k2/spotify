@@ -7,9 +7,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-public record AuthenticationRequest (@Email  String email,
-                                     @Size(min = 8, message = "the password must be at least 8 characters")
-                                     String password
+public record AuthenticationRequest (
+        @Email  String email,
+        @Size(min = 8, message = "the password must be at least 8 characters")
+        String password
 ) {
 
 }

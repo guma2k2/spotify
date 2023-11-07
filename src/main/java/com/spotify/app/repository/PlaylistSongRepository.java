@@ -22,18 +22,9 @@ public interface PlaylistSongRepository extends JpaRepository<Playlist, Song> {
             LEFT JOIN FETCH ps.playlist p
             LEFT JOIN FETCH ps.song s
             LEFT JOIN FETCH s.albumSongList as
-            WHERE p.id = :id
+            WHERE p.id = :id AND s.status = true
             """)
     List<PlaylistSong> findByPlaylistId(@Param("id") Long id) ;
-
-    @Query("""
-            SELECT ps
-            FROM PlaylistSong ps
-            JOIN FETCH ps.playlist p
-            JOIN FETCH ps.song s
-            WHERE p.id = :id
-            """)
-    List<PlaylistSong> findByPlaylistIdCustom(@Param("id") Long id) ;
 
 
 

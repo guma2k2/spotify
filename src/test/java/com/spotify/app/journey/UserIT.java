@@ -1,4 +1,4 @@
-package com.spotify.app.user;
+package com.spotify.app.journey;
 
 import com.spotify.app.AbstractTestcontainers;
 import com.spotify.app.dto.response.UserResponse;

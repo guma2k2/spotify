@@ -1,4 +1,4 @@
-package com.spotify.app.song;
+package com.spotify.app.journey;
 
 import com.github.javafaker.Faker;
 import com.spotify.app.AbstractTestcontainers;

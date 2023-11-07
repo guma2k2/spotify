@@ -18,7 +18,7 @@ public interface CategoryRepository extends JpaRepository<Category, Integer> {
         """
             SELECT c
             FROM Category c
-            WHERE c.categoryParent is null
+            WHERE c.categoryParent is null AND c.status = true
         """
     )
     Set<Category> listAllParent();
@@ -35,7 +35,7 @@ public interface CategoryRepository extends JpaRepository<Category, Integer> {
             SELECT c
             FROM Category c
             LEFT JOIN FETCH c.categoryParent cp
-            WHERE c.id = :id
+            WHERE c.id = :id AND c.status = true
             """)
     Optional<Category> findByIdWithParent(@Param("id") Integer id);
 
@@ -66,7 +66,7 @@ public interface CategoryRepository extends JpaRepository<Category, Integer> {
             SELECT c
             FROM Category c
             LEFT JOIN FETCH c.categoryParent cp
-            WHERE c.title = :title
+            WHERE c.title = :title AND c.status = true
             """)
     Optional<Category> findByTitle(@Param("title") String title) ;
 }

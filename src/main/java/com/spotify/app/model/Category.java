@@ -54,7 +54,7 @@ public class Category {
         if(image!=null) {
             return baseUrl+"/category-images/" + this.id +"/"+image ;
         }
-        return FileUploadUtil.baseUrlFail;
+        return FileUploadUtil.baseUrlPlaylistImage;
     }
     @Transient
     public String getThumbnailPath() {
@@ -62,7 +62,7 @@ public class Category {
         if(thumbnail!=null) {
             return baseUrl+"/category-thumbnails/" + this.id + "/" +thumbnail ;
         }
-        return FileUploadUtil.baseUrlFail;
+        return FileUploadUtil.baseUrlPlaylistImage;
     }
 
 

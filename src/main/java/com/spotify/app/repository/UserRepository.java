@@ -26,6 +26,12 @@ public interface UserRepository extends JpaRepository<User, Long> {
             """)
     Optional<User> findByEmail(@Param("email") String email) ;
 
+    @Query("""
+            SELECT u
+            FROM User u
+            JOIN FETCH u.role
+            """)
+    Page<User> findAll(Pageable pageable);
 
 
     @Query("""

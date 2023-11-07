@@ -52,23 +52,21 @@ public class PlaylistController {
 
 
     @PutMapping("/admin/update/{playlistId}")
-    @Operation(description = "Save file image end with `png` only")
-    public ResponseEntity<?> uploadPlaylist(@RequestParam("image") MultipartFile image,
-                                            @RequestParam("thumbnail") MultipartFile thumbnail,
-                                            @PathVariable("playlistId") Long playlistId,
-                                            @RequestParam("description") String description,
-                                            @RequestParam("name") String name
+    @Operation(description = "update playlist")
+    public ResponseEntity<?> uploadPlaylist(
+                                @PathVariable("playlistId") Long playlistId,
+                                @RequestParam("description") String description,
+                                @RequestParam("name") String name
     ){
         playlistService.updatePlaylist(playlistId,description,name);
         return ResponseEntity.ok().body(String.format("Update playlist %d success", playlistId));
     }
 
     @PostMapping("/admin/save")
-    @Operation(description = "Save file image end with `png` only")
-    public ResponseEntity<String> addPlaylist(@RequestParam(value = "image",required = false) MultipartFile image,
-                                         @RequestParam(value = "thumbnail",required = false) MultipartFile thumbnail,
-                                         @RequestParam("description") String description,
-                                         @RequestParam("name") String name
+    @Operation(description = "Save playlist")
+    public ResponseEntity<String> addPlaylist(
+                                 @RequestParam("description") String description,
+                                 @RequestParam("name") String name
     ){
         playlistService.addPlaylist(description,name);
         return ResponseEntity.ok().body("Save playlist success");

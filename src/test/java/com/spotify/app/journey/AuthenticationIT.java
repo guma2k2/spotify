@@ -1,4 +1,4 @@
-package com.spotify.app.auth;
+package com.spotify.app.journey;
 
 
 import com.github.javafaker.Faker;
@@ -24,7 +24,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Transactional
 @Slf4j
-public class AuthenticationIt  {
+public class AuthenticationIT {
 
     @Autowired
     private  TestRestTemplate restTemplate;

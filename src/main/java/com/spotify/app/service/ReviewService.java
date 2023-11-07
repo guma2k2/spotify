@@ -47,7 +47,7 @@ public class ReviewService {
         Review review = get(reviewId);
         review.setStatus(!review.isStatus());
         reviewRepository.saveAndFlush(review);
-        String status = !review.isStatus() ? "enabled" : "disabled";
+        String status = !review.isStatus() ? "disabled" : "enabled";
         return String.format("review with id: %d is ".concat(status),reviewId);
     }
     public Review get(Long reviewId) {

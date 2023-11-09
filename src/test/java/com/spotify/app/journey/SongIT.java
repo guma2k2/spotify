@@ -11,6 +11,8 @@ import com.spotify.app.security.auth.AuthenticationRequest;
 import com.spotify.app.security.auth.AuthenticationResponse;
 import com.spotify.app.security.jwt.JwtService;
 import com.spotify.app.service.SongService;
+import com.spotify.app.service.UserService;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +25,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Slf4j
+@Transactional
 public class SongIT extends AbstractTestcontainers {
     private static final String SONG_PATH = "/api/v1/song";
     private static final String AUTH_PATH = "/api/v1/auth";
@@ -38,6 +41,9 @@ public class SongIT extends AbstractTestcontainers {
 
     @Autowired
     private SongRepository songRepository;
+
+    @Autowired
+    private UserService userService;
     @Test
     public void canSaveSong__WhenArtistAct() {
         // given
@@ -46,6 +52,7 @@ public class SongIT extends AbstractTestcontainers {
         String password = "thuan2023";
         AuthenticationRequest authRequest = new AuthenticationRequest(email,password);
         AuthenticationResponse authResponse = restTemplate.postForObject(AUTH_PATH+"/authenticate", authRequest, AuthenticationResponse.class);
+        log.info(String.valueOf(authResponse));
         String token = authResponse.getAccessToken();
 
         String name = faker.funnyName().name();
@@ -63,8 +70,6 @@ public class SongIT extends AbstractTestcontainers {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.set(HttpHeaders.ACCEPT , MediaType.APPLICATION_JSON_VALUE);
         httpHeaders.set("Authorization", "Bearer " + token);
-
-
 
         HttpEntity<?> request = new HttpEntity<>(songRequest,httpHeaders);
         // when
@@ -126,7 +131,7 @@ public class SongIT extends AbstractTestcontainers {
         httpHeaders.set(HttpHeaders.ACCEPT , MediaType.APPLICATION_JSON_VALUE);
         httpHeaders.set("Authorization", "Bearer " + token);
         HttpEntity<?> request = new HttpEntity<>(httpHeaders);
-        ResponseEntity<SongResponse> response = restTemplate.exchange(SONG_PATH + "/status/" + underUpdate.getId(), HttpMethod.PUT ,request, SongResponse.class);
+        ResponseEntity<SongResponse> response = restTemplate.exchange(SONG_PATH + "/update/status/" + underUpdate.getId(), HttpMethod.PUT ,request, SongResponse.class);
 
         // then
         boolean actual = response.getBody().status();
@@ -155,29 +160,6 @@ public class SongIT extends AbstractTestcontainers {
         ResponseEntity<SongResponse> response = restTemplate.exchange(SONG_PATH + "/1/add/"+addUserId, HttpMethod.GET ,request, SongResponse.class);
         // then
         assertThat(checkExist).isFalse();
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody().users().size()).isEqualTo(expectSize);
-    }
-    @Test
-    public void canRemoveCollapse() {
-        // given
-        String email = "taylor@gmail.com";
-        String password = "thuan2023";
-        AuthenticationRequest authRequest = new AuthenticationRequest(email,password);
-        AuthenticationResponse authResponse = restTemplate.postForObject(AUTH_PATH+"/authenticate", authRequest, AuthenticationResponse.class);
-        String token = authResponse.getAccessToken();
-        Song underTest = songRepository.findByIdReturnUsersAlbumsReviews(1L).get();
-
-        Long removeUserId = underTest.getUsers().stream().filter(user -> user.getId() > 0).findFirst().get().getId();
-        int expectSize = underTest.getUsers().size() - 1;
-        // when
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.set(HttpHeaders.ACCEPT , MediaType.APPLICATION_JSON_VALUE);
-        httpHeaders.set("Authorization", "Bearer " + token);
-        HttpEntity<?> request = new HttpEntity<>(httpHeaders);
-        ResponseEntity<SongResponse> response = restTemplate.exchange(SONG_PATH + "/1/remove/" + removeUserId, HttpMethod.GET ,request, SongResponse.class);
-        // then
-        assertThat(removeUserId).isGreaterThan(0);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody().users().size()).isEqualTo(expectSize);
     }

@@ -74,7 +74,7 @@ public class SongController {
     }
 
     @PutMapping("/update/status/{songId}")
-//    @PreAuthorize("hasAnyRole('ARTIST', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('ARTIST', 'ADMIN')")
     public ResponseEntity<?> updateStatus(
             @PathVariable("songId") Long songId
     )  {
@@ -82,7 +82,7 @@ public class SongController {
     }
 
     @GetMapping("/{songId}/add/{userId}")
-//    @PreAuthorize("hasRole('ARTIST')")
+    @PreAuthorize("hasRole('ARTIST')")
     public ResponseEntity<?> addUser(
             @PathVariable("songId")Long songId,
             @PathVariable("userId")Long userId
@@ -91,7 +91,7 @@ public class SongController {
     }
 
     @GetMapping("/{songId}/remove/{userId}")
-//    @PreAuthorize("hasRole('ARTIST')")
+    @PreAuthorize("hasRole('ARTIST')")
     public ResponseEntity<?> removeUser(
             @PathVariable("songId")Long songId,
             @PathVariable("userId")Long userId

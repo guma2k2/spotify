@@ -42,13 +42,13 @@ public class UserRepositoryTest extends AbstractTestcontainers {
                 .email("thuan@gmail.com")
                 .dateOfBrith(LocalDateTime.of(2002,7,30,0,0))
                 .build();
-        underTest.save(user);
+        underTest.saveAndFlush(user);
 
         // when
         var actual = underTest.findByEmail(email);
 
         // then
-        assertThat(actual.isPresent());
+        assertThat(actual).isNotNull();
     }
 
 
@@ -65,7 +65,7 @@ public class UserRepositoryTest extends AbstractTestcontainers {
                 .email(email)
                 .dateOfBrith(LocalDateTime.of(2002,7,30,0,0))
                 .build();
-        underTest.save(user);
+        underTest.saveAndFlush(user);
 
         long id = underTest.
                 findAll().
@@ -96,7 +96,7 @@ public class UserRepositoryTest extends AbstractTestcontainers {
                 .email(email)
                 .dateOfBrith(LocalDateTime.of(2002,7,30,0,0))
                 .build();
-        underTest.save(user);
+        underTest.saveAndFlush(user);
 
 
         // when
@@ -124,7 +124,7 @@ public class UserRepositoryTest extends AbstractTestcontainers {
                 .build();
         user.addSong(song);
 
-        underTest.save(user);
+        underTest.saveAndFlush(user);
 
         // when
         var actual = underTest.findByEmail(email);
@@ -140,11 +140,11 @@ public class UserRepositoryTest extends AbstractTestcontainers {
     @Test
     public void exitUserByIdFailWhenIdNotExit() {
         // given
-        long userid = 0l;
+        long userid = 0L;
 
         //when
         var actual = underTest.findById(userid);
-        actual.get().isAccountNonExpired();
+
         // then
         assertThat(actual).isNotPresent();
     }

@@ -2,6 +2,7 @@ package com.spotify.app.journey;
 
 
 import com.github.javafaker.Faker;
+import com.spotify.app.AbstractTestcontainers;
 import com.spotify.app.model.User;
 import com.spotify.app.security.auth.AuthenticationRequest;
 import com.spotify.app.security.auth.AuthenticationResponse;
@@ -22,13 +23,11 @@ import java.util.UUID;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Transactional
 @Slf4j
-public class AuthenticationIT {
+public class AuthenticationIT extends AbstractTestcontainers {
 
     @Autowired
     private  TestRestTemplate restTemplate;
-
     @Autowired
     private JwtService jwtService;
     @Autowired
@@ -68,6 +67,7 @@ public class AuthenticationIT {
         String password = "thuan2023";
         AuthenticationRequest request = new AuthenticationRequest(email,password);
         AuthenticationResponse response = restTemplate.postForObject(AUTH_PATH+"/authenticate", request, AuthenticationResponse.class);
+        log.info(String.valueOf(response));
         assertThat(response.getUser().email()).isEqualTo(email) ;
         assertThat(response.getAccessToken()).isNotNull() ;
     }

@@ -8,6 +8,7 @@ import com.spotify.app.model.Song;
 import com.spotify.app.model.User;
 import com.spotify.app.repository.RoleRepository;
 import com.spotify.app.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +24,7 @@ import static org.skyscreamer.jsonassert.JSONAssert.assertEquals;
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Import({TestConfig.class})
-public class UserRepositoryTest extends AbstractTestcontainers {
+public class UserRepositoryTest  {
 
     @Autowired
     private UserRepository underTest ;

@@ -36,7 +36,6 @@ public abstract class AbstractTestcontainers {
                     .withDatabaseName("spotify-dao-unit-test")
                     .withUsername("kai")
                     .withPassword("password")
-                    .withReuse(true)
             ;
 
     @DynamicPropertySource

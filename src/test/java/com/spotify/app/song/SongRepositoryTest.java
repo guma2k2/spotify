@@ -39,12 +39,12 @@ public class SongRepositoryTest extends AbstractTestcontainers {
 
 
     @Test
-    public void canFindByIdReturnUserAlbum () {
+    public void canFindByIdReturnUserAlbumReview () {
         // given
         Long songId = 1L;
 
         // when
-        var actual = underTest.findByIdReturnUsersAlbums(songId);
+        var actual = underTest.findByIdReturnUsersAlbumsReviews(songId);
         log.info(String.valueOf(actual));
         // then
         assert (actual.isPresent());

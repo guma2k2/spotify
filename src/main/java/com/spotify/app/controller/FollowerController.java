@@ -55,9 +55,7 @@ public class FollowerController {
             @PathVariable("currentUserId") Long currentUserId,
             @PathVariable("targetUserId") Long targetUserId
     ) {
-        return ResponseEntity.
-                ok().
-                body(
+        return ResponseEntity.ok().body(
                     followerService.checkCurrentUserFollowedTargetUser(currentUserId,targetUserId)
                 );
     }

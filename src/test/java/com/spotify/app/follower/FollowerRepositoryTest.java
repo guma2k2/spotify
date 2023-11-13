@@ -1,4 +1,4 @@
-//package com.spotify.app.category;
+//package com.spotify.app.follower;
 //
 //import com.spotify.app.AbstractTestcontainers;
 //import com.spotify.app.TestConfig;
@@ -9,8 +9,5 @@
 //@DataJpaTest
 //@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 //@Import({TestConfig.class})
-//public class CategoryRepositoryTest extends AbstractTestcontainers {
-//
-//
-//
+//public class FollowerRepositoryTest extends AbstractTestcontainers {
 //}

@@ -25,7 +25,6 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Slf4j
-@Transactional
 public class SongIT extends AbstractTestcontainers {
     private static final String SONG_PATH = "/api/v1/song";
     private static final String AUTH_PATH = "/api/v1/auth";

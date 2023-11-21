@@ -9,4 +9,7 @@ public record AlbumResponse(Long id,
                             boolean status,
                             UserNoAssociationResponse user
 ) {
+    public AlbumResponse(Long id) {
+        this(id, null, null, null, null, null, false, null);
+    }
 }

@@ -40,9 +40,9 @@ public class AlbumService {
     private final UserRepository userRepository;
     private final AlbumResponseMapper albumResponseMapper;
     private final AlbumRequestMapper albumRequestMapper;
-    private final S3Service s3Service;
+    private final SongResponseMapper songResponseMapper;
+//    private final S3Service s3Service;
     public AlbumDTO findById(Long albumId) {
-
         // find album by id return their songs
         Album album = albumRepository.
                 findByIdReturnSongs(albumId).
@@ -56,11 +56,15 @@ public class AlbumService {
         String totalTime =  convertTotalTime(albumSongs);
 
         // Map List albumSong to Song list
-        List<Song> songs = albumSongs.stream().map(AlbumSong::getSong).filter(Song::isStatus).toList();
 
-        // Map Song to Song DTO
-        List<SongResponse> songResponses = songs.stream().map(song -> SongResponseMapper.INSTANCE.songToSongResponse(song,null,null,null)).toList();
+        List<Song> songs = null;
+        List<SongResponse> songResponses = null;
+        if (!albumSongs.isEmpty()) {
+            songs = albumSongs.stream().map(AlbumSong::getSong).filter(Song::isStatus).toList();
 
+            // Map Song to Song DTO
+            songResponses = songs.stream().map(song -> songResponseMapper.songToSongResponse(song,null,null,null)).toList();
+        }
         return albumMapper.albumToAlbumDTO(album, songResponses, songCount, totalTime);
     }
 
@@ -184,7 +188,7 @@ public class AlbumService {
                         new ResourceNotFoundException(String.format("song with id %d not found",songId))) ;
     }
 
-    private String convertTotalTime(List<AlbumSong> albumSongs) {
+    public String convertTotalTime(List<AlbumSong> albumSongs) {
         long totalTime = albumSongs.stream()
                 .mapToLong((albumSong) -> albumSong.getSong()
                         .getDuration())

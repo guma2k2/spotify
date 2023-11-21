@@ -21,4 +21,8 @@ public record SongResponse(Long id,
                            List<AlbumResponse> albums,
                            List<ReviewResponse> reviews
 ) {
+
+    public SongResponse(Long id) {
+        this(id, null, null, null, null, null, null, 0, null, null, false, null, null, null, null);
+    }
 }

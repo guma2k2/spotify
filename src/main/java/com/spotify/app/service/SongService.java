@@ -48,13 +48,12 @@ public class SongService {
     private final AlbumResponseMapper albumResponseMapper;
     private final UserRepository userRepository ;
     private final AlbumRepository albumRepository;
-    private final S3Service s3Service;
-    private final SongSearchResponseMapper songSearchResponseMapper;
-
     private final ReviewService reviewService ;
-
-
     private final RestTemplate restTemplate;
+    private final SongSearchResponseMapper songSearchResponseMapper;
+    //    private final S3Service s3Service;
+
+
     public Song get(Long songId) {
         return songRepository.findById(songId).orElseThrow(() ->
                 new ResourceNotFoundException(String.format("song with id:%d not found",songId)));
@@ -113,8 +112,6 @@ public class SongService {
         songRepository.save(song);
         return getById(songId);
     }
-
-
     public SongResponse findBySong(Song song, PlaylistSong playlistSong) {
 
         List<AlbumSong> albumSongs = albumSongRepository.findBySongId(song.getId());
@@ -137,7 +134,7 @@ public class SongService {
     public List<SongDTO> findAll() {
         return songMapper.songsToSongsDTO(songRepository.findAll());
     }
-    private boolean checkSongExitByName(String name) {
+    public boolean checkSongExitByName(String name) {
         return songRepository.findByName(name).isPresent();
     }
     public List<SongSearchResponse> findByNameFullText(String name) {

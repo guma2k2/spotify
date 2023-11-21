@@ -17,4 +17,8 @@ public record SongDTO (Long id,
                        String audioPath,
                        String imagePath
 ) {
+
+    public SongDTO(Long id) {
+        this(id, null, null, null, null, null, 0, false, null, null, null);
+    }
 }

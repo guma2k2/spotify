@@ -69,7 +69,7 @@ public class FollowerService {
     }
 
     private List<Follower> findFollowingListByUseId(Long userId) {
-        return followerRepository.findFollowingListByUseId(userId);
+        return followerRepository.findFollowingListByUserId(userId);
     }
 
     private List<UserNoAssociationResponse> getFollowingsInFollowerTable(List<Follower> followers) {

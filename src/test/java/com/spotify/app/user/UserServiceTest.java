@@ -65,7 +65,8 @@ public class UserServiceTest {
 
     @BeforeEach
     public void setUp() {
-        underTest = new UserService(userRepository,
+        underTest = new UserService(
+                userRepository,
                 playlistRepository,
                 userMapper,
                 userResponseMapper,

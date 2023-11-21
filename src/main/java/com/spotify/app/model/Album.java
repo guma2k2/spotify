@@ -43,6 +43,10 @@ public class Album {
     @Builder.Default
     private List<AlbumSong> albumSongList = new ArrayList<>();
 
+    public Album(Long id) {
+        this.id = id;
+    }
+
 
     @Transient
     public String getImagePath() {

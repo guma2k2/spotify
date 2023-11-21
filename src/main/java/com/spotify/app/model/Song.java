@@ -67,6 +67,10 @@ public class Song {
     @Builder.Default
     private List<Review> reviews = new ArrayList<>();
 
+    public Song(String songName) {
+        this.name = songName;
+    }
+
     @Transient
     public String getAudioPath() {
         String baseUrl = FileUploadUtil.baseUrl;

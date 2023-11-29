@@ -21,11 +21,11 @@ import java.util.List;
 public class ReviewService {
 
     private final ReviewRepository reviewRepository;
-
     private final ReviewResponseMapper reviewResponseMapper;
     private final UserRepository userRepository;
     private final SongRepository songRepository;
-    public List<ReviewResponse> createReview(Long userId, Long songId, ReviewDTO request) {
+
+    public void createReview(Long userId, Long songId, ReviewDTO request) {
         User user = userRepository.findById(userId).orElseThrow();
         Song song = songRepository.findById(songId).orElseThrow();
         Review review = Review.builder()
@@ -35,7 +35,6 @@ public class ReviewService {
                 .content(request.content())
                 .build();
         reviewRepository.saveAndFlush(review);
-        return findBySongId(songId);
     }
 
     public List<ReviewResponse> findBySongId(Long songId) {

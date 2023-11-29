@@ -31,17 +31,19 @@ public class AlbumController {
     @PostMapping("/upload/image/{albumId}")
     public ResponseEntity<?> uploadImage(
             @RequestParam("image") MultipartFile image,
-            @PathVariable("albumId") Long songId
+            @PathVariable("albumId") Long albumId
     )  {
-        return ResponseEntity.ok().body(albumService.saveAlbumImage(image, songId));
+        albumService.saveAlbumImage(image, albumId);
+        return ResponseEntity.ok().body(albumService.findById(albumId));
     }
 
     @PostMapping("/upload/thumbnail/{albumId}")
     public ResponseEntity<?> uploadThumbnail(
             @RequestParam("thumbnail") MultipartFile thumbnail,
-            @PathVariable("albumId") Long songId
+            @PathVariable("albumId") Long albumId
     )  {
-        return ResponseEntity.ok().body(albumService.saveAlbumThumbnail(thumbnail, songId));
+        albumService.saveAlbumThumbnail(thumbnail, albumId);
+        return ResponseEntity.ok().body(albumService.findById(albumId));
     }
 
 
@@ -73,7 +75,8 @@ public class AlbumController {
             @PathVariable("userId") Long userID,
             @Valid @RequestBody AlbumRequest request
     ) {
-        return ResponseEntity.ok().body(albumService.addAlbum(userID,request));
+        Long savedAlbumId = albumService.addAlbum(userID,request);
+        return ResponseEntity.ok().body(albumService.findById(savedAlbumId));
     }
 
 
@@ -82,7 +85,8 @@ public class AlbumController {
         @PathVariable("albumId") Long albumId,
         @Valid @RequestBody AlbumRequest request
     ) {
-        return ResponseEntity.ok().body(albumService.updateAlbum(albumId, request));
+        albumService.updateAlbum(albumId, request);
+        return ResponseEntity.ok().body(albumService.findById(albumId));
     }
 
     @PutMapping("/update/status/{albumId}")

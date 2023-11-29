@@ -37,17 +37,19 @@ public class PlaylistController {
             @PathVariable("userId") Long userId,
             @PathVariable("songId") Long songId
     ) {
-       return ResponseEntity.ok().body(playlistService.addSongToLikedPlaylist(userId, songId));
+        Long savedPlaylistId = playlistService.addSongToLikedPlaylist(userId, songId);
+        return ResponseEntity.ok().body(playlistService.findByIdReturnSongs(savedPlaylistId));
     }
 
 
     @GetMapping("/user/{userId}/remove/{songId}")
     @Operation(description = "remove song from liked Song by userId")
-    public void removeFromLikedSongByUserId(
+    public ResponseEntity<?> removeFromLikedSongByUserId(
             @PathVariable("userId") Long userId,
             @PathVariable("songId") Long songId
     ) {
-        playlistService.removeSongFromLikedPlaylist(userId,songId);
+        Long removedPlaylistId = playlistService.removeSongFromLikedPlaylist(userId, songId);
+        return ResponseEntity.ok().body(playlistService.findByIdReturnSongs(removedPlaylistId));
     }
 
 
@@ -112,7 +114,8 @@ public class PlaylistController {
             @PathVariable("playlistId") Long playlistId,
             @PathVariable("songId") Long songId
     ) {
-        return ResponseEntity.ok().body(playlistService.addSong(playlistId,songId));
+        playlistService.addSong(playlistId,songId);
+        return ResponseEntity.ok().body(playlistService.findByIdReturnSongs(playlistId));
     }
 
     @GetMapping("/{playlistId}/remove/song/{songId}")
@@ -123,7 +126,7 @@ public class PlaylistController {
             @PathVariable("songId") Long songId
     ) {
         playlistService.removeSong(playlistId,songId);
-        return ResponseEntity.ok().body(playlistService.removeSong(playlistId,songId));
+        return ResponseEntity.ok().body(playlistService.findByIdReturnSongs(playlistId));
     }
 
 

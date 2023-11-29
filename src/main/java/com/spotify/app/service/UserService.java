@@ -25,9 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -183,7 +181,6 @@ public class UserService {
 
         Playlist playlist = playlistService.get(playlistId);
 
-        // Todo: check: Is user added playlist
         if(playlistUserService.checkUserIsAddedPlaylist(userId, playlistId)) {
             return playlistService.findByUserId(userId);
         }
@@ -257,11 +254,6 @@ public class UserService {
         userRepository.saveAndFlush(user);
         String status = !user.isStatus() ? "disabled" : "enabled";
         return String.format("user with id: %d is ".concat(status),userId);
-    }
-
-    public LocalDateTime stringToLocalDateTime(String date) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy hh:mm:ss");
-        return LocalDateTime.parse(date, formatter);
     }
 
 //    public void uploadPhoto(MultipartFile photo, Long userId) {

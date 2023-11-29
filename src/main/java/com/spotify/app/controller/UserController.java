@@ -26,8 +26,6 @@ public class UserController {
 
     private final UserService userService ;
 
-
-
     @GetMapping("/{userId}")
     public UserDTO getById(@PathVariable("userId") Long userId) {
         return userService.findByIdReturnRoleAndSongs(userId) ;
@@ -47,6 +45,7 @@ public class UserController {
     public List<UserResponse> listAll() {
         return userService.listAll();
     }
+
     @GetMapping("/firstPage")
     public PageResponse listAllFirstPage() {
         return userService.getPageResponse(1,"desc", "id" , null);
@@ -77,7 +76,6 @@ public class UserController {
         return userService.addUser(request);
     }
 
-
     @PutMapping("/admin/update/{userId}")
     public UserResponse updateUser(
             @RequestBody UserRequest request,
@@ -85,7 +83,6 @@ public class UserController {
     ) {
         return userService.updateUser(request,userId);
     }
-
 
     @GetMapping("/{userId}/playlists/followings")
     @Operation(description = "Find all followings and playlists by userId")
@@ -110,7 +107,6 @@ public class UserController {
     ) {
         return ResponseEntity.ok().body(userService.removePlaylist(userId, playlistId));
     }
-
 
     @GetMapping("/{userId}/songs/albums")
     public UserAlbumsSongs findByIdReturnSongsAlbums(

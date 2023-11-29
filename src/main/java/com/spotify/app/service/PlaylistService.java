@@ -147,29 +147,27 @@ public class PlaylistService {
     }
 
 
-    public PlaylistDTO addSong(Long playlistId, Long songId) {
+    public void addSong(Long playlistId, Long songId) {
         Song song = songService.get(songId);
         Playlist playlist = get(playlistId);
 
         playlist.addSong(song);
         playlistRepository.save(playlist);
-        return findByIdReturnSongs(playlistId);
     }
 
-    public PlaylistDTO removeSong(Long playlistId, Long songId) {
+    public void removeSong(Long playlistId, Long songId) {
         Song song = songService.get(songId);
 
         Playlist playlist = get(playlistId);
 
         playlist.removeSong(song);
         playlistRepository.save(playlist);
-        return findByIdReturnSongs(playlistId);
     }
 
 
 
 
-    public PlaylistDTO addSongToLikedPlaylist(Long userId,Long songId) {
+    public Long addSongToLikedPlaylist(Long userId,Long songId) {
         PlaylistUser playlistUser = playlistUserRepository.
                 findByUserIdAndName(userId,playlistNameHasAllLikedSongOfUser).
                 orElseThrow();
@@ -178,12 +176,10 @@ public class PlaylistService {
 
         playlist.addSong(song);
 
-        playlistRepository.saveAndFlush(playlist);
-
-        return findByIdReturnSongs(playlist.getId());
+        return playlist.getId();
     }
 
-    public void removeSongFromLikedPlaylist(Long userId,Long songId) {
+    public Long removeSongFromLikedPlaylist(Long userId,Long songId) {
         PlaylistUser playlistUser = playlistUserRepository.
                 findByUserIdAndName(userId,playlistNameHasAllLikedSongOfUser).
                 orElseThrow();
@@ -193,6 +189,7 @@ public class PlaylistService {
         playlist.removeSong(song);
 
         playlistRepository.save(playlist);
+        return playlist.getId();
     }
 
     public void createPlaylistByUserId(Long userId) {

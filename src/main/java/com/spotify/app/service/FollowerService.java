@@ -26,36 +26,28 @@ public class FollowerService {
     private final UserNoAssMapper userNoAssMapper;
 
     @Transactional
-    public List<UserNoAssociationResponse> addFollowing(Long I_id, Long U_id ) {
-        if(I_id == U_id) {
-            return findAllFollowingsByUserId(I_id);
+    public void addFollowing(Long currentUserId, Long targetUserId ) {
+        if(checkCurrentUserFollowedTargetUser(currentUserId,targetUserId)) {
+            return;
         }
-        if(checkCurrentUserFollowedTargetUser(I_id,U_id)) {
-            return findAllFollowingsByUserId(I_id);
-        }
-        User I = getUserByUserId(I_id);
-        User U = getUserByUserId(U_id);
+        User I = getUserByUserId(currentUserId);
+        User U = getUserByUserId(targetUserId);
         Follower follower = Follower
                 .builder()
                 .followingUser(I)
                 .followedUser(U)
                 .build();
-        followerRepository.save(follower);
-        return findAllFollowingsByUserId(I_id);
+        followerRepository.saveAndFlush(follower);
     }
 
     @Transactional
-    public List<UserNoAssociationResponse> cancelFollowing(Long I_id, Long U_id ) {
-        if(I_id == U_id) {
-            return findAllFollowingsByUserId(I_id);
+    public void unfollowing(Long currentUserId, Long targetUserId ) {
+        if(!checkCurrentUserFollowedTargetUser(currentUserId,targetUserId)) {
+            return ;
         }
-        if(!checkCurrentUserFollowedTargetUser(I_id,U_id)) {
-            return findAllFollowingsByUserId(I_id);
-        }
-        User I = getUserByUserId(I_id);
-        User U = getUserByUserId(U_id);
+        User I = getUserByUserId(currentUserId);
+        User U = getUserByUserId(targetUserId);
         followerRepository.unfollowing(I,U);
-        return findAllFollowingsByUserId(I_id);
     }
 
     public List<UserNoAssociationResponse> findAllFollowingsByUserId(Long userId) {
@@ -84,7 +76,7 @@ public class FollowerService {
                 orElseThrow(() -> new ResourceNotFoundException(String.format("user with id: %d not found", userId)));
     }
 
-    public boolean checkCurrentUserFollowedTargetUser(Long currentUserId, Long targetUserId) {
+    private boolean checkCurrentUserFollowedTargetUser(Long currentUserId, Long targetUserId) {
         return followerRepository.findByFollowingIdAndFollowedId(currentUserId,targetUserId).isPresent();
     }
 

@@ -21,7 +21,8 @@ public class ReviewController {
             @PathVariable("songId") Long songId,
             @RequestBody ReviewDTO request
     ) {
-        return ResponseEntity.ok().body(reviewService.createReview(userId,songId,request));
+        reviewService.createReview(userId, songId, request);
+        return ResponseEntity.ok().body(reviewService.findBySongId(songId));
     }
 
     @PutMapping("/admin/update/status/{reviewId}")

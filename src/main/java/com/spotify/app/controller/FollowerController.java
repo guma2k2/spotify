@@ -26,7 +26,8 @@ public class FollowerController {
             @PathVariable("currentUserId") Long currentUserId,
             @PathVariable("targetUserId") Long targetUserId
     ) {
-        return ResponseEntity.ok().body(followerService.addFollowing(currentUserId,targetUserId));
+        followerService.addFollowing(currentUserId,targetUserId);
+        return ResponseEntity.ok().body(followerService.findAllFollowingsByUserId(currentUserId));
     }
 
     @DeleteMapping("/{currentUserId}/cancel/{targetUserId}")
@@ -37,8 +38,10 @@ public class FollowerController {
             @PathVariable("currentUserId") Long currentUserId,
             @PathVariable("targetUserId") Long targetUserId
     ) {
-        return ResponseEntity.ok().body(followerService.cancelFollowing(currentUserId,targetUserId));
+        followerService.unfollowing(currentUserId,targetUserId);
+        return ResponseEntity.ok().body(followerService.findAllFollowingsByUserId(currentUserId));
     }
+
     @GetMapping("/{userId}/followings")
     @Operation(description =
             "find all followings by userId when search type `artists`"
@@ -49,15 +52,5 @@ public class FollowerController {
         return followerService.findAllFollowingsByUserId(userId);
     }
 
-
-    @GetMapping("/is/{currentUserId}/followed/{targetUserId}")
-    public ResponseEntity<Boolean> checkCurrentUserFollowedTargetUser(
-            @PathVariable("currentUserId") Long currentUserId,
-            @PathVariable("targetUserId") Long targetUserId
-    ) {
-        return ResponseEntity.ok().body(
-                    followerService.checkCurrentUserFollowedTargetUser(currentUserId,targetUserId)
-                );
-    }
 
 }

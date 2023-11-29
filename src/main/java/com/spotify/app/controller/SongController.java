@@ -34,7 +34,8 @@ public class SongController {
             @RequestParam("audio") MultipartFile audio,
             @PathVariable("songId") Long songId
     ) {
-        return ResponseEntity.ok().body(songService.saveSongAudio(audio, songId));
+        songService.saveSongAudio(audio, songId);
+        return ResponseEntity.ok().body(songService.getById(songId));
     }
 
     @PostMapping("/upload/image/{songId}")
@@ -42,7 +43,8 @@ public class SongController {
             @RequestParam("image") MultipartFile image,
             @PathVariable("songId") Long songId
     )  {
-        return ResponseEntity.ok().body(songService.saveSongImage(image, songId));
+        songService.saveSongImage(image, songId);
+        return ResponseEntity.ok().body(songService.getById(songId));
     }
 
     @GetMapping("/findBy/playlist/{playlistId}")
@@ -61,7 +63,8 @@ public class SongController {
     public ResponseEntity<?> saveSong(
             @Valid @RequestBody SongRequest request
     )  {
-        return ResponseEntity.ok().body(songService.saveSong(request));
+        Long savedSongId = songService.saveSong(request);
+        return ResponseEntity.ok().body(songService.getById(savedSongId));
     }
 
     @PutMapping("/update/{songId}")
@@ -70,7 +73,8 @@ public class SongController {
             @Valid @RequestBody SongRequest request,
             @PathVariable("songId") Long songId
     )  {
-        return ResponseEntity.ok().body(songService.updateSong(request, songId));
+        songService.updateSong(request, songId);
+        return ResponseEntity.ok().body(songService.getById(songId));
     }
 
     @PutMapping("/update/status/{songId}")
@@ -78,7 +82,8 @@ public class SongController {
     public ResponseEntity<?> updateStatus(
             @PathVariable("songId") Long songId
     )  {
-        return ResponseEntity.ok().body(songService.updateStatus(songId));
+        songService.updateStatus(songId);
+        return ResponseEntity.ok().body(songService.getById(songId));
     }
 
     @GetMapping("/{songId}/add/{userId}")
@@ -87,7 +92,8 @@ public class SongController {
             @PathVariable("songId")Long songId,
             @PathVariable("userId")Long userId
     ) {
-        return ResponseEntity.ok().body(songService.addUser(songId,userId));
+        songService.addUser(songId, userId);
+        return ResponseEntity.ok().body(songService.getById(songId));
     }
 
     @GetMapping("/{songId}/remove/{userId}")
@@ -96,7 +102,8 @@ public class SongController {
             @PathVariable("songId")Long songId,
             @PathVariable("userId")Long userId
     ) {
-        return ResponseEntity.ok().body(songService.removeUser(songId,userId));
+        songService.removeUser(songId, userId) ;
+        return ResponseEntity.ok().body(songService.getById(songId));
     }
 
     @GetMapping("/search/{name}")
@@ -118,7 +125,7 @@ public class SongController {
             @PathVariable("songId") Long songId
     ) {
         songService.increaseView(songId);
-        return ResponseEntity.ok().body(String.format("increased view of song %d",songId));
+        return ResponseEntity.ok().body(String.format("increased view of song %d", songId));
     }
 
 

@@ -11,6 +11,7 @@ import java.io.Serializable;
 @EqualsAndHashCode
 @NoArgsConstructor
 public class PlaylistSongId implements Serializable {
+
     @Column(name = "playlist_id")
     private Long playlistId ;
     @Column(name = "song_id")

@@ -72,7 +72,7 @@ public class SongService {
     }
 
 
-    public SongResponse saveSongAudio(MultipartFile audio, Long songId) {
+    public void saveSongAudio(MultipartFile audio, Long songId) {
         Song song = get(songId);
         if (!audio.isEmpty()) {
             String fileName = StringUtils.cleanPath(audio.getOriginalFilename());
@@ -90,9 +90,8 @@ public class SongService {
             }
         }
         songRepository.save(song);
-        return getById(songId);
     }
-    public SongResponse saveSongImage(MultipartFile image, Long songId) {
+    public void saveSongImage(MultipartFile image, Long songId) {
         Song song = get(songId);
         if (!image.isEmpty()) {
             String fileName = StringUtils.cleanPath(image.getOriginalFilename());
@@ -110,7 +109,6 @@ public class SongService {
             }
         }
         songRepository.save(song);
-        return getById(songId);
     }
     public SongResponse findBySong(Song song, PlaylistSong playlistSong) {
 
@@ -175,7 +173,7 @@ public class SongService {
                 .build();
         return albumRepository.save(album);
     }
-    public SongResponse saveSong(SongRequest request) {
+    public Long saveSong(SongRequest request) {
         if(checkSongExitByName(request.name().trim())) {
             throw new DuplicateResourceException(String.format("song with name: [%s] existed",request.name()));
         }
@@ -198,9 +196,10 @@ public class SongService {
         user.addSong(underSave);
         album.addSong(underSave);
         userRepository.saveAndFlush(user);
-        return getById(savedSong.getId());
+        return savedSong.getId();
     }
-    public SongResponse updateSong(SongRequest request, Long songId) {
+
+    public void updateSong(SongRequest request, Long songId) {
         Song underUpdate = get(songId);
         if(checkSongExitByName(request.name().trim()) && !underUpdate.getName().equals(request.name())) {
             throw new DuplicateResourceException(String.format("song with name: [%s] exited",request.name()));
@@ -212,9 +211,10 @@ public class SongService {
         underUpdate.setGenre(Genre.valueOf(request.genre()));
         underUpdate.setDuration(request.duration());
         underUpdate.setReleaseDate(LocalDateTime.of(request.year(),request.month(),request.day(),0,0));
-        return getById(songRepository.save(underUpdate).getId());
+        songRepository.save(underUpdate);
     }
-    public SongResponse addUser(Long songId, Long userId) {
+
+    public void addUser(Long songId, Long userId) {
         Song song = songRepository.findByIdReturnUsersAlbumsReviews(songId).orElseThrow();
         Set<User> userSet = song.getUsers();
         User user = getUserByUserId(userId);
@@ -222,10 +222,9 @@ public class SongService {
             user.addSong(song);
             userRepository.saveAndFlush(user);
         }
-        return getById(songId);
     }
 
-    public SongResponse removeUser(Long songId, Long userId) {
+    public void removeUser(Long songId, Long userId) {
         Song song = songRepository.findByIdReturnUsersAlbumsReviews(songId).orElseThrow();
         Set<User> userSet = song.getUsers();
         User user = userRepository.
@@ -236,15 +235,13 @@ public class SongService {
             user.removeSong(song);
             userRepository.saveAndFlush(user);
         }
-        return getById(songId);
     }
 
     @Transactional
-    public SongResponse updateStatus(Long songId){
+    public void updateStatus(Long songId){
         Song underUpdate = get(songId);
         underUpdate.setStatus(!underUpdate.isStatus());
         songRepository.saveAndFlush(underUpdate);
-        return getById(songId);
     }
 
     public List<SongResponse> findBySentiment(String sentiment) {

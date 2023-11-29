@@ -51,9 +51,9 @@ public class CategoryController {
     public ResponseEntity<?> updateCategory(
                         @PathVariable("categoryId") Integer categoryId,
                         @RequestParam("title") String title,
-                        @RequestParam(value = "categoryParentTitle",required = false) String categoryParentTitle
+                        @RequestParam(value = "categoryParentTitle", required = false) String categoryParentTitle
     ){
-        categoryService.updateCategory(categoryId,title ,categoryParentTitle);
+        categoryService.updateCategory(categoryId, title, categoryParentTitle);
         return ResponseEntity.ok().body(String.format("update category %d success", categoryId));
     }
 

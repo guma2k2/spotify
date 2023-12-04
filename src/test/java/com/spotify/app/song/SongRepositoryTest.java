@@ -4,6 +4,7 @@
 //import com.spotify.app.TestConfig;
 //import com.spotify.app.model.Song;
 //import com.spotify.app.repository.SongRepository;
+//import jakarta.transaction.Transactional;
 //import lombok.extern.slf4j.Slf4j;
 //import org.junit.jupiter.api.Test;
 //import org.springframework.beans.factory.annotation.Autowired;
@@ -37,22 +38,5 @@
 //
 //        // then
 //        assert (actual.isPresent());
-//    }
-//
-//    @Test
-//    public void canUpdateViewCountSong() {
-//        // given
-//        Long songId = 1L;
-//        Song song = underTest.findById(songId).get();
-//        Long currentViewCount = song.getViewCount();
-//        Long expectedViewCount = currentViewCount + 1;
-//
-//        // when
-//        underTest.updateViewCount(songId);
-//
-//        // then
-//        assertThat(song).isNotNull();
-//        assertThat(currentViewCount).isEqualTo(expectedViewCount);
-//
 //    }
 //}

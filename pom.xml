@@ -20,9 +20,7 @@
 		<io.jsonwebtoken.jjwt.version>0.9.1</io.jsonwebtoken.jjwt.version>
 		<io.jsonwebtoken.jjwt-jackson.version>0.11.5</io.jsonwebtoken.jjwt-jackson.version>
 		<software.amazon.awssdk.s3.version>2.20.68</software.amazon.awssdk.s3.version>
-		<docker.username>thuanvn2002</docker.username>
-		<docker.image.name>spotifyapi</docker.image.name>
-		<docker.image.tag>${project.artifactId}</docker.image.tag>
+		<image>thuanvn2002/spotify:latest</image>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -37,7 +35,10 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
-
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-devtools</artifactId>
@@ -190,7 +191,6 @@
 						</platforms>
 					</from>
 					<to>
-						<image>docker.io/${docker.username}/${docker.image.name}:${docker.image.tag}</image>
 						<tags>
 							<tag>latest</tag>
 						</tags>

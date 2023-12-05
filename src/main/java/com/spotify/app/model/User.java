@@ -94,9 +94,8 @@ public class User implements UserDetails {
 
     @Transient
     public String getPhotoImagePath() {
-        String baseUrl = FileUploadUtil.baseUrl;
         if(photo!=null) {
-            return baseUrl+"/user-photos/" + this.id +"/" + photo ;
+            return photo;
         }
         return FileUploadUtil.baseUrlUserDefault;
     }

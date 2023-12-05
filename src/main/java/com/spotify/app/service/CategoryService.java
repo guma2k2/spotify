@@ -34,10 +34,9 @@ public class CategoryService {
     private final CategoryMapper categoryMapper;
 
     private final PlaylistRepository playlistRepository;
-
     private final int identifyOfCategoryHome = 1;
 
-    private final S3Service s3Service;
+    private final CloudinaryService cloudinaryService;
 
     public Set<CategoryDTO> listParent() {
         Set<Category> categories = categoryRepository.listAllParent();
@@ -164,47 +163,39 @@ public class CategoryService {
         return playlistRepository
                 .findById(playlistId)
                 .orElseThrow(() ->
-                        new ResourceNotFoundException(String.format("playlist with id: [%d] not found",playlistId)));
+                        new ResourceNotFoundException(String.format("playlist with id: [%d] not found", playlistId)));
     }
 
     public void saveCategoryImage(MultipartFile image, Integer categoryId) {
         Category underSave = get(categoryId);
         if (!image.isEmpty()) {
-            String fileName = StringUtils.cleanPath(image.getOriginalFilename());
-            underSave.setImage(fileName);
-            String uploadDir = "category-images/" + categoryId;
-            FileUploadUtil.cleanDir(uploadDir);
-            try {
-                FileUploadUtil.saveFile(uploadDir, fileName, image);
-            } catch (IOException e) {
-                throw new RuntimeException(e.getMessage());
+            String fileDir = String.format("category-images/%d/", categoryId);
+
+            if(underSave.getImage() != null) {
+                String currentFileDir = underSave.getImage();
+                cloudinaryService.destroyFile(currentFileDir);
             }
-        } else {
-            if (underSave.getImage().isEmpty()){
-                underSave.setImage(null);
-            }
+            String newFileDir = fileDir + StringUtils.cleanPath(image.getOriginalFilename());
+            String newPath = cloudinaryService.uploadFile(image, newFileDir);
+            underSave.setImage(newPath);
+            categoryRepository.save(underSave);
         }
-        categoryRepository.save(underSave);
     }
 
     public void saveCategoryThumbnail(MultipartFile thumbnail, Integer categoryId) {
         Category underSave = get(categoryId);
         if (!thumbnail.isEmpty()) {
-            String fileName = StringUtils.cleanPath(thumbnail.getOriginalFilename());
-            underSave.setThumbnail(fileName);
-            String uploadDir = "category-thumbnails/" + categoryId;
-            FileUploadUtil.cleanDir(uploadDir);
-            try {
-                FileUploadUtil.saveFile(uploadDir, fileName, thumbnail);
-            } catch (IOException e) {
-                throw new RuntimeException(e.getMessage());
+            String fileDir = String.format("category-thumbnails/%d/", categoryId);
+
+            if(underSave.getThumbnail() != null) {
+                String currentFileDir = underSave.getThumbnail();
+                cloudinaryService.destroyFile(currentFileDir);
             }
-        } else {
-            if (underSave.getThumbnail().isEmpty()){
-                underSave.setThumbnail(null);
-            }
+            String newFileDir = fileDir + StringUtils.cleanPath(thumbnail.getOriginalFilename());
+            String newPath = cloudinaryService.uploadFile(thumbnail, newFileDir);
+            underSave.setThumbnail(newPath);
+            categoryRepository.save(underSave);
         }
-        categoryRepository.save(underSave);
     }
 
     public String updateStatusCategory(Integer categoryId) {
@@ -214,68 +205,5 @@ public class CategoryService {
         String status = !category.isStatus() ? "disabled" : "enabled";
         return String.format("category with id: %d is ".concat(status),categoryId);
     }
-
-    ///////////////////////////////////////////// S3 SERVICE //////////////////////////////////////////////////////
-
-//    public byte[] getCategoryImage(Integer categoryId) {
-//        Category underGet = get(categoryId);
-//        if (underGet.getImage().isEmpty()) {
-//            throw new ResourceNotFoundException(
-//                    "category id :[%d] not found image".formatted(categoryId));
-//        }
-//
-//        byte[] albumImage = s3Service.getObject(
-//                "category/image/%d/%s".formatted(categoryId, underGet.getImage())
-//        );
-//        return albumImage;
-//    }
-//
-//    public byte[] getCategoryThumbnail(Integer categoryId) {
-//        Category underGet = get(categoryId);
-//        if (underGet.getThumbnail().isEmpty()) {
-//            throw new ResourceNotFoundException(
-//                    "category id :[%d] not found thumbnail".formatted(categoryId));
-//        }
-//
-//        byte[] categoryThumbnail = s3Service.getObject(
-//                "category/thumbnail/%d/%s".formatted(categoryId, underGet.getThumbnail())
-//        );
-//        return categoryThumbnail;
-//    }
-
-//    public void saveCategoryImage(MultipartFile image, Integer categoryId) {
-//        Category underSave = get(categoryId);
-//        if (image != null) {
-//            underSave.setImage(image.getOriginalFilename());
-//            try {
-//                if(!underSave.getImage().isEmpty()) {
-//                    s3Service.removeObject(String.format("category/image/%d/%s",underSave.getId(),image.getOriginalFilename()));
-//                }
-//                s3Service.putObject(
-//                        String.format("category/image/%d/%s",categoryId,image.getOriginalFilename()),image.getBytes());
-//            } catch (IOException e) {
-//                throw new RuntimeException(e.getMessage());
-//            }
-//            categoryRepository.save(underSave);
-//        }
-//    }
-//
-//    public void saveCategoryThumbnail(MultipartFile thumbnail, Integer categoryId) {
-//        Category underSave = get(categoryId);
-//        if (thumbnail != null) {
-//            underSave.setThumbnail(thumbnail.getOriginalFilename());
-//            try {
-//                if(!underSave.getImage().isEmpty()) {
-//                    s3Service.removeObject(String.format("category/thumbnail/%d/%s",underSave.getId(),thumbnail.getOriginalFilename()));
-//                }
-//                s3Service.putObject(
-//                        String.format("category/thumbnail/%d/%s",categoryId,thumbnail.getOriginalFilename()),thumbnail.getBytes());
-//                categoryRepository.save(underSave);
-//            } catch (IOException e) {
-//                throw new RuntimeException(e.getMessage());
-//            }
-//
-//        }
-//    }
 
 }

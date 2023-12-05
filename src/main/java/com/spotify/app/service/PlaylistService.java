@@ -38,7 +38,7 @@ public class PlaylistService {
     private final PlaylistSongRepository playlistSongRepository;
     private final PlaylistResponseMapper playlistResponseMapper;
     private final PlaylistUserRepository playlistUserRepository;
-    private final S3Service s3Service;
+    private final CloudinaryService cloudinaryService;
     public final String playlistNameHasAllLikedSongOfUser = "Liked Songs";
 
 
@@ -202,41 +202,33 @@ public class PlaylistService {
     public void savePlaylistImage(MultipartFile image, Long playlistId) {
         Playlist underSave = get(playlistId);
         if (!image.isEmpty()) {
-            String fileName = StringUtils.cleanPath(image.getOriginalFilename());
-            underSave.setImage(fileName);
-            String uploadDir = "playlist-images/" + playlistId;
-            FileUploadUtil.cleanDir(uploadDir);
-            try {
-                FileUploadUtil.saveFile(uploadDir, fileName, image);
-            } catch (IOException e) {
-                throw new RuntimeException(e.getMessage());
+            String fileDir = String.format("playlist-images/%d/", playlistId);
+
+            if(underSave.getImage() != null) {
+                String currentFileDir = underSave.getImage();
+                cloudinaryService.destroyFile(currentFileDir);
             }
-        } else {
-            if (underSave.getImage().isEmpty()){
-                underSave.setImage(null);
-            }
+            String newFileDir = fileDir + StringUtils.cleanPath(image.getOriginalFilename());
+            String newPath = cloudinaryService.uploadFile(image, newFileDir);
+            underSave.setImage(newPath);
+            playlistRepository.save(underSave);
         }
-        playlistRepository.save(underSave);
     }
 
     public void savePlaylistThumbnail(MultipartFile thumbnail, Long playlistId) {
         Playlist underSave = get(playlistId);
         if (!thumbnail.isEmpty()) {
-            String fileName = StringUtils.cleanPath(thumbnail.getOriginalFilename());
-            underSave.setThumbnail(fileName);
-            String uploadDir = "playlist-thumbnails/" + playlistId;
-            FileUploadUtil.cleanDir(uploadDir);
-            try {
-                FileUploadUtil.saveFile(uploadDir, fileName, thumbnail);
-            } catch (IOException e) {
-                throw new RuntimeException(e.getMessage());
+            String fileDir = String.format("playlist-thumbnails/%d/", playlistId);
+
+            if(underSave.getThumbnail() != null) {
+                String currentFileDir = underSave.getThumbnail();
+                cloudinaryService.destroyFile(currentFileDir);
             }
-        } else {
-            if (underSave.getThumbnail().isEmpty()){
-                underSave.setThumbnail(null);
-            }
+            String newFileDir = fileDir + StringUtils.cleanPath(thumbnail.getOriginalFilename());
+            String newPath = cloudinaryService.uploadFile(thumbnail, newFileDir);
+            underSave.setThumbnail(newPath);
+            playlistRepository.save(underSave);
         }
-        playlistRepository.save(underSave);
     }
 
     private String convertTotalTime(List<PlaylistSong> playlistSongs) {

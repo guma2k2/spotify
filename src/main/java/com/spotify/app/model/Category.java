@@ -50,17 +50,15 @@ public class Category {
 
     @Transient
     public String getImagePath() {
-        String baseUrl = FileUploadUtil.baseUrl;
         if(image!=null) {
-            return baseUrl+"/category-images/" + this.id +"/"+image ;
+            return image;
         }
         return FileUploadUtil.baseUrlPlaylistImage;
     }
     @Transient
     public String getThumbnailPath() {
-        String baseUrl = FileUploadUtil.baseUrl;
         if(thumbnail!=null) {
-            return baseUrl+"/category-thumbnails/" + this.id + "/" +thumbnail ;
+            return thumbnail;
         }
         return FileUploadUtil.baseUrlPlaylistImage;
     }

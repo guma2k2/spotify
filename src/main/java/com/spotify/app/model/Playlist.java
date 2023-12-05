@@ -53,9 +53,8 @@ public class Playlist {
 
     @Transient
     public String getThumbnailPath() {
-        String baseUrl = FileUploadUtil.baseUrl;
         if(thumbnail!=null) {
-            return baseUrl+"/playlist-thumbnails/" + this.id + "/" + thumbnail ;
+            return thumbnail;
         }
         if (this.name.equals("Liked Songs")) {
             return FileUploadUtil.baseUrlThumbnailPlaylistLikedSongs;
@@ -64,9 +63,8 @@ public class Playlist {
     }
     @Transient
     public String getImagePath() {
-        String baseUrl = FileUploadUtil.baseUrl;
         if(image!=null) {
-            return baseUrl+"/playlist-images/" + this.id + "/" + image ;
+            return image;
         }
         if(this.name.equals("Liked Songs")){
             return FileUploadUtil.baseUrlImagePlaylistLikedSongs;

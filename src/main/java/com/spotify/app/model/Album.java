@@ -50,18 +50,16 @@ public class Album {
 
     @Transient
     public String getImagePath() {
-        String baseUrl = FileUploadUtil.baseUrl;
         if(image!=null) {
-            return baseUrl+"/album-images/" + this.id + "/" + image ;
+            return image;
         }
         return FileUploadUtil.baseUrlPlaylistImage;
     }
 
     @Transient
     public String getThumbnailPath() {
-        String baseUrl = FileUploadUtil.baseUrl;
         if(thumbnail!=null) {
-            return baseUrl+"/album-thumbnails/" + this.id + "/" + thumbnail ;
+            return thumbnail;
         }
         return FileUploadUtil.baseUrlPlaylistImage;
     }

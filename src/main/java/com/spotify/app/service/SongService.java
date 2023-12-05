@@ -51,7 +51,7 @@ public class SongService {
     private final ReviewService reviewService ;
     private final RestTemplate restTemplate;
     private final SongSearchResponseMapper songSearchResponseMapper;
-    //    private final S3Service s3Service;
+    private final CloudinaryService cloudinaryService;
 
 
     public Song get(Long songId) {
@@ -75,40 +75,31 @@ public class SongService {
     public void saveSongAudio(MultipartFile audio, Long songId) {
         Song song = get(songId);
         if (!audio.isEmpty()) {
-            String fileName = StringUtils.cleanPath(audio.getOriginalFilename());
-            song.setAudio(fileName);
-            String uploadDir = "song-audios/" + songId;
-            FileUploadUtil.cleanDir(uploadDir);
-            try {
-                FileUploadUtil.saveFile(uploadDir, fileName, audio);
-            } catch (IOException e) {
-                throw new RuntimeException(e.getMessage());
+            String fileDir = String.format("song-audios/%d/", songId);
+            if(song.getAudio() != null) {
+                String currentFileDir =  song.getAudio();
+                cloudinaryService.destroyFile(currentFileDir);
             }
-        } else {
-            if (song.getAudio().isEmpty()){
-                song.setAudio(null);
-            }
+            String newFileDir = fileDir + StringUtils.cleanPath(audio.getOriginalFilename()) ;
+            String songAudioPath = cloudinaryService.uploadFile(audio, newFileDir);
+            song.setAudio(songAudioPath);
+            songRepository.save(song);
         }
-        songRepository.save(song);
     }
     public void saveSongImage(MultipartFile image, Long songId) {
         Song song = get(songId);
         if (!image.isEmpty()) {
-            String fileName = StringUtils.cleanPath(image.getOriginalFilename());
-            song.setImage(fileName);
-            String uploadDir = "song-images/" + songId;
-            FileUploadUtil.cleanDir(uploadDir);
-            try {
-                FileUploadUtil.saveFile(uploadDir, fileName, image);
-            } catch (IOException e) {
-                throw new RuntimeException(e.getMessage());
+            String fileDir = String.format("song-images/%d/", songId);
+
+            if(song.getImage() != null) {
+                String currentFileDir = song.getImage();
+                cloudinaryService.destroyFile(currentFileDir);
             }
-        } else {
-            if (song.getImage().isEmpty()){
-                song.setImage(null);
-            }
+            String newFileDir = fileDir + StringUtils.cleanPath(image.getOriginalFilename()) ;
+            String songImagePath = cloudinaryService.uploadFile(image, newFileDir);
+            song.setImage(songImagePath);
+            songRepository.save(song);
         }
-        songRepository.save(song);
     }
     public SongResponse findBySong(Song song, PlaylistSong playlistSong) {
 
@@ -132,9 +123,11 @@ public class SongService {
     public List<SongDTO> findAll() {
         return songMapper.songsToSongsDTO(songRepository.findAll());
     }
+
     public boolean checkSongExitByName(String name) {
         return songRepository.findByName(name).isPresent();
     }
+
     public List<SongSearchResponse> findByNameFullText(String name) {
         Sort sort = Sort.by("id").ascending();
         Pageable pageable = PageRequest.of(0,5,sort);

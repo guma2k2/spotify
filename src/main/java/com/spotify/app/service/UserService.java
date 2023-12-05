@@ -14,6 +14,8 @@ import com.spotify.app.utility.FileUploadUtil;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.tomcat.util.http.fileupload.FileUpload;
+import org.aspectj.util.FileUtil;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -45,8 +47,9 @@ public class UserService {
     private final AlbumService albumService;
     private final PlaylistService playlistService;
     private final RoleService roleService;
+    private final CloudinaryService cloudinaryService;
     private final int userPerPage = 10 ;
-    //    private final S3Service s3Service;
+
 
 
     public UserDTO findByIdReturnRoleAndSongs(Long userId) {
@@ -227,25 +230,16 @@ public class UserService {
     public void uploadPhoto(MultipartFile photo, Long userId) {
         User user = get(userId);
         if (!photo.isEmpty()) {
-            String fileName = StringUtils.cleanPath(photo.getOriginalFilename());
-
-            user.setPhoto(fileName);
-
-            String uploadDir = "user-photos/" + userId;
-
-            FileUploadUtil.cleanDir(uploadDir);
-            try {
-                FileUploadUtil.saveFile(uploadDir, fileName, photo);
-            } catch (IOException e) {
-                throw new RuntimeException(e.getMessage());
+            String fileDir = String.format("user-photos/%d/", userId);
+            if(user.getPhoto() != null) {
+                String currentFileDir = user.getPhoto();
+                cloudinaryService.destroyFile(currentFileDir);
             }
-
-        } else {
-            if (user.getPhoto().isEmpty()){
-                user.setPhoto(null);
-            }
+            String newFileDir = fileDir + StringUtils.cleanPath(photo.getOriginalFilename()) ;
+            String photoUserDir  = cloudinaryService.uploadFile(photo, newFileDir);
+            user.setPhoto(photoUserDir);
+            userRepository.save(user);
         }
-        userRepository.save(user);
     }
 
     public String updateStatus(Long userId) {
@@ -255,33 +249,5 @@ public class UserService {
         String status = !user.isStatus() ? "disabled" : "enabled";
         return String.format("user with id: %d is ".concat(status),userId);
     }
-
-//    public void uploadPhoto(MultipartFile photo, Long userId) {
-//        User user = get(userId);
-//        if (!photo.isEmpty()) {
-//            user.setPhoto(photo.getOriginalFilename());
-//            try {
-//                s3Service.putObject(
-//                        String.format("user/photo/%d/%s",userId,photo.getOriginalFilename()),photo.getBytes());
-//            } catch (IOException e) {
-//                throw new RuntimeException(e.getMessage());
-//            }
-//            userRepository.save(user);
-//        }
-//    }
-
-
-//    public byte[] getPhotoImage(Long userId) {
-//        User underGet = get(userId);
-//        if (underGet.getPhoto().isEmpty()) {
-//            throw new ResourceNotFoundException(
-//                    "user id :[%d] not found photo".formatted(userId));
-//        }
-//
-//        byte[] playlistImage = s3Service.getObject(
-//                "user/photo/%d/%s".formatted(userId, underGet.getPhoto())
-//        );
-//        return playlistImage;
-//    }
 }
 

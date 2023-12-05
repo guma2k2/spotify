@@ -73,18 +73,16 @@ public class Song {
 
     @Transient
     public String getAudioPath() {
-        String baseUrl = FileUploadUtil.baseUrl;
         if(audio!=null) {
-            return baseUrl+ "/song-audios/" + this.id + "/" + audio ;
+            return audio ;
         }
         return FileUploadUtil.baseUrlFail;
     }
 
     @Transient
     public String getImagePath() {
-        String baseUrl = FileUploadUtil.baseUrl;
         if(image!=null) {
-            return baseUrl+ "/song-images/" + this.id + "/" + image ;
+            return image ;
         }
         return FileUploadUtil.baseUrlFail;
     }

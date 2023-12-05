@@ -19,10 +19,14 @@
 		<io.jsonwebtoken.jjwt-impl.version>0.11.5</io.jsonwebtoken.jjwt-impl.version>
 		<io.jsonwebtoken.jjwt.version>0.9.1</io.jsonwebtoken.jjwt.version>
 		<io.jsonwebtoken.jjwt-jackson.version>0.11.5</io.jsonwebtoken.jjwt-jackson.version>
-		<software.amazon.awssdk.s3.version>2.20.68</software.amazon.awssdk.s3.version>
 		<image>thuanvn2002/spotify:latest</image>
 	</properties>
 	<dependencies>
+		<dependency>
+			<groupId>com.cloudinary</groupId>
+			<artifactId>cloudinary-http44</artifactId>
+			<version>1.35.0</version>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -136,11 +140,6 @@
 			<groupId>org.testcontainers</groupId>
 			<artifactId>junit-jupiter</artifactId>
 			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>software.amazon.awssdk</groupId>
-			<artifactId>s3</artifactId>
-			<version>${software.amazon.awssdk.s3.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.flywaydb</groupId>

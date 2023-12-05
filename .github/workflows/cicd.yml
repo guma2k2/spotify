@@ -39,6 +39,7 @@ jobs:
         if: steps.check_directory.outputs.directory_exists == 'false'
         run: |
           git clone ${{secrets.GIT_REPO_SPOTIFY}} spotify
+          cd /home/thuanngo3072002/actions-runner/azure/spotify/spotify/spotify
           echo "Current Directory: $(pwd)"
           ls
 
@@ -48,7 +49,7 @@ jobs:
           sudo rm -rf spotify
           git clone ${{secrets.GIT_REPO_SPOTIFY}} spotify
           echo "Current Directory: $(pwd)"
-          cd spotify
+          cd /home/thuanngo3072002/actions-runner/azure/spotify/spotify/spotify
           echo "Current Directory: $(pwd)"
           ls 
 

@@ -60,6 +60,8 @@ public class UserServiceTest {
     private  PlaylistService playlistService;
     @Mock
     private  RoleService roleService;
+    @Mock
+    private  CloudinaryService cloudinaryService;
 
     private UserService underTest ;
 
@@ -76,7 +78,8 @@ public class UserServiceTest {
                 followerService,
                 albumService,
                 playlistService,
-                roleService
+                roleService,
+                cloudinaryService
                 ) ;
     }
 

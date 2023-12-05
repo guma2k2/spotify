@@ -13,6 +13,7 @@ import com.spotify.app.model.Playlist;
 import com.spotify.app.model.PlaylistSong;
 import com.spotify.app.model.Song;
 import com.spotify.app.repository.*;
+import com.spotify.app.service.CloudinaryService;
 import com.spotify.app.service.ReviewService;
 import com.spotify.app.service.SongService;
 import lombok.extern.slf4j.Slf4j;
@@ -57,9 +58,9 @@ public class SongServiceTest {
     private  RestTemplate restTemplate;
     @Mock
     private  SongSearchResponseMapper songSearchResponseMapper;
-
+    @Mock
+    private CloudinaryService cloudinaryService;
     private SongService underTest ;
-
     @BeforeEach
     public void setUp() {
         underTest = new SongService(
@@ -73,7 +74,8 @@ public class SongServiceTest {
                 albumRepository,
                 reviewService,
                 restTemplate,
-                songSearchResponseMapper
+                songSearchResponseMapper,
+                cloudinaryService
         ) ;
     }
     @Test

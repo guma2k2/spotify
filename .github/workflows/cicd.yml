@@ -36,8 +36,9 @@ jobs:
       - name: Clone or update repository
         if: steps.check_directory.outputs.directory_exists == 'false'
         run: |
-          git clone ${{secrets.GIT_REPO_SPOTIFY}} spotify
-          cd spotify  
+          mkdir -p /home/thuanngo3072002/actions-runner/azure/spotify
+          cd /home/thuanngo3072002/actions-runner/azure/spotify
+          git clone ${{secrets.GIT_REPO_SPOTIFY}} .
           echo "Current Directory: $(pwd)"
 
       - name: Remove existing directory and clone again

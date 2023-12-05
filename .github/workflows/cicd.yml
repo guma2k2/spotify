@@ -43,29 +43,30 @@ jobs:
       - name: Remove existing directory and clone again
         if: steps.check_directory.outputs.directory_exists == 'true'
         run: |
-          rm -rf spotify
+          sudo rm -rf spotify
           git clone ${{secrets.GIT_REPO_SPOTIFY}} spotify
           cd spotify  
           echo "Current Directory: $(pwd)"
+          ls 
 
-      - name: Check if Docker Compose project is running
-        id: check_docker_compose
-        run: |
-          if docker-compose --project-name spotify-server ps | grep -q "Up"; then
-            echo "Docker Compose project 'spotify-server' is running."
-            echo "::set-output name=docker_compose_running::true"
-          else
-            echo "Docker Compose project 'spotify-server' is not running."
-            echo "::set-output name=docker_compose_running::false"
-          fi
-
-      - name: Stop and remove Docker Compose project if running
-        if: steps.check_docker_compose.outputs.docker_compose_running == 'true'
-        run: |
-          sudo docker compose --project-name spotify-server down
-
-      - name: Run server with Docker Compose
-        run: sudo docker compose --project-name spotify-server up
+#      - name: Check if Docker Compose project is running
+#        id: check_docker_compose
+#        run: |
+#          if docker-compose --project-name spotify-server ps | grep -q "Up"; then
+#            echo "Docker Compose project 'spotify-server' is running."
+#            echo "::set-output name=docker_compose_running::true"
+#          else
+#            echo "Docker Compose project 'spotify-server' is not running."
+#            echo "::set-output name=docker_compose_running::false"
+#          fi
+#
+#      - name: Stop and remove Docker Compose project if running
+#        if: steps.check_docker_compose.outputs.docker_compose_running == 'true'
+#        run: |
+#          sudo docker compose --project-name spotify-server down
+#
+#      - name: Run server with Docker Compose
+#        run: sudo docker compose --project-name spotify-server up
 
 
 

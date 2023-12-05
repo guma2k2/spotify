@@ -23,7 +23,8 @@ spring:
     password: 'password'
     username: admin
     url: jdbc:mysql://db-awss.cg62znhurkgd.ap-southeast-2.rds.amazonaws.com:3306/spotify-aws
-aws:
-  bucket:
-    name: thuanvn
-  region: ap-southeast-1
+  cloudinary:
+    name: di6h4mtfa
+    api:
+      key: 593637822396816
+      secret: u3aoCSJzt31lcqOJBsgykwTq81o

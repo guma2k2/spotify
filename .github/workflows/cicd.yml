@@ -40,6 +40,7 @@ jobs:
         run: |
           git clone ${{secrets.GIT_REPO_SPOTIFY}} spotify
           echo "Current Directory: $(pwd)"
+          ls
 
       - name: Remove existing directory and clone again
         if: steps.check_directory.outputs.directory_exists == 'true'

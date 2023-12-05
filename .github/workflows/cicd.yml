@@ -67,10 +67,10 @@ jobs:
       - name: Stop and remove Docker Compose project if running
         if: steps.check_docker_compose.outputs.docker_compose_running == 'true'
         run: |
-          sudo docker-compose --project-name spotify-server down 
+          sudo docker compose --project-name spotify-server down 
 
       - name: Run server with Docker Compose
-        run: sudo docker-compose --project-name spotify-server up -d
+        run: sudo docker compose --project-name spotify-server up -d
 
 
 

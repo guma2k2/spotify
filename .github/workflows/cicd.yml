@@ -38,6 +38,7 @@ jobs:
         run: |
           git clone ${{secrets.GIT_REPO_SPOTIFY}} spotify
           cd spotify  
+          echo "Current Directory: $(pwd)"
 
       - name: Remove existing directory and clone again
         if: steps.check_directory.outputs.directory_exists == 'true'
@@ -45,6 +46,7 @@ jobs:
           rm -rf spotify
           git clone ${{secrets.GIT_REPO_SPOTIFY}} spotify
           cd spotify  
+          echo "Current Directory: $(pwd)"
 
       - name: Check if Docker Compose project is running
         id: check_docker_compose

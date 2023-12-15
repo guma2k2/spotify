@@ -46,14 +46,13 @@ public class AlbumController {
         return ResponseEntity.ok().body(albumService.findById(albumId));
     }
 
-
-
     @GetMapping("/{albumId}/add/{songId}")
     public ResponseEntity<?> addSongToAlbum(
             @PathVariable("albumId") Long albumId,
             @PathVariable("songId") Long songId
     ) {
-        return ResponseEntity.ok().body(albumService.addSong(albumId, songId));
+        albumService.addSong(albumId, songId);
+        return ResponseEntity.ok().body(albumService.findById(albumId));
     }
 
     @GetMapping("/{albumId}/remove/{songId}")
@@ -61,7 +60,8 @@ public class AlbumController {
             @PathVariable("albumId") Long albumId,
             @PathVariable("songId") Long songId
     ) {
-        return ResponseEntity.ok().body(albumService.removeSong(albumId,songId));
+        albumService.removeSong(albumId,songId);
+        return ResponseEntity.ok().body(albumService.findById(albumId));
     }
 
     @GetMapping

@@ -18,59 +18,6 @@ jobs:
         run: docker login -u ${{secrets.DOCKER_USERNAME}} -p ${{secrets.DOCKER_PASSWORD}}
       - name: Build project and push to dockerhub
         run: mvn clean install jib:build
-  deploy:
-    needs: build
-    runs-on: [ azure ]
-    steps:
-      - name: Check if directory exists
-        id: check_directory
-        run: |
-          if [ -d spotify ]; then
-            echo "Directory 'spotify' exists."
-            echo "::set-output name=directory_exists::true"
-            ls
-          else
-            echo "Directory 'spotify' does not exist."
-            echo "::set-output name=directory_exists::false"
-            ls 
-          fi
-
-      - name: Clone or update repository
-        if: steps.check_directory.outputs.directory_exists == 'false'
-        run: |
-          git clone ${{secrets.GIT_REPO_SPOTIFY}} spotify
-          cd /home/thuanngo3072002/actions-runner/azure/spotify/spotify/spotify
-          echo "Current Directory: $(pwd)"
-          ls
-
-      - name: Remove existing directory and clone again
-        if: steps.check_directory.outputs.directory_exists == 'true'
-        run: |
-          sudo rm -rf spotify
-          git clone ${{secrets.GIT_REPO_SPOTIFY}} spotify
-          echo "Current Directory: $(pwd)"
-          cd /home/thuanngo3072002/actions-runner/azure/spotify/spotify/spotify
-          echo "Current Directory: $(pwd)"
-          ls 
-
-      - name: Check if Docker Compose project is running
-        id: check_docker_compose
-        run: |
-          if docker-compose --project-name spotify-server ps | grep -q "Up"; then
-            echo "Docker Compose project 'spotify-server' is running."
-            echo "::set-output name=docker_compose_running::true"
-          else
-            echo "Docker Compose project 'spotify-server' is not running."
-            echo "::set-output name=docker_compose_running::false"
-          fi
-
-      - name: Stop and remove Docker Compose project if running
-        if: steps.check_docker_compose.outputs.docker_compose_running == 'true'
-        run: |
-          sudo docker compose --project-name spotify-server down 
-
-      - name: Run server with Docker Compose
-        run: sudo docker compose --project-name spotify-server up -d
 
 
 

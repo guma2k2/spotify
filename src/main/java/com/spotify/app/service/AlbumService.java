@@ -42,6 +42,8 @@ public class AlbumService {
     private final AlbumRequestMapper albumRequestMapper;
     private final SongResponseMapper songResponseMapper;
     private final CloudinaryService cloudinaryService;
+
+
     public AlbumDTO findById(Long albumId) {
         // find album by id return their songs
         Album album = albumRepository.
@@ -53,13 +55,13 @@ public class AlbumService {
 
         int songCount = albumSongs.size();
 
-        String totalTime =  convertTotalTime(albumSongs);
+        String totalTime =  this.convertTotalTime(albumSongs);
 
         // Map List albumSong to Song list
 
         List<Song> songs = null;
         List<SongResponse> songResponses = null;
-        if (!albumSongs.isEmpty()) {
+        if (albumSongs.size() != 0) {
             songs = albumSongs.stream().map(AlbumSong::getSong).filter(Song::isStatus).toList();
 
             // Map Song to Song DTO
@@ -104,26 +106,28 @@ public class AlbumService {
         return albumRepository.
                 findById(albumId).
                 orElseThrow(() ->
-                        new ResourceNotFoundException(String.format("album with id [%d] not found",albumId)));
+                        new ResourceNotFoundException(String.format("album with id [%d] not found", albumId)));
     }
 
 
-    @Transactional
-    public AlbumDTO addSong(Long albumId, Long songId) {
-        Album album = get(albumId);
-        Song song = getSongBySongId(songId);
+    public void addSong(Long albumId, Long songId) {
+        Album album = albumRepository.
+                findById(albumId).
+                orElseThrow(() ->
+                        new ResourceNotFoundException(String.format("album with id [%d] not found", albumId)));
+        Song song = songRepository.
+                findById(songId).
+                orElseThrow(() ->
+                        new ResourceNotFoundException(String.format("song with id %d not found", songId))) ;
         album.addSong(song);
         albumRepository.save(album);
-        return findById(albumId);
     }
 
-    @Transactional
-    public AlbumDTO removeSong(Long albumId, Long songId) {
+    public void removeSong(Long albumId, Long songId) {
         Album album = get(albumId);
         Song song = getSongBySongId(songId);
         album.removeSong(song);
         albumRepository.save(album);
-        return findById(albumId);
     }
 
     public List<AlbumResponse> findAll() {
@@ -131,7 +135,6 @@ public class AlbumService {
     }
 
 
-    @Transactional
     public Long addAlbum(Long userId, AlbumRequest request) {
         User user = getUserByUserId(userId);
         Album album = albumRequestMapper.dtoToEntity(request);

@@ -2,6 +2,7 @@ package com.spotify.app.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.spotify.app.utility.FileUploadUtil;
 import jakarta.persistence.*;
 import lombok.*;

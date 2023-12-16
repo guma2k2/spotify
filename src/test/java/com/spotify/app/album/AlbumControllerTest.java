@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spotify.app.controller.AlbumController;
 import com.spotify.app.dto.AlbumDTO;
 import com.spotify.app.dto.request.AlbumRequest;
-import com.spotify.app.dto.response.SongResponse;
 import com.spotify.app.service.AlbumService;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,8 +16,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-
-import java.util.List;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -44,8 +41,7 @@ public class AlbumControllerTest {
     @MockBean
     private AlbumService albumService;
 
-//    @MockBean
-//    private AuthenticationProvider authenticationProvider;
+    private final String prefixUrl = "/api/v1/album";
 
 
     private AlbumDTO albumDTO ;
@@ -60,7 +56,7 @@ public class AlbumControllerTest {
         when(albumService.findById(1L)).thenReturn(albumDTO);
 
         // then
-        this.mockMvc.perform(get("/api/v1/album/1"))
+        this.mockMvc.perform(get(prefixUrl+"/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", Matchers.notNullValue(AlbumDTO.class)))
                 .andExpect(jsonPath("$.name", Matchers.is(albumDTO.name())))

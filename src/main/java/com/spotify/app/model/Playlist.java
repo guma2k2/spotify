@@ -23,7 +23,6 @@ public class Playlist {
     private String name ;
 
     @Column(length = 300)
-
     private String description;
 
     private String image;

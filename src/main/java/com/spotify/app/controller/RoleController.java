@@ -17,6 +17,7 @@ public class RoleController {
 
 
     private final RoleService roleService ;
+
     @GetMapping
     @Operation(description = "List all role")
     public List<RoleDTO> listAll() {

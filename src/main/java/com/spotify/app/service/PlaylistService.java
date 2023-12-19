@@ -123,21 +123,21 @@ public class PlaylistService {
 
 
     @Transactional
-    public void updatePlaylist(Long playlistId,String desc, String name) {
-        Playlist underSave = get(playlistId);
+    public Playlist updatePlaylist(Long playlistId,String desc, String name) {
+        Playlist underUpdate = get(playlistId);
 
-        underSave.setDescription(desc);
-        underSave.setName(name);
+        underUpdate.setDescription(desc);
+        underUpdate.setName(name);
 
-        playlistRepository.save(underSave);
+        return playlistRepository.save(underUpdate);
     }
 
     @Transactional
-    public void addPlaylist(String desc, String name) {
+    public Long addPlaylist(String desc, String name) {
         Playlist underSave = new Playlist();
         underSave.setDescription(desc);
         underSave.setName(name);
-        playlistRepository.save(underSave);
+        return playlistRepository.save(underSave).getId();
     }
 
     public PlaylistResponse getPlaylistByIdForAdmin(Long playlistId) {

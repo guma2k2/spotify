@@ -57,18 +57,18 @@ public class PlaylistController {
                                 @RequestParam(value = "description", required = false) String description,
                                 @RequestParam("name") String name
     ){
-        playlistService.updatePlaylist(playlistId,description,name);
-        return ResponseEntity.ok().body(String.format("Update playlist %d success", playlistId));
+        Playlist updatedPlaylist = playlistService.updatePlaylist(playlistId, description, name);
+        return ResponseEntity.ok().body(playlistService.findByIdReturnSongs(updatedPlaylist.getId()));
     }
 
     @PostMapping("/admin/save")
     @Operation(description = "Save playlist")
-    public ResponseEntity<String> addPlaylist(
+    public ResponseEntity<?> addPlaylist(
                                 @RequestParam(value = "description", required = false) String description,
                                 @RequestParam("name") String name
     ){
-        playlistService.addPlaylist(description,name);
-        return ResponseEntity.ok().body("Save playlist success");
+        Long savedPlaylistId = playlistService.addPlaylist(description, name);
+        return ResponseEntity.ok().body(playlistService.findByIdReturnSongs(savedPlaylistId));
     }
 
 

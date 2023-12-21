@@ -57,8 +57,8 @@ public class PlaylistController {
                                 @RequestParam(value = "description", required = false) String description,
                                 @RequestParam("name") String name
     ){
-        Playlist updatedPlaylist = playlistService.updatePlaylist(playlistId, description, name);
-        return ResponseEntity.ok().body(playlistService.findByIdReturnSongs(updatedPlaylist.getId()));
+        playlistService.updatePlaylist(playlistId, description, name);
+        return ResponseEntity.ok().body(playlistService.findByIdReturnSongs(playlistId));
     }
 
     @PostMapping("/admin/save")

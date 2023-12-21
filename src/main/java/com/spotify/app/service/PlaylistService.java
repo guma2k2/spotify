@@ -123,13 +123,12 @@ public class PlaylistService {
 
 
     @Transactional
-    public Playlist updatePlaylist(Long playlistId,String desc, String name) {
+    public void updatePlaylist(Long playlistId,String desc, String name) {
         Playlist underUpdate = get(playlistId);
-
         underUpdate.setDescription(desc);
         underUpdate.setName(name);
 
-        return playlistRepository.save(underUpdate);
+         playlistRepository.save(underUpdate);
     }
 
     @Transactional

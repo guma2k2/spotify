@@ -127,27 +127,4 @@ public class SongController {
         songService.increaseView(songId);
         return ResponseEntity.ok().body(String.format("increased view of song %d", songId));
     }
-
-
-    //////////////////////////////////// S3 SERVICE ////////////////////////////////////////
-//    @GetMapping(value = "/audio/{songId}",produces = "audio/mpeg")
-//    public ResponseEntity<?> streamAudio(
-//            @PathVariable("songId") Long songId
-//    ) {
-//
-//        return ResponseEntity.ok()
-//                .body(songService.getSongAudio(songId));
-//    }
-//
-//    @GetMapping(
-//            value = "/view/image/{songId}",
-//            produces = {MediaType.IMAGE_PNG_VALUE,MediaType.IMAGE_JPEG_VALUE}
-//    )
-//    public ResponseEntity<?> viewImage(@PathVariable("songId") Long songId) {
-//
-//        return ResponseEntity.ok()
-//                .body(songService.getSongImage(songId));
-//    }
-
-
 }

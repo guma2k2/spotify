@@ -1,6 +1,5 @@
 package com.spotify.app.song;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spotify.app.controller.SongController;
 import com.spotify.app.dto.request.SongRequest;
@@ -16,11 +15,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.bind.MethodArgumentNotValidException;
-
-import java.util.HashMap;
-import java.util.Map;
-
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -31,8 +25,8 @@ import static org.mockito.Mockito.when;
         controllers = SongController.class,
         excludeAutoConfiguration = {
                 UserDetailsServiceAutoConfiguration.class, SecurityAutoConfiguration.class
-        })
-
+        }
+)
 public class SongControllerTest {
 
     @Autowired

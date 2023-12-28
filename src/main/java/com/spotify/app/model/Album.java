@@ -83,4 +83,13 @@ public class Album {
             }
         }
     }
+
+    public Album(Long id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
+    public Album(String name) {
+        this.name = name;
+    }
 }

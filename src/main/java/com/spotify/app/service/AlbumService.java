@@ -124,8 +124,14 @@ public class AlbumService {
     }
 
     public void removeSong(Long albumId, Long songId) {
-        Album album = get(albumId);
-        Song song = getSongBySongId(songId);
+        Album album = albumRepository.
+                findById(albumId).
+                orElseThrow(() ->
+                        new ResourceNotFoundException(String.format("album with id [%d] not found", albumId)));
+        Song song = songRepository.
+                findById(songId).
+                orElseThrow(() ->
+                        new ResourceNotFoundException(String.format("song with id %d not found", songId))) ;
         album.removeSong(song);
         albumRepository.save(album);
     }
@@ -136,7 +142,9 @@ public class AlbumService {
 
 
     public Long addAlbum(Long userId, AlbumRequest request) {
-        User user = getUserByUserId(userId);
+        User user = userRepository.
+                findById(userId).
+                orElseThrow(() -> new ResourceNotFoundException(String.format("user %d not found", userId)));
         Album album = albumRequestMapper.dtoToEntity(request);
         album.setReleaseDate(LocalDateTime.now());
         album.setUser(user);
@@ -145,7 +153,11 @@ public class AlbumService {
     }
 
     public void updateAlbum(Long albumId, AlbumRequest request) {
-        Album album = get(albumId);
+        Album album = albumRepository.
+                findById(albumId).
+                orElseThrow(() ->
+                        new ResourceNotFoundException(String.format("album with id [%d] not found", albumId)));
+
         if(!request.name().equals(album.getName())){
             album.setName(request.name());
         }
@@ -157,19 +169,6 @@ public class AlbumService {
         return albums.stream().map(albumResponseMapper::albumToAlbumResponse).toList();
     }
 
-    public User getUserByUserId(Long userId) {
-        return userRepository.
-                findById(userId).
-                orElseThrow(() -> new ResourceNotFoundException(String.format("user %d not found", userId)));
-    }
-
-
-    public Song getSongBySongId(Long songId) {
-        return songRepository.
-                findById(songId).
-                orElseThrow(() ->
-                        new ResourceNotFoundException(String.format("song with id %d not found",songId))) ;
-    }
 
     public String convertTotalTime(List<AlbumSong> albumSongs) {
         long totalTime = albumSongs.stream()
@@ -200,7 +199,10 @@ public class AlbumService {
     }
 
     public String updateStatusAlbum(Long albumId) {
-        Album album = get(albumId);
+        Album album = albumRepository.
+                findById(albumId).
+                orElseThrow(() ->
+                        new ResourceNotFoundException(String.format("album with id [%d] not found", albumId)));
         album.setStatus(!album.isStatus());
         albumRepository.saveAndFlush(album);
         String status = !album.isStatus() ? "enabled" : "disabled";

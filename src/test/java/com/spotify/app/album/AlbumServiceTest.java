@@ -2,8 +2,10 @@ package com.spotify.app.album;
 
 
 import com.spotify.app.dto.AlbumDTO;
+import com.spotify.app.dto.request.AlbumRequest;
 import com.spotify.app.dto.response.SongResponse;
 import com.spotify.app.dto.response.UserNoAssociationResponse;
+import com.spotify.app.exception.ResourceNotFoundException;
 import com.spotify.app.mapper.AlbumMapper;
 import com.spotify.app.mapper.AlbumRequestMapper;
 import com.spotify.app.mapper.AlbumResponseMapper;
@@ -22,6 +24,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -31,7 +34,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -126,46 +129,202 @@ public class AlbumServiceTest {
         assertThat(actual).isEqualTo(album);
     }
 
-    // add song
-//    @Test
-//    public void canAddSong ()  {
-//        // given
-//        Long albumId = 2L;
-//        Long songId = 1L;
-//        Album album2 = new Album(albumId);
-//        Song song3 = new Song(songId);
-//        AlbumSong albumSong = new AlbumSong(album2, song3);
-//
-//        List<AlbumSong> albumSongList = List.of(albumSong);
-//        album2.setAlbumSongList(albumSongList);
-//        // when
-//        when(albumRepository.findById(albumId)).thenReturn(Optional.of(album2));
-//        when(songRepository.findById(songId)).thenReturn(Optional.of(song3));
-//        albumService.addSong(albumId, songId);
-//    }
-
-    // remove song
     @Test
-    public void canRemoveSong () {
+    public void canAddSong ()  {
+        Long albumId = 1L;
+        Long songId = 2L;
 
+        // Mocking the Album and Song
+        Album album = new Album();
+        album.setId(albumId);
+
+        Song song = new Song();
+        song.setId(songId);
+
+        // Mocking the repository responses
+        Mockito.when(albumRepository.findById(albumId)).thenReturn(Optional.of(album));
+        Mockito.when(songRepository.findById(songId)).thenReturn(Optional.of(song));
+        Mockito.when(albumRepository.save(Mockito.any(Album.class))).thenReturn(album);
+
+        // Calling the service method
+        albumService.addSong(albumId, songId);
+
+        // Verifying that the repository methods were called
+        Mockito.verify(albumRepository, Mockito.times(1)).findById(albumId);
+        Mockito.verify(songRepository, Mockito.times(1)).findById(songId);
+        Mockito.verify(albumRepository, Mockito.times(1)).save(album);
     }
 
-    // add album
+    @Test
+    public void shouldThrowExceptionWithNonexistentAlbum () {
+        Long albumId = 1L;
+        Long songId = 2L;
+        Mockito.when(albumRepository.findById(albumId)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () -> {
+            albumService.addSong(albumId, songId);
+        });
+        Mockito.verify(albumRepository, Mockito.times(1)).findById(albumId);
+        Mockito.verify(songRepository, Mockito.never()).findById(albumId);
+        Mockito.verify(albumRepository, Mockito.never()).save(Mockito.any(Album.class));
+
+    }
+    // remove song
+    @Test
+    public void canRemoveSong() {
+        // Sample data
+        Long albumId = 1L;
+        Long songId = 2L;
+
+        // Mocking the Album and Song
+        Album album = new Album();
+        album.setId(albumId);
+
+        Song song = new Song();
+        song.setId(songId);
+
+        // Mocking the repository responses
+        Mockito.when(albumRepository.findById(albumId)).thenReturn(Optional.of(album));
+        Mockito.when(songRepository.findById(songId)).thenReturn(Optional.of(song));
+        Mockito.when(albumRepository.save(Mockito.any(Album.class))).thenReturn(album);
+
+        // Calling the service method
+        albumService.removeSong(albumId, songId);
+
+        // Verifying that the repository methods were called
+        Mockito.verify(albumRepository, Mockito.times(1)).findById(albumId);
+        Mockito.verify(songRepository, Mockito.times(1)).findById(songId);
+        Mockito.verify(albumRepository, Mockito.times(1)).save(album);
+    }
+
+    @Test
+    public void cannotRemoveSongWithNonexistentAlbum() {
+        // Sample data
+        Long albumId = 1L;
+        Long songId = 2L;
+
+        // Mocking the repository responses
+        Mockito.when(albumRepository.findById(albumId)).thenReturn(Optional.empty());
+
+        // Calling the service method and expecting an exception
+        assertThrows(ResourceNotFoundException.class, () -> {
+            albumService.removeSong(albumId, songId);
+        });
+
+        // Verifying that the repository methods were called
+        Mockito.verify(albumRepository, Mockito.times(1)).findById(albumId);
+        Mockito.verify(songRepository, Mockito.never()).findById(songId);
+        Mockito.verify(albumRepository, Mockito.never()).save(Mockito.any(Album.class));
+    }
+
 
     @Test
     public void canAddAlbum () {
+        // given
+        Long userId = 1L;
+        Long albumId= 1L;
+        AlbumRequest request = new AlbumRequest("album_name");
+        Album album1 = new Album(albumId,"album_name");
+        User user1 = new User(userId);
 
+        // when
+        Mockito.when(userRepository.findById(userId)).thenReturn(Optional.of(user1));
+        Mockito.when(albumRequestMapper.dtoToEntity(request)).thenReturn(album1);
+        Mockito.when(albumRepository.save(album1)).thenReturn(album1);
+        var actualId = albumService.addAlbum(userId, request);
+
+        // then
+        assertEquals(actualId, albumId);
+        Mockito.verify(userRepository, Mockito.times(1)).findById(userId);
+        Mockito.verify(albumRepository, Mockito.times(1)).save(Mockito.any(Album.class));
+    }
+
+    @Test
+    public void cannotAddAlbumWithNonexistentUser() {
+        // Sample data
+        Long userId = 1L;
+        String albumName = "albumName";
+        AlbumRequest albumRequest = new AlbumRequest(albumName);
+
+        // Mocking the UserRepository response
+        Mockito.when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        // Calling the service method and expecting an exception
+        assertThrows(ResourceNotFoundException.class, () -> {
+            albumService.addAlbum(userId, albumRequest);
+        });
+
+        // Verifying that the repository methods were called
+        Mockito.verify(userRepository, Mockito.times(1)).findById(userId);
+        Mockito.verify(albumRequestMapper, Mockito.never()).dtoToEntity(Mockito.any(AlbumRequest.class));
+        Mockito.verify(albumRepository, Mockito.never()).save(Mockito.any(Album.class));
     }
     // remove album
     @Test
-    public void canRemoveAlbum () {
+    public void canUpdateAlbum () {
+        // given
+        Long albumId = 1L;
+        String updatedName = "Updated Album Name";
+        Album existingAlbum = new Album();
+        existingAlbum.setId(albumId);
+        existingAlbum.setName("Old Album Name");
+        AlbumRequest request = new AlbumRequest(updatedName);
 
+        // when
+        Mockito.when(albumRepository.findById(albumId)).thenReturn(Optional.of(existingAlbum));
+        Mockito.when(albumRepository.save(Mockito.any(Album.class))).thenReturn(existingAlbum);
+        albumService.updateAlbum(albumId, request);
+        // then
+        Mockito.verify(albumRepository, Mockito.times(1)).findById(albumId);
+        Mockito.verify(albumRepository, Mockito.times(1)).save(existingAlbum);
+        assertEquals(updatedName, existingAlbum.getName());
+
+    }
+
+    @Test
+    public void cannotUpdateAlbumWithNonexistentAlbum() {
+        // Sample data
+        Long albumId = 1L;
+        String updatedName = "Updated Album Name";
+
+        // Mocking the AlbumRepository response
+        Mockito.when(albumRepository.findById(albumId)).thenReturn(Optional.empty());
+
+        // Calling the service method and expecting an exception
+        assertThrows(ResourceNotFoundException.class, () -> {
+            AlbumRequest updateRequest = new AlbumRequest(updatedName);
+            albumService.updateAlbum(albumId, updateRequest);
+        });
+
+        // Verifying that the repository methods were called
+        Mockito.verify(albumRepository, Mockito.times(1)).findById(albumId);
+        Mockito.verify(albumRepository, Mockito.never()).save(Mockito.any(Album.class));
     }
 
     // update status
     @Test
     public void canUpdateStatus () {
+        Long albumId = 1L;
 
+        // Mocking the AlbumRepository response
+        Album existingAlbum = new Album();
+        existingAlbum.setId(albumId);
+        existingAlbum.setStatus(true);
+
+        Mockito.when(albumRepository.findById(albumId)).thenReturn(Optional.of(existingAlbum));
+        existingAlbum.setStatus(false);
+        Mockito.when(albumRepository.saveAndFlush(Mockito.any(Album.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // Calling the service method
+        String result = albumService.updateStatusAlbum(albumId);
+
+        // Verifying that the repository methods were called
+        Mockito.verify(albumRepository, Mockito.times(1)).findById(albumId);
+        Mockito.verify(albumRepository, Mockito.times(1)).saveAndFlush(existingAlbum);
+
+        // Verifying the result
+        String expectedStatusMessage = "album with id: 1 is disabled"; // Assuming initial status is true
+        assertEquals(expectedStatusMessage, result);
     }
 
 

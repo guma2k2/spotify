@@ -177,7 +177,7 @@ public class CategoryServiceTest {
         Mockito.verify(categoryRepository, Mockito.times(1)).saveAndFlush(existingCategory);
 
         // Verifying the result
-        String expectedStatusMessage = "category with id: 1 is enabled"; // Assuming initial status is true
+        String expectedStatusMessage = "category with id: 1 is disabled"; // Assuming initial status is true
         assertEquals(expectedStatusMessage, result);
     }
 

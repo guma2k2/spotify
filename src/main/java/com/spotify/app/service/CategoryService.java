@@ -74,10 +74,6 @@ public class CategoryService {
         }
     }
 
-    private void checkCategoryExitByTitle(String title) {
-
-    }
-
     @Transactional
     public void updateCategory( Integer categoryId, String title, String categoryParentTitle
     ) {

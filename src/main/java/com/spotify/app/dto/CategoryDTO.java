@@ -10,4 +10,7 @@ public record CategoryDTO(Integer id,
                           String thumbnailPath,
                           Set<PlaylistResponse> playlists
 ) {
+    public CategoryDTO(Integer id) {
+        this(id, null, false, null, null, null);
+    }
 }

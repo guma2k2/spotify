@@ -40,7 +40,7 @@ public class CategoryService {
 
     public Set<CategoryDTO> listParent() {
         Set<Category> categories = categoryRepository.listAllParent();
-        return CategoryMapper.INSTANCE.categoriesToCategoriesDTO(categories);
+        return categoryMapper.categoriesToCategoriesDTO(categories);
     }
 
     public Set<CategoryDTO> listByParentId(Integer parentId) {
@@ -52,7 +52,7 @@ public class CategoryService {
         return categoryRepository.
                 findById(cateId).
                 orElseThrow(() ->
-                        new ResourceNotFoundException(String.format("category with id not found", cateId)));
+                        new ResourceNotFoundException(String.format("category with id %d not found", cateId)));
     }
 
     public Set<CategoryDTO>  findCategoryNameHome() {
@@ -75,25 +75,30 @@ public class CategoryService {
     }
 
     private void checkCategoryExitByTitle(String title) {
-        boolean check = categoryRepository.findByTitle(title).isPresent();
-        if(check) {
-            throw new DuplicateResourceException(String.format("category with title : [%s] existed" , title));
-        }
+
     }
 
     @Transactional
-    public void updateCategory(
-                               Integer categoryId,
-                               String title,
-                               String categoryParentTitle
+    public void updateCategory( Integer categoryId, String title, String categoryParentTitle
     ) {
-        Category underUpdate = get(categoryId);
+        Category underUpdate = categoryRepository.
+                findById(categoryId).
+                orElseThrow(() ->
+                        new ResourceNotFoundException(String.format("category with id %d not found", categoryId)));
 
-        checkCategoryExitByTitleWhenUpdate(underUpdate, title);
+        boolean check = categoryRepository.findByTitle(title).isPresent();
+        if (check && !underUpdate.getTitle().equals(title)) {
+            throw new DuplicateResourceException(String.format("category with title : [%s] existed" , title));
+        }
         underUpdate.setTitle(title);
 
         if(categoryParentTitle != null) {
-            Category parent = getByTitle(categoryParentTitle);
+            Category parent = categoryRepository.
+                    findByTitle(title).
+                    orElseThrow(() ->
+                            new ResourceNotFoundException(
+                                    String.format("category with title: %s not found", title)
+                            ));
             underUpdate.setCategoryParent(parent);
         }
         categoryRepository.save(underUpdate);
@@ -101,16 +106,21 @@ public class CategoryService {
 
 
     @Transactional
-    public void addCategory(
-                    String title,
-                    String categoryParentTitle
-    ) {
+    public void addCategory(String title, String categoryParentTitle) {
         Category underSave = new Category();
-        checkCategoryExitByTitle(title);
+        boolean check = categoryRepository.findByTitle(title).isPresent();
+        if(check) {
+            throw new DuplicateResourceException(String.format("category with title : [%s] existed" , title));
+        }
         underSave.setTitle(title);
 
         if(categoryParentTitle != null) {
-            Category parent = getByTitle(categoryParentTitle);
+            Category parent = categoryRepository.
+                    findByTitle(title).
+                    orElseThrow(() ->
+                            new ResourceNotFoundException(
+                                    String.format("category with title: %s not found", title)
+                            ));
             underSave.setCategoryParent(parent);
         } else {
             underSave.setCategoryParent(null);

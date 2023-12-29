@@ -85,4 +85,13 @@ public class Category {
         }
         return null;
     }
+
+    public Category(Integer id) {
+        this.id = id;
+    }
+
+    public Category(String title) {
+        this.title = title;
+    }
 }
+

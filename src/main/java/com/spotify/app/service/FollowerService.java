@@ -25,13 +25,21 @@ public class FollowerService {
 
     private final UserNoAssMapper userNoAssMapper;
 
-    @Transactional
+    private boolean checkCurrentUserFollowedTargetUser(Long currentUserId, Long targetUserId) {
+        return followerRepository.findByFollowingIdAndFollowedId(currentUserId,targetUserId).isPresent();
+    }
     public void addFollowing(Long currentUserId, Long targetUserId ) {
         if(checkCurrentUserFollowedTargetUser(currentUserId,targetUserId)) {
             return;
         }
-        User I = getUserByUserId(currentUserId);
-        User U = getUserByUserId(targetUserId);
+        User I = userRepository.
+                findById(currentUserId).
+                orElseThrow(() -> new ResourceNotFoundException(String.format("user with id: %d not found", currentUserId)));
+
+        User U = userRepository.
+                findById(targetUserId).
+                orElseThrow(() -> new ResourceNotFoundException(String.format("user with id: %d not found", targetUserId)));
+
         Follower follower = Follower
                 .builder()
                 .followingUser(I)
@@ -60,7 +68,7 @@ public class FollowerService {
         return followings;
     }
 
-    private List<Follower> findFollowingListByUseId(Long userId) {
+    public List<Follower> findFollowingListByUseId(Long userId) {
         return followerRepository.findFollowingListByUserId(userId);
     }
 
@@ -76,8 +84,6 @@ public class FollowerService {
                 orElseThrow(() -> new ResourceNotFoundException(String.format("user with id: %d not found", userId)));
     }
 
-    private boolean checkCurrentUserFollowedTargetUser(Long currentUserId, Long targetUserId) {
-        return followerRepository.findByFollowingIdAndFollowedId(currentUserId,targetUserId).isPresent();
-    }
+
 
 }

@@ -44,13 +44,13 @@ public class PlaylistService {
 
 
 
-    public Playlist findByNameAndUserId(Long userId) {
-        PlaylistUser playlistUser = playlistUserRepository.
-                findByUserIdAndName(userId, playlistNameHasAllLikedSongOfUser).
-                orElseThrow();
-
-        return playlistUser.getPlaylist();
-    }
+//    public Playlist findByNameAndUserId(Long userId) {
+//        PlaylistUser playlistUser = playlistUserRepository.
+//                findByUserIdAndName(userId, playlistNameHasAllLikedSongOfUser).
+//                orElseThrow();
+//
+//        return playlistUser.getPlaylist();
+//    }
 
     public Playlist get(Long playlistId) {
         return playlistRepository
@@ -127,7 +127,6 @@ public class PlaylistService {
         Playlist underUpdate = get(playlistId);
         underUpdate.setDescription(desc);
         underUpdate.setName(name);
-
          playlistRepository.save(underUpdate);
     }
 
@@ -256,32 +255,4 @@ public class PlaylistService {
                         playlistResponseMapper.playlistToPlaylistResponseCustom(playlist,0,null,0)).
                 toList();
     }
-
-    /////////////////////////////////////////////////////////// S3 SERVICE ////////////////////////////////////////////////////////
-
-//    public byte[] getPlaylistImage(Long playlistId) {
-//        Playlist underGet = get(playlistId);
-//        if (underGet.getImage().isEmpty()) {
-//            throw new ResourceNotFoundException(
-//                    "playlist id :[%d] not found image".formatted(playlistId));
-//        }
-//
-//        byte[] playlistImage = s3Service.getObject(
-//                "playlist/image/%d/%s".formatted(playlistId, underGet.getImage())
-//        );
-//        return playlistImage;
-//    }
-//
-//    public byte[] getPlaylistThumbnail(Long playlistId) {
-//        Playlist underGet = get(playlistId);
-//        if (underGet.getThumbnail().isEmpty()) {
-//            throw new ResourceNotFoundException(
-//                    "playlist id :[%d] not found thumbnail".formatted(playlistId));
-//        }
-//
-//        byte[] categoryThumbnail = s3Service.getObject(
-//                "playlist/thumbnail/%d/%s".formatted(playlistId, underGet.getThumbnail())
-//        );
-//        return categoryThumbnail;
-//    }
 }

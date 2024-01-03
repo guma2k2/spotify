@@ -42,7 +42,9 @@ public class Playlist {
     @Builder.Default
     private Set<Category> categories = new HashSet<>() ;
 
-
+    public Playlist(Long playlistId) {
+        this.id = playlistId;
+    }
 
 
     public void addUser(User user) {

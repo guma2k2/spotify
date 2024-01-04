@@ -16,9 +16,10 @@ public class RoleService {
 
 
     private final RoleRepository roleRepository ;
+    private final RoleMapper roleMapper ;
 
     public List<RoleDTO> listAll() {
-        return RoleMapper.INSTANCE.rolesToRolesDTO(roleRepository.findAll());
+        return roleMapper.rolesToRolesDTO(roleRepository.findAll());
     }
 
     public Role findByName(String name) {

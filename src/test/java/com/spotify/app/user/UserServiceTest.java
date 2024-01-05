@@ -1,9 +1,13 @@
 package com.spotify.app.user;
 
 
+import com.spotify.app.dto.RoleDTO;
 import com.spotify.app.dto.UserDTO;
+import com.spotify.app.dto.request.UserRequest;
 import com.spotify.app.dto.response.PlaylistResponse;
+import com.spotify.app.dto.response.UserResponse;
 import com.spotify.app.enums.Gender;
+import com.spotify.app.exception.DuplicateResourceException;
 import com.spotify.app.exception.ResourceNotFoundException;
 import com.spotify.app.mapper.SongResponseMapper;
 import com.spotify.app.mapper.UserMapper;
@@ -16,7 +20,9 @@ import com.spotify.app.repository.PlaylistRepository;
 import com.spotify.app.repository.UserRepository;
 import com.spotify.app.service.*;
 import com.spotify.app.utility.FileUploadUtil;
+import jakarta.validation.constraints.NotBlank;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,6 +31,8 @@ import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -32,6 +40,7 @@ import static org.mockito.Mockito.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -214,37 +223,180 @@ public class UserServiceTest {
         assertThat(expected.size()).isEqualTo(actual.size());
     }
 
-//    @Test
-//    public void canAddUser(){
-//        // given
-//        String email ="example.@gmail.com";
-//        String password = "password";
-//        String firstName = "firstName";
-//        String lastName = "lastName";
-//        String gender = "MALE";
-//        String encodedPassword = "aa1235..//-*/+";
-//
-//        when(passwordEncoder.encode(password)).thenReturn(encodedPassword);
-//
-//        // when
-//        underTest.addUser(firstName,
-//                lastName,
-//                email,
-//                password,
-//                any(),
-//                "ROLE_CUSTOMER",gender);
-//        // then
-//        ArgumentCaptor<User> userArgumentCaptor = ArgumentCaptor.forClass(User.class);
-//
-//        verify(userRepository).save(userArgumentCaptor.capture());
-//
-//        User capturedUser = userArgumentCaptor.getValue();
-//        assertThat(capturedUser.getId()).isNull();
-//        assertThat(capturedUser.getPassword()).isEqualTo(encodedPassword);
-//    }
+    @Test
+    public void canAddUser(){
+        // given
+        String firstName = "firstname";
+        String lastName = "lastname";
+        String email = "email@gmail.com";
+        String password = "passwords";
+        String gender = "MALE";
+        int day = 12;
+        int month = 12;
+        int year = 2002;
+        String roleName = "ROLE_CUSTOMER";
+        UserRequest userRequest = new UserRequest(firstName, lastName, email, password, gender, day, month, year, roleName);
+        Role role =  Role.builder()
+                .id(1)
+                .name("ROLE_CUSTOMER")
+                .build();
+        User savedUser = User.builder()
+                .id(999L)
+                .firstName(firstName)
+                .lastName(lastName)
+                .email(email)
+                .dateOfBrith(LocalDateTime.of(year, month, day,0,0))
+                .password(passwordEncoder.encode(password))
+                .createdOn(LocalDateTime.now())
+                .gender(Gender.valueOf(gender))
+                .role(role)
+                .build();
+        UserResponse expect = new UserResponse(999L, firstName, lastName, firstName+" " + lastName, email, Gender.valueOf(gender), "photo.png", true, "12/12/2002", new RoleDTO(1, "ROLE_CUSTOMER"));
 
+        Mockito.when(userRepository.findByEmail(Mockito.anyString())).thenReturn(Optional.empty());
+        Mockito.when(roleService.findByName(Mockito.anyString())).thenReturn(role);
+        Mockito.when(passwordEncoder.encode(Mockito.anyString())).thenReturn("encodedPassword");
+        Mockito.when(userRepository.save(Mockito.any(User.class))).thenReturn(savedUser);
+        Mockito.when(userResponseMapper.userToUserResponse(savedUser)).thenReturn(expect);
+
+        // when
+        UserResponse actual = underTest.addUser(userRequest);
+
+        // then
+        Mockito.verify(userRepository, Mockito.times(1)).findByEmail(Mockito.anyString());
+        Mockito.verify(roleService, Mockito.times(1)).findByName(Mockito.anyString());
+        Mockito.verify(userRepository, Mockito.times(1)).save(Mockito.any(User.class));
+        Mockito.verify(playlistRepository, Mockito.times(1)).save(Mockito.any(Playlist.class));
+        Mockito.verify(userResponseMapper, Mockito.times(1)).userToUserResponse(savedUser);
+
+        Assertions.assertEquals(expect, actual);
+    }
+
+    @Test
+    public void cannotAddUserWithDuplicateEmail() {
+        // given
+        String firstName = "firstname";
+        String lastName = "lastname";
+        String email = "email@gmail.com";
+        String password = "passwords";
+        String gender = "MALE";
+        int day = 12;
+        int month = 12;
+        int year = 2002;
+        String roleName = "ROLE_CUSTOMER";
+        UserRequest userRequest = new UserRequest(firstName, lastName, email, password, gender, day, month, year, roleName);
+        Role role =  Role.builder()
+                .id(1)
+                .name("ROLE_CUSTOMER")
+                .build();
+        User existingUser = User.builder()
+                .id(999L)
+                .firstName(firstName)
+                .lastName(lastName)
+                .email(email)
+                .dateOfBrith(LocalDateTime.of(year, month, day,0,0))
+                .password(passwordEncoder.encode(password))
+                .createdOn(LocalDateTime.now())
+                .gender(Gender.valueOf(gender))
+                .role(role)
+                .build();;
+
+        Mockito.when(userRepository.findByEmail(Mockito.anyString())).thenReturn(Optional.of(existingUser));
+
+        // when
+        // then
+        Assertions.assertThrows(DuplicateResourceException.class, () -> {
+            underTest.addUser(userRequest);
+        });
+
+        Mockito.verify(userRepository, Mockito.times(1)).findByEmail(Mockito.anyString());
+    }
+
+    @Test
     public void canUpdateUser(){
-        // Todo: update user
+        // given
+        Long userId = 999L;
+        String firstName = "firstname";
+        String updatedFirstName = "updatedFirstname";
+        String lastName = "lastname";
+        String email = "email@gmail.com";
+        String password = "passwords";
+        String gender = "MALE";
+        int day = 12;
+        int month = 12;
+        int year = 2002;
+        String roleName = "ROLE_CUSTOMER";
+        UserRequest userRequest = new UserRequest(updatedFirstName, lastName, email, password, gender, day, month, year, roleName);
+        Role role =  Role.builder()
+                .id(1)
+                .name("ROLE_CUSTOMER")
+                .build();
+        User oldUser = User.builder()
+                .id(userId)
+                .firstName(firstName)
+                .lastName(lastName)
+                .email(email)
+                .dateOfBrith(LocalDateTime.of(year, month, day,0,0))
+                .password(passwordEncoder.encode(password))
+                .createdOn(LocalDateTime.now())
+                .gender(Gender.valueOf(gender))
+                .role(role)
+                .build();
+
+        User updatedUser = User.builder()
+                .id(userId)
+                .firstName(updatedFirstName)
+                .lastName(lastName)
+                .email(email)
+                .dateOfBrith(LocalDateTime.of(year, month, day,0,0))
+                .password(passwordEncoder.encode(password))
+                .createdOn(LocalDateTime.now())
+                .gender(Gender.valueOf(gender))
+                .role(role)
+                .build();
+        UserResponse expect = new UserResponse(userId, firstName, lastName, firstName+" " + lastName, email, Gender.valueOf(gender), "photo.png", true, "12/12/2002", new RoleDTO(1, "ROLE_CUSTOMER"));
+
+        Mockito.when(userRepository.findById(userId)).thenReturn(Optional.of(oldUser));
+        Mockito.when(userRepository.findByEmail(Mockito.anyString())).thenReturn(Optional.empty());
+        Mockito.when(passwordEncoder.encode(Mockito.anyString())).thenReturn("encodedPassword");
+        Mockito.when(roleService.findByName(Mockito.anyString())).thenReturn(role);
+        Mockito.when(userRepository.save(Mockito.any())).thenReturn(updatedUser);
+        Mockito.when(userResponseMapper.userToUserResponse(Mockito.any())).thenReturn(expect);
+
+        // when
+        var actual = underTest.updateUser(userRequest, userId);
+
+        // then
+        Mockito.verify(userRepository, Mockito.times(1)).findById(Mockito.anyLong());
+        Mockito.verify(userRepository, Mockito.times(1)).findByEmail(Mockito.anyString());
+        Mockito.verify(roleService, Mockito.times(1)).findByName(Mockito.anyString());
+        Mockito.verify(userRepository, Mockito.times(1)).save(Mockito.any(User.class));
+        Mockito.verify(userResponseMapper, Mockito.times(1)).userToUserResponse(Mockito.any(User.class));
+        Assertions.assertEquals(expect, actual);
+    }
+
+    @Test
+    public void cannotUpdateUserWithUserIdNotExist () {
+        // given
+        Long userId = 999L;
+        String firstName = "firstname";
+        String updatedFirstName = "updatedFirstname";
+        String lastName = "lastname";
+        String email = "email@gmail.com";
+        String password = "passwords";
+        String gender = "MALE";
+        int day = 12;
+        int month = 12;
+        int year = 2002;
+        String roleName = "ROLE_CUSTOMER";
+        UserRequest userRequest = new UserRequest(updatedFirstName, lastName, email, password, gender, day, month, year, roleName);
+
+        Mockito.when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        Assertions.assertThrows(ResourceNotFoundException.class, () -> {
+           underTest.updateUser(userRequest, userId);
+        });
+        Mockito.verify(userRepository, Mockito.times(1)).findById(Mockito.anyLong());
     }
 
 

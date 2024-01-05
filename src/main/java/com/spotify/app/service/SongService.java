@@ -193,7 +193,9 @@ public class SongService {
     }
 
     public void updateSong(SongRequest request, Long songId) {
-        Song underUpdate = get(songId);
+        Song underUpdate = songRepository.findById(songId).orElseThrow(() ->
+                new ResourceNotFoundException(String.format("song with id:%d not found", songId)));
+
         if(checkSongExitByName(request.name().trim()) && !underUpdate.getName().equals(request.name())) {
             throw new DuplicateResourceException(String.format("song with name: [%s] exited",request.name()));
         }

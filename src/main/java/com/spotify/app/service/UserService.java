@@ -109,8 +109,7 @@ public class UserService {
     }
 
     public UserResponse addUser(UserRequest request) {
-        log.info(String.valueOf(request));
-        if(checkUserExitByEmail(request.email())) {
+        if(userRepository.findByEmail(request.email().trim()).isPresent()) {
             throw new DuplicateResourceException(String.format("email : [%s] is registered", request.email()));
         }
         // get role by roleName
@@ -123,10 +122,10 @@ public class UserService {
                 .dateOfBrith(LocalDateTime.of(request.year(),request.month(),request.day(),0,0))
                 .password(passwordEncoder.encode(request.password()))
                 .createdOn(LocalDateTime.now())
+                .gender(Gender.valueOf(request.gender()))
                 .role(role)
                 .build();
         User savedUser = userRepository.save(underSave);
-        underSave.setGender(Gender.valueOf(request.gender()));
 
         // convert user to userResponseDTO
         UserResponse userResponseDTO=  userResponseMapper.userToUserResponse(savedUser) ;
@@ -139,9 +138,11 @@ public class UserService {
     }
 
     public UserResponse updateUser(UserRequest request, Long userId) {
-        User underUpdate = get(userId);
+        User underUpdate = userRepository.
+                findById(userId).
+                orElseThrow(() -> new ResourceNotFoundException(String.format("user %d not found", userId)));
 
-        if(checkUserExitByEmail(request.email()) && !underUpdate.getEmail().equals(request.email())) {
+        if(userRepository.findByEmail(request.email().trim()).isPresent() && !underUpdate.getEmail().equals(request.email())) {
             throw new DuplicateResourceException(String.format("email : [%s] is existed", request.email()));
         }
 

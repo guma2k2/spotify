@@ -21,6 +21,46 @@
 		<io.jsonwebtoken.jjwt-jackson.version>0.11.5</io.jsonwebtoken.jjwt-jackson.version>
 		<image>thuanvn2002/spotify:latest</image>
 	</properties>
+	<profiles>
+		<profile>
+			<id>unit-tests</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-surefire-plugin</artifactId>
+						<version>3.0.0-M5</version> <!-- Use the latest version -->
+
+						<configuration>
+							<includes>
+								<include>**/*Test.java</include>
+							</includes>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+
+		<profile>
+			<id>integration-tests</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-failsafe-plugin</artifactId>
+						<version>3.0.0-M7</version> <!-- Use the latest version -->
+
+						<configuration>
+							<includes>
+								<include>**/*IT.java</include>
+							</includes>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+
 	<dependencies>
 		<dependency>
 			<groupId>com.cloudinary</groupId>
@@ -196,6 +236,7 @@
 					</to>
 				</configuration>
 			</plugin>
+
 		</plugins>
 
 	</build>

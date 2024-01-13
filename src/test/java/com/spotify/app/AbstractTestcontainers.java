@@ -24,7 +24,7 @@ public abstract class AbstractTestcontainers {
         Flyway flyway = Flyway
                 .configure()
                 .dataSource(
-                        mySQLContainer.getJdbcUrl(),
+                        mySQLContainer.getJdbcUrl().concat("?autoReconnect=true&useSSL=false"),
                         mySQLContainer.getUsername(),
                         mySQLContainer.getPassword()
                 ).load();
@@ -40,9 +40,9 @@ public abstract class AbstractTestcontainers {
 
     @DynamicPropertySource
     static void dynamicProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", mySQLContainer::getJdbcUrl);
+        String jdbcUrl = mySQLContainer.getJdbcUrl().concat("?autoReconnect=true&useSSL=false");
+        registry.add("spring.datasource.url", () -> jdbcUrl);
         registry.add("spring.datasource.username", mySQLContainer::getUsername);
-        registry.add("spring.datasource.password", mySQLContainer::getPassword);
     }
 
 //    @BeforeAll

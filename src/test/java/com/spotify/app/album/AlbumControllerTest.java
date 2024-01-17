@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spotify.app.controller.AlbumController;
 import com.spotify.app.dto.AlbumDTO;
 import com.spotify.app.dto.request.AlbumRequest;
+import com.spotify.app.model.User;
+import com.spotify.app.security.auth.AuthUserDetails;
 import com.spotify.app.service.AlbumService;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,12 +19,15 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 
-import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(
@@ -61,28 +66,33 @@ public class AlbumControllerTest {
                 .andExpect(jsonPath("$", Matchers.notNullValue(AlbumDTO.class)))
                 .andExpect(jsonPath("$.name", Matchers.is(albumDTO.name())))
                 .andExpect(jsonPath("$.releaseDate", Matchers.is(albumDTO.releaseDate())));
-
     }
 
     // save album
     @Test
     void canAddAlbumByArtistId () throws Exception {
-        // given
-        Long userId = 1L;
+        // Mock data
         String albumName = "album_name";
-        AlbumRequest request = new AlbumRequest(albumName);
-        Long albumIdResponse = 1L;
+        AlbumRequest request = new AlbumRequest(albumName); // Provide necessary data for the album request
+        Long savedAlbumId = 1L;
         AlbumDTO savedAlbum = new AlbumDTO(1L, request.name(),"", null, "", "", 0,"", true, null);
-        // when
-        when(albumService.addAlbum(userId, request)).thenReturn(albumIdResponse);
-        when(albumService.findById(albumIdResponse)).thenReturn(savedAlbum) ;
-        // then
-        String urlPostAlbum = String.format("/api/v1/album/%d/add", userId);
-        this.mockMvc.perform(post(urlPostAlbum)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+        // Mock behavior of the service
+        when(albumService.addAlbum(any(AuthUserDetails.class), any(AlbumRequest.class))).thenReturn(savedAlbumId);
+        when(albumService.findById(savedAlbumId)).thenReturn(savedAlbum); // Provide necessary data for the response
+
+        // Perform the request and verify the result
+        mockMvc.perform(post("/api/v1/album")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request))
+                        .with(user("username")) // Set the username for authentication
+                )
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", Matchers.is(1)));
+                .andExpect(jsonPath("$.id").value(savedAlbumId));
+//                .andExpect(jsonPath("$.someProperty").value("someValue"));
+
+        // Verify that the service method was called
+        verify(albumService, times(1)).addAlbum(any(AuthUserDetails.class), any(AlbumRequest.class));
+        verify(albumService, times(1)).findById(savedAlbumId);
 
     }
 

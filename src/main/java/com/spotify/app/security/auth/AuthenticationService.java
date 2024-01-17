@@ -61,8 +61,9 @@ public class AuthenticationService {
                 .build();
         playlist.addUser(savedUser);
         playlistRepository.save(playlist);
-        var jwtToken = jwtService.generateToken(user);
-        var refreshToken = jwtService.generateRefreshToken(user);
+        AuthUserDetails authUserDetails = new AuthUserDetails(savedUser);
+        var jwtToken = jwtService.generateToken(authUserDetails);
+        var refreshToken = jwtService.generateRefreshToken(authUserDetails);
         return AuthenticationResponse.builder()
                 .accessToken(jwtToken)
                 .refreshToken(refreshToken)
@@ -81,8 +82,9 @@ public class AuthenticationService {
         User user = userRepository.findByEmail(request.email())
                 .orElseThrow(() -> new ResourceNotFoundException("User cannot be found by email"));
 
-        var jwtToken = jwtService.generateToken(user);
-        var refreshToken = jwtService.generateRefreshToken(user);
+        AuthUserDetails authUserDetails = new AuthUserDetails(user);
+        var jwtToken = jwtService.generateToken(authUserDetails);
+        var refreshToken = jwtService.generateRefreshToken(authUserDetails);
         return AuthenticationResponse.builder()
                 .accessToken(jwtToken)
                 .refreshToken(refreshToken)
@@ -108,8 +110,9 @@ public class AuthenticationService {
             User user = userRepository.findByEmail(userEmail)
                     .orElseThrow(() ->
                             new ResourceNotFoundException(String.format("The user with email: %s was not found", userEmail)));
-            if (jwtService.isTokenValid(refreshToken, user)) {
-                var accessToken = jwtService.generateToken(user);
+            AuthUserDetails authUserDetails = new AuthUserDetails(user);
+            if (jwtService.isTokenValid(refreshToken, authUserDetails)) {
+                var accessToken = jwtService.generateToken(authUserDetails);
                 authResponse = AuthenticationResponse.builder()
                         .accessToken(accessToken)
                         .refreshToken(refreshToken)

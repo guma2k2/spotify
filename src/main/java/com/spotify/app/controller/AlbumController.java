@@ -5,12 +5,18 @@ import com.spotify.app.dto.AlbumDTO;
 import com.spotify.app.dto.request.AlbumRequest;
 import com.spotify.app.dto.response.AlbumResponse;
 import com.spotify.app.model.Album;
+import com.spotify.app.model.User;
+import com.spotify.app.security.auth.AuthUserDetails;
 import com.spotify.app.service.AlbumService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -19,6 +25,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/album")
 @AllArgsConstructor
+@Slf4j
 public class AlbumController {
     private final AlbumService albumService ;
 
@@ -70,12 +77,12 @@ public class AlbumController {
     }
 
 
-    @PostMapping("/{userId}/add")
-    public ResponseEntity<?> addAlbumByUserId(
-            @PathVariable("userId") Long userID,
-            @Valid @RequestBody AlbumRequest request
+    @PostMapping
+    public ResponseEntity<?> saveAlbum(
+            @Valid @RequestBody AlbumRequest request,
+            @AuthenticationPrincipal AuthUserDetails authUserDetails
     ) {
-        Long savedAlbumId = albumService.addAlbum(userID,request);
+        Long savedAlbumId = albumService.addAlbum(authUserDetails,request);
         return ResponseEntity.ok().body(albumService.findById(savedAlbumId));
     }
 
@@ -100,28 +107,6 @@ public class AlbumController {
     public AlbumResponse findByIdByAdmin(@PathVariable("id") Long id) {
         return albumService.findByIdByAdmin(id);
     }
-
-
-    //////////////////////////////////////////////// S3 SERVICE ////////////////////////////////////////////////////////
-
-//    @GetMapping(
-//            value = "/view/image/{albumId}",
-//            produces = {MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE}
-//    )
-//    public ResponseEntity<?> viewImage(@PathVariable("albumId") Long albumId) {
-//        return ResponseEntity.ok()
-//                .body(albumService.getAlbumImage(albumId));
-//    }
-//
-//    @GetMapping(
-//            value = "/view/thumbnail/{albumId}",
-//            produces = {MediaType.IMAGE_PNG_VALUE,MediaType.IMAGE_JPEG_VALUE}
-//    )
-//    public ResponseEntity<?> viewThumbnail(@PathVariable("albumId") Long albumId) {
-//        return ResponseEntity.ok()
-//                .body(albumService.getAlbumThumbnail(albumId));
-//    }
-
 
 
 

@@ -18,6 +18,7 @@ import com.spotify.app.repository.AlbumRepository;
 import com.spotify.app.repository.AlbumSongRepository;
 import com.spotify.app.repository.SongRepository;
 import com.spotify.app.repository.UserRepository;
+import com.spotify.app.security.auth.AuthUserDetails;
 import com.spotify.app.service.AlbumService;
 import com.spotify.app.service.CloudinaryService;
 import org.junit.jupiter.api.BeforeEach;
@@ -222,39 +223,16 @@ public class AlbumServiceTest {
         Long albumId= 1L;
         AlbumRequest request = new AlbumRequest("album_name");
         Album album1 = new Album(albumId,"album_name");
-        User user1 = new User(userId);
-
+        User author = new User(userId);
+        AuthUserDetails authUserDetails = new AuthUserDetails(author);
         // when
-        Mockito.when(userRepository.findById(userId)).thenReturn(Optional.of(user1));
         Mockito.when(albumRequestMapper.dtoToEntity(request)).thenReturn(album1);
         Mockito.when(albumRepository.save(album1)).thenReturn(album1);
-        var actualId = albumService.addAlbum(userId, request);
+        var actualId = albumService.addAlbum(authUserDetails, request);
 
         // then
         assertEquals(actualId, albumId);
-        Mockito.verify(userRepository, Mockito.times(1)).findById(userId);
         Mockito.verify(albumRepository, Mockito.times(1)).save(Mockito.any(Album.class));
-    }
-
-    @Test
-    public void cannotAddAlbumWithNonexistentUser() {
-        // Sample data
-        Long userId = 1L;
-        String albumName = "albumName";
-        AlbumRequest albumRequest = new AlbumRequest(albumName);
-
-        // Mocking the UserRepository response
-        Mockito.when(userRepository.findById(userId)).thenReturn(Optional.empty());
-
-        // Calling the service method and expecting an exception
-        assertThrows(ResourceNotFoundException.class, () -> {
-            albumService.addAlbum(userId, albumRequest);
-        });
-
-        // Verifying that the repository methods were called
-        Mockito.verify(userRepository, Mockito.times(1)).findById(userId);
-        Mockito.verify(albumRequestMapper, Mockito.never()).dtoToEntity(Mockito.any(AlbumRequest.class));
-        Mockito.verify(albumRepository, Mockito.never()).save(Mockito.any(Album.class));
     }
     // remove album
     @Test

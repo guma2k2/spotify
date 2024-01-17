@@ -4,6 +4,7 @@ package com.spotify.app.journey;
 import com.github.javafaker.Faker;
 import com.spotify.app.AbstractTestcontainers;
 import com.spotify.app.model.User;
+import com.spotify.app.security.auth.AuthUserDetails;
 import com.spotify.app.security.auth.AuthenticationRequest;
 import com.spotify.app.security.auth.AuthenticationResponse;
 import com.spotify.app.security.auth.RegisterRequest;
@@ -92,10 +93,11 @@ public class AuthenticationIT  {
 
         // then
         User user = userService.get(authResponse.getUser().id());
+        AuthUserDetails userDetails = new AuthUserDetails(user);
         log.info(String.valueOf(response));
 
-        assertThat(jwtService.isTokenValid(response.getRefreshToken(),user)).isTrue();
-        assertThat(jwtService.isTokenValid(response.getAccessToken(),user)).isTrue();
+        assertThat(jwtService.isTokenValid(response.getRefreshToken(),userDetails)).isTrue();
+        assertThat(jwtService.isTokenValid(response.getAccessToken(),userDetails)).isTrue();
     }
     // login fail return exception
 

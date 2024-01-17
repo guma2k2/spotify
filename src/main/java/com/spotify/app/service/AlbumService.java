@@ -13,6 +13,7 @@ import com.spotify.app.repository.AlbumRepository;
 import com.spotify.app.repository.AlbumSongRepository;
 import com.spotify.app.repository.SongRepository;
 import com.spotify.app.repository.UserRepository;
+import com.spotify.app.security.auth.AuthUserDetails;
 import com.spotify.app.utility.FileUploadUtil;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
@@ -141,13 +142,16 @@ public class AlbumService {
     }
 
 
-    public Long addAlbum(Long userId, AlbumRequest request) {
-        User user = userRepository.
-                findById(userId).
-                orElseThrow(() -> new ResourceNotFoundException(String.format("user %d not found", userId)));
+    public Long addAlbum(AuthUserDetails authUserDetails, AlbumRequest request) {
+        if (authUserDetails == null) {
+            throw new ResourceNotFoundException("cannot find the user");
+        }
+        User author = User.builder()
+                .id(authUserDetails.getUserId())
+                .build();
         Album album = albumRequestMapper.dtoToEntity(request);
         album.setReleaseDate(LocalDateTime.now());
-        album.setUser(user);
+        album.setUser(author);
         Album savedAlbum = albumRepository.save(album);
         return savedAlbum.getId();
     }

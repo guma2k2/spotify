@@ -167,12 +167,14 @@ public class PlaylistService {
 
     public Long addSongToLikedPlaylist(Long userId,Long songId) {
         PlaylistUser playlistUser = playlistUserRepository.
-                findByUserIdAndName(userId,playlistNameHasAllLikedSongOfUser).
+                findByUserIdAndName(userId, playlistNameHasAllLikedSongOfUser).
                 orElseThrow();
         Playlist playlist = playlistUser.getPlaylist();
         Song song = songService.get(songId);
 
         playlist.addSong(song);
+
+        playlistRepository.saveAndFlush(playlist);
 
         return playlist.getId();
     }

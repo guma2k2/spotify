@@ -9,6 +9,8 @@ import com.spotify.app.model.User;
 import com.spotify.app.security.auth.AuthUserDetails;
 import com.spotify.app.service.AlbumService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,12 +32,20 @@ public class AlbumController {
     private final AlbumService albumService ;
 
     @GetMapping("/{id}")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "404", description = "not found"),
+            @ApiResponse(responseCode = "200", description = "get album successfully"),
+    })
     public AlbumDTO findById(@PathVariable("id") Long id) {
         return albumService.findById(id);
     }
 
 
     @PostMapping("/upload/image/{albumId}")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "404", description = "album not found"),
+            @ApiResponse(responseCode = "200", description = "save album image successfully"),
+    })
     public ResponseEntity<?> uploadImage(
             @RequestParam("image") MultipartFile image,
             @PathVariable("albumId") Long albumId
@@ -45,6 +55,10 @@ public class AlbumController {
     }
 
     @PostMapping("/upload/thumbnail/{albumId}")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "404", description = "album not found"),
+            @ApiResponse(responseCode = "200", description = "save thumbnail successfully"),
+    })
     public ResponseEntity<?> uploadThumbnail(
             @RequestParam("thumbnail") MultipartFile thumbnail,
             @PathVariable("albumId") Long albumId
@@ -54,6 +68,7 @@ public class AlbumController {
     }
 
     @GetMapping("/{albumId}/add/{songId}")
+    @ApiResponse(responseCode = "404", description = "not found")
     public ResponseEntity<?> addSongToAlbum(
             @PathVariable("albumId") Long albumId,
             @PathVariable("songId") Long songId
@@ -63,6 +78,7 @@ public class AlbumController {
     }
 
     @GetMapping("/{albumId}/remove/{songId}")
+    @ApiResponse(responseCode = "404", description = "not found")
     public ResponseEntity<?> removeSongFromAlbum(
             @PathVariable("albumId") Long albumId,
             @PathVariable("songId") Long songId
@@ -78,6 +94,10 @@ public class AlbumController {
 
 
     @PostMapping
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "404", description = "author not found"),
+            @ApiResponse(responseCode = "200", description = "save album successfully"),
+    })
     public ResponseEntity<?> saveAlbum(
             @Valid @RequestBody AlbumRequest request,
             @AuthenticationPrincipal AuthUserDetails authUserDetails
@@ -88,6 +108,10 @@ public class AlbumController {
 
 
     @PutMapping("/update/{albumId}")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "404", description = "album not found"),
+            @ApiResponse(responseCode = "200", description = "update album successfully"),
+    })
     public ResponseEntity<?> updateAlbum(
         @PathVariable("albumId") Long albumId,
         @Valid @RequestBody AlbumRequest request
@@ -97,6 +121,10 @@ public class AlbumController {
     }
 
     @PutMapping("/update/status/{albumId}")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "404", description = "album not found"),
+            @ApiResponse(responseCode = "200", description = "update album status successfully"),
+    })
     public ResponseEntity<?> updateStatusAlbum(
             @PathVariable("albumId") Long albumId
     ) {
